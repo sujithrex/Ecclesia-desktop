@@ -6,6 +6,13 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import AdultBaptismCertificate from './pages/reports/AdultBaptismCertificate';
+import InfantBaptismCertificate from './pages/reports/InfantBaptismCertificate';
+import BurialCertificate from './pages/reports/BurialCertificate';
+import SabaiJabitha from './pages/reports/SabaiJabitha';
+import WeddingList from './pages/reports/WeddingList';
+import BirthdayList from './pages/reports/BirthdayList';
+import LetterHead from './pages/reports/LetterHead';
 import './App.css';
 
 function App() {
@@ -62,6 +69,62 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/adult-baptism-certificate"
+            element={
+              <ProtectedRoute>
+                <AdultBaptismCertificate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/infant-baptism-certificate"
+            element={
+              <ProtectedRoute>
+                <InfantBaptismCertificate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/burial-certificate"
+            element={
+              <ProtectedRoute>
+                <BurialCertificate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/sabai-jabitha"
+            element={
+              <ProtectedRoute>
+                <SabaiJabitha />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/wedding-list"
+            element={
+              <ProtectedRoute>
+                <WeddingList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/birthday-list"
+            element={
+              <ProtectedRoute>
+                <BirthdayList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/letter-head"
+            element={
+              <ProtectedRoute>
+                <LetterHead />
               </ProtectedRoute>
             }
           />

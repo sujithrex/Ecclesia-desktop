@@ -1,0 +1,1305 @@
+// Install: npm install puppeteer
+
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+
+async function generateTamilPDF() {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        @font-face {
+          font-family: 'Vijaya';
+          src: url('./Vijaya.ttf') format('truetype');
+        }
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          width: 210.00mm;
+          height: 297.00mm;
+          position: relative;
+          overflow: hidden;
+        }
+        .text-frame {
+          position: absolute;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .text-content {
+          width: 100%;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        .shape {
+          position: absolute;
+        }
+        .line {
+          position: absolute;
+        }
+        .table-cell {
+          position: absolute;
+          overflow: hidden;
+        }
+        .image-frame {
+          position: absolute;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="text-frame" style="
+        left: 163.63mm;
+        top: 132.48mm;
+        width: 33.47mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Tenkasi</div>
+      </div>
+      <div class="text-frame" style="
+        left: 163.63mm;
+        top: 124.94mm;
+        width: 33.47mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Tenkasi</div>
+      </div>
+      <div class="text-frame" style="
+        left: 113.18mm;
+        top: 132.48mm;
+        width: 50.45mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">VLSI Er</div>
+      </div>
+      <div class="text-frame" style="
+        left: 113.18mm;
+        top: 124.94mm;
+        width: 50.45mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Catechist</div>
+      </div>
+      <div class="text-frame" style="
+        left: 74.30mm;
+        top: 132.48mm;
+        width: 38.88mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Wife</div>
+      </div>
+      <div class="text-frame" style="
+        left: 74.30mm;
+        top: 124.94mm;
+        width: 38.88mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Family Head</div>
+      </div>
+      <div class="text-frame" style="
+        left: 58.38mm;
+        top: 132.48mm;
+        width: 16.10mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">17</div>
+      </div>
+      <div class="text-frame" style="
+        left: 58.38mm;
+        top: 124.94mm;
+        width: 16.10mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">18</div>
+      </div>
+      <div class="text-frame" style="
+        left: 15.43mm;
+        top: 132.48mm;
+        width: 41.15mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mrs. Remina</div>
+      </div>
+      <div class="text-frame" style="
+        left: 15.43mm;
+        top: 124.94mm;
+        width: 41.15mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mr. Sujith </div>
+      </div>
+      <div class="text-frame" style="
+        left: 139.80mm;
+        top: 99.80mm;
+        width: 56.00mm;
+        height: 14.20mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 10.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Good Health for the Family. Prayers for the Studies </div>
+      </div>
+      <div class="text-frame" style="
+        left: 139.80mm;
+        top: 93.17mm;
+        width: 56.00mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">SAKTHI NAGAR</div>
+      </div>
+      <div class="text-frame" style="
+        left: 163.63mm;
+        top: 115.02mm;
+        width: 33.48mm;
+        height: 7.58mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Working Place</div>
+      </div>
+      <div class="text-frame" style="
+        left: 113.53mm;
+        top: 114.95mm;
+        width: 50.09mm;
+        height: 7.65mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Occupation</div>
+      </div>
+      <div class="text-frame" style="
+        left: 74.30mm;
+        top: 114.90mm;
+        width: 39.05mm;
+        height: 7.70mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Relationship</div>
+      </div>
+      <div class="text-frame" style="
+        left: 58.56mm;
+        top: 114.90mm;
+        width: 15.75mm;
+        height: 7.87mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Age</div>
+      </div>
+      <div class="text-frame" style="
+        left: 14.98mm;
+        top: 114.95mm;
+        width: 43.22mm;
+        height: 7.65mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Name</div>
+      </div>
+      <div class="text-frame" style="
+        left: 48.98mm;
+        top: 99.55mm;
+        width: 51.00mm;
+        height: 14.45mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 11.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">North Street,Tenkasi</div>
+      </div>
+      <div class="text-frame" style="
+        left: 48.98mm;
+        top: 92.92mm;
+        width: 51.00mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mr. SUJITH</div>
+      </div>
+      <div class="text-frame" style="
+        left: 139.80mm;
+        top: 86.55mm;
+        width: 55.82mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">7538812218</div>
+      </div>
+      <div class="text-frame" style="
+        left: 48.98mm;
+        top: 86.30mm;
+        width: 51.00mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">TNZN-A1-222</div>
+      </div>
+      <div class="text-frame" style="
+        left: 104.80mm;
+        top: 99.80mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Prayer Points :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 105.05mm;
+        top: 93.17mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Area :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 13.98mm;
+        top: 99.55mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Address :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 13.98mm;
+        top: 92.92mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Family Head :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 105.05mm;
+        top: 86.55mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mobile Number :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 13.98mm;
+        top: 86.30mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Family Number :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 163.65mm;
+        top: 76.48mm;
+        width: 33.47mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Tenkasi</div>
+      </div>
+      <div class="text-frame" style="
+        left: 163.65mm;
+        top: 68.94mm;
+        width: 33.47mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Tenkasi</div>
+      </div>
+      <div class="text-frame" style="
+        left: 113.20mm;
+        top: 76.48mm;
+        width: 50.45mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">VLSI Er</div>
+      </div>
+      <div class="text-frame" style="
+        left: 113.20mm;
+        top: 68.94mm;
+        width: 50.45mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Catechist</div>
+      </div>
+      <div class="text-frame" style="
+        left: 74.32mm;
+        top: 76.48mm;
+        width: 38.88mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Wife</div>
+      </div>
+      <div class="text-frame" style="
+        left: 74.32mm;
+        top: 68.94mm;
+        width: 38.88mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Family Head</div>
+      </div>
+      <div class="text-frame" style="
+        left: 58.40mm;
+        top: 76.48mm;
+        width: 16.10mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">17</div>
+      </div>
+      <div class="text-frame" style="
+        left: 58.40mm;
+        top: 68.94mm;
+        width: 16.10mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">18</div>
+      </div>
+      <div class="text-frame" style="
+        left: 15.45mm;
+        top: 76.48mm;
+        width: 41.15mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mrs. Remina</div>
+      </div>
+      <div class="text-frame" style="
+        left: 15.45mm;
+        top: 68.94mm;
+        width: 41.15mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mr. Sujith </div>
+      </div>
+      <div class="text-frame" style="
+        left: 139.82mm;
+        top: 43.80mm;
+        width: 56.00mm;
+        height: 14.20mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 10.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Good Health for the Family. Prayers for the Studies </div>
+      </div>
+      <div class="text-frame" style="
+        left: 35.13mm;
+        top: 14.48mm;
+        width: 139.39mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Diocese of Tirunelveli - Tenkasi North Zion Nagar Pastorate</div>
+      </div>
+      <div class="text-frame" style="
+        left: 36.61mm;
+        top: 20.95mm;
+        width: 139.39mm;
+        height: 5.56mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Birthday List - From 29.09 to 03.10</div>
+      </div>
+      <div class="text-frame" style="
+        left: 139.82mm;
+        top: 37.17mm;
+        width: 56.00mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">SAKTHI NAGAR</div>
+      </div>
+      <div class="text-frame" style="
+        left: 163.65mm;
+        top: 59.02mm;
+        width: 33.48mm;
+        height: 7.58mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Working Place</div>
+      </div>
+      <div class="text-frame" style="
+        left: 113.55mm;
+        top: 58.95mm;
+        width: 50.09mm;
+        height: 7.65mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Occupation</div>
+      </div>
+      <div class="text-frame" style="
+        left: 74.32mm;
+        top: 58.90mm;
+        width: 39.05mm;
+        height: 7.70mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Relationship</div>
+      </div>
+      <div class="text-frame" style="
+        left: 58.58mm;
+        top: 58.90mm;
+        width: 15.75mm;
+        height: 7.87mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: center;
+        ">Age</div>
+      </div>
+      <div class="text-frame" style="
+        left: 15.00mm;
+        top: 58.95mm;
+        width: 43.22mm;
+        height: 7.65mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Name</div>
+      </div>
+      <div class="text-frame" style="
+        left: 49.00mm;
+        top: 43.55mm;
+        width: 51.00mm;
+        height: 14.45mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 11.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">North Street,Tenkasi</div>
+      </div>
+      <div class="text-frame" style="
+        left: 49.00mm;
+        top: 36.92mm;
+        width: 51.00mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mr. SUJITH</div>
+      </div>
+      <div class="text-frame" style="
+        left: 139.82mm;
+        top: 30.55mm;
+        width: 55.82mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">7538812218</div>
+      </div>
+      <div class="text-frame" style="
+        left: 49.00mm;
+        top: 30.30mm;
+        width: 51.00mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">TNZN-A1-222</div>
+      </div>
+      <div class="text-frame" style="
+        left: 104.82mm;
+        top: 43.80mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Prayer Points :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 105.07mm;
+        top: 37.17mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Area :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 14.00mm;
+        top: 43.55mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Address :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 14.00mm;
+        top: 36.92mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Family Head :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 105.07mm;
+        top: 30.55mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Mobile Number :</div>
+      </div>
+      <div class="text-frame" style="
+        left: 14.00mm;
+        top: 30.30mm;
+        width: 31.20mm;
+        height: 4.50mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Vijaya';
+          color: #000000;
+          text-align: left;
+        ">Family Number :</div>
+      </div>
+      <div class="shape" style="
+        left: 12.88mm;
+        top: 12.70mm;
+        width: 184.60mm;
+        height: 271.60mm;
+        border: 0.35mm solid #000000;
+      "></div>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="12.86mm" y1="138.82mm" x2="197.10mm" y2="138.82mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="163.80mm" y1="114.63mm" x2="163.80mm" y2="138.76mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="113.36mm" y1="114.60mm" x2="113.36mm" y2="139.00mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="74.48mm" y1="114.48mm" x2="74.48mm" y2="138.88mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="58.38mm" y1="114.53mm" x2="58.38mm" y2="138.76mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="12.70mm" y1="122.78mm" x2="197.10mm" y2="122.78mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="12.70mm" y1="114.73mm" x2="197.10mm" y2="114.73mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="12.88mm" y1="82.82mm" x2="197.12mm" y2="82.82mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="163.82mm" y1="58.63mm" x2="163.82mm" y2="82.76mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="113.38mm" y1="58.60mm" x2="113.38mm" y2="83.00mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="74.50mm" y1="58.48mm" x2="74.50mm" y2="82.88mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="58.40mm" y1="58.53mm" x2="58.40mm" y2="82.76mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="13.04mm" y1="66.78mm" x2="197.12mm" y2="66.78mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="13.02mm" y1="58.73mm" x2="197.12mm" y2="58.73mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+      <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="12.92mm" y1="28.00mm" x2="197.12mm" y2="28.00mm" stroke="#000000" stroke-width="0.35mm" />
+      </svg>
+    </body>
+    </html>
+  `;
+
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+
+  await page.pdf({
+    path: 'tamil-output.pdf',
+    width: '210.00mm',
+    height: '297.00mm',
+    printBackground: true,
+    preferCSSPageSize: true,
+    margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' }
+  });
+
+  await browser.close();
+  console.log('PDF generated successfully!');
+}
+
+generateTamilPDF().catch(console.error);

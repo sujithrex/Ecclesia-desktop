@@ -27,7 +27,14 @@ const {
   createBurialRegister,
   updateBurialRegister,
   deleteBurialRegister,
-  getNextBurialRegisterNumber
+  getNextBurialRegisterNumber,
+  getAllLetterheads,
+  getLetterheadById,
+  getLetterheadsByChurch,
+  createLetterhead,
+  updateLetterhead,
+  deleteLetterhead,
+  getNextLetterheadNumber
 } = require('./backend/database');
 const {
   login,
@@ -40,6 +47,7 @@ const {
   generateInfantBaptismPDF,
   generateAdultBaptismPDF,
   generateBurialRegisterPDF,
+  generateLetterheadPDF,
   openPDF
 } = require('./backend/pdfGenerator');
 
@@ -438,6 +446,106 @@ app.whenReady().then(async () => {
 
       // Generate PDF
       const pdfPath = await generateBurialRegisterPDF(register, church);
+
+      // Open PDF
+      await openPDF(pdfPath);
+
+      return { success: true, data: { pdfPath } };
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  // Letterhead handlers
+  ipcMain.handle('letterhead:getAll', async () => {
+    try {
+      const letterheads = await getAllLetterheads();
+      return { success: true, data: letterheads };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch letterheads' };
+    }
+  });
+
+  ipcMain.handle('letterhead:getById', async (event, { id }) => {
+    try {
+      const letterhead = await getLetterheadById(id);
+      if (letterhead) {
+        return { success: true, data: letterhead };
+      }
+      return { success: false, message: 'Letterhead not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch letterhead' };
+    }
+  });
+
+  ipcMain.handle('letterhead:getByChurch', async (event, { churchId }) => {
+    try {
+      const letterheads = await getLetterheadsByChurch(churchId);
+      return { success: true, data: letterheads };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch letterheads' };
+    }
+  });
+
+  ipcMain.handle('letterhead:create', async (event, letterheadData) => {
+    try {
+      const newLetterhead = await createLetterhead(letterheadData);
+      return { success: true, data: newLetterhead };
+    } catch (error) {
+      return { success: false, message: 'Failed to create letterhead' };
+    }
+  });
+
+  ipcMain.handle('letterhead:update', async (event, { id, updates }) => {
+    try {
+      const updatedLetterhead = await updateLetterhead(id, updates);
+      if (updatedLetterhead) {
+        return { success: true, data: updatedLetterhead };
+      }
+      return { success: false, message: 'Letterhead not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update letterhead' };
+    }
+  });
+
+  ipcMain.handle('letterhead:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteLetterhead(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Letterhead not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete letterhead' };
+    }
+  });
+
+  ipcMain.handle('letterhead:getNextNumber', async (event, { churchId }) => {
+    try {
+      const nextNumber = await getNextLetterheadNumber(churchId);
+      return { success: true, data: nextNumber };
+    } catch (error) {
+      return { success: false, message: 'Failed to get next letterhead number' };
+    }
+  });
+
+  ipcMain.handle('letterhead:generatePDF', async (event, { letterheadId }) => {
+    try {
+      // Get letterhead data
+      const letterhead = await getLetterheadById(letterheadId);
+      if (!letterhead) {
+        return { success: false, message: 'Letterhead not found' };
+      }
+
+      // Get church data if available
+      let church = null;
+      if (letterhead.church_id) {
+        church = await getChurchById(letterhead.church_id);
+      }
+
+      // Generate PDF
+      const pdfPath = await generateLetterheadPDF(letterhead, church);
 
       // Open PDF
       await openPDF(pdfPath);

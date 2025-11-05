@@ -48,6 +48,16 @@ contextBridge.exposeInMainWorld('electron', {
     getNextNumber: (churchId) => ipcRenderer.invoke('burialRegister:getNextNumber', { churchId }),
     generatePDF: (certificateId) => ipcRenderer.invoke('burialRegister:generatePDF', { certificateId })
   },
+  letterhead: {
+    getAll: () => ipcRenderer.invoke('letterhead:getAll'),
+    getById: (id) => ipcRenderer.invoke('letterhead:getById', { id }),
+    getByChurch: (churchId) => ipcRenderer.invoke('letterhead:getByChurch', { churchId }),
+    create: (letterheadData) => ipcRenderer.invoke('letterhead:create', letterheadData),
+    update: (id, updates) => ipcRenderer.invoke('letterhead:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('letterhead:delete', { id }),
+    getNextNumber: (churchId) => ipcRenderer.invoke('letterhead:getNextNumber', { churchId }),
+    generatePDF: (letterheadId) => ipcRenderer.invoke('letterhead:generatePDF', { letterheadId })
+  },
   window: {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),

@@ -115,6 +115,18 @@
       margin: 0;
       padding: 0;
     }
+    /* Text content styling for rev name, designation, and address */
+    .text-content p {
+      margin: 0;
+      padding: 0;
+      line-height: 1.4;
+    }
+    .text-content p + p {
+      margin-top: 0;
+    }
+    .text-content br {
+      line-height: 1.4;
+    }
     /* Text alignment */
     .editor-text-left, [style*="text-align: left"] {
       text-align: left !important;
@@ -154,11 +166,9 @@ function calculateDynamicTop() {
   // Base top position
   const baseTop = 38.42; // mm - starting position of rev details
 
-  // Calculate lines in rev name + designation
-  const revName = letterpad.rev_name || 'Rev. T SAMUEL';
-  const revDesignation = letterpad.rev_designation || 'Pastorate Chairman';
-  const revText = revName + '\n' + revDesignation;
-  const revLines = revText.split('\n').length;
+  // Calculate lines in rev name (includes designation now)
+  const revName = letterpad.rev_name || 'Rev. T SAMUEL\nPastorate Chairman';
+  const revLines = revName.split('\n').length;
 
   // Calculate lines in parsonage_address
   const parsonageAddress = letterpad.parsonage_address || 'Christ Church Parsonage\n14, Zion Church Street,\nSamathanapuram\nTenkasi\nPh:75388122218';
@@ -285,7 +295,7 @@ function processContentHTML(htmlContent) {
       text-align: center;
       font-weight: bold;
       text-transform: uppercase;
-    "><%= pastorateSettings?.diocese_name_english || 'Church of South India - Tirunelveli Diocese' %></div>
+    "><%= letterpad.diocese_name || 'CHURCH OF SOUTH INDIA - TIRUNELVELI DIOCESE' %></div>
   </div>
 
   <!-- Pastorate Name -->
@@ -310,7 +320,7 @@ function processContentHTML(htmlContent) {
       text-align: center;
       font-weight: bold;
       text-transform: uppercase;
-    "><%= pastorate.pastorate_name %></div>
+    "><%= letterpad.pastorate_name || '' %></div>
   </div>
 
   <!-- Chairman Details (Rev Name and Designation) -->
@@ -325,18 +335,12 @@ function processContentHTML(htmlContent) {
       width: 100%;
       box-sizing: border-box;
       padding: 0.00mm 0.00mm 0.00mm 0.00mm;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
       font-size: 13.0pt;
       font-family: 'Times New Roman', serif;
       color: #000000;
       text-align: left;
       line-height: 1.4;
-      white-space: pre-line;
-    "><strong><%= letterpad.rev_name || 'Rev. T SAMUEL' %></strong>
-<%= letterpad.rev_designation || 'Pastorate Chairman' %></div>
+    "><%- letterpad.rev_name || '<strong>Rev. T SAMUEL</strong><br>Pastorate Chairman' %></div>
   </div>
 
   <!-- Parsonage Address -->
@@ -351,17 +355,12 @@ function processContentHTML(htmlContent) {
       width: 100%;
       box-sizing: border-box;
       padding: 0.00mm 0.00mm 0.00mm 0.00mm;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
       font-size: 13.0pt;
       font-family: 'Times New Roman', serif;
       color: #000000;
       text-align: left;
       line-height: 1.4;
-      white-space: pre-line;
-    "><%= letterpad.parsonage_address || 'Christ Church Parsonage\n14, Zion Church Street,\nSamathanapuram\nTenkasi\nPh:75388122218' %></div>
+    "><%- letterpad.parsonage_address || 'Christ Church Parsonage<br>14, Zion Church Street,<br>Samathanapuram<br>Tenkasi<br>Ph:75388122218' %></div>
   </div>
 
   <!-- Horizontal Line (Dynamic position based on address height) -->

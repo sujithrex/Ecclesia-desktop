@@ -166,50 +166,54 @@ function calculateDynamicTop() {
   // Base top position (where rev details start)
   const baseTop = 43.42; // mm - starting position of rev details (adjusted for verse)
 
-  // Helper function to count lines in HTML content
-  function countHTMLLines(htmlContent) {
+  // Helper function to count actual text lines in HTML content
+  function countActualLines(htmlContent) {
     if (!htmlContent) return 1;
 
-    // Count <br> tags
-    const brCount = (htmlContent.match(/<br\s*\/?>/gi) || []).length;
+    // Remove all HTML tags to get plain text
+    let textContent = htmlContent.replace(/<[^>]*>/g, ' ');
 
-    // Count <p> tags
+    // Replace multiple spaces with single space
+    textContent = textContent.replace(/\s+/g, ' ').trim();
+
+    // If empty, return 1
+    if (!textContent) return 1;
+
+    // Count <p> tags - each paragraph is a line
     const pCount = (htmlContent.match(/<p[^>]*>/gi) || []).length;
 
-    // If we have paragraphs, use paragraph count
-    // If we have line breaks, use br count + 1
-    // Otherwise, count newlines in text content
+    // Count <br> tags - each break is a new line
+    const brCount = (htmlContent.match(/<br\s*\/?>/gi) || []).length;
+
+    // Total lines = paragraphs + line breaks + 1 (for first line)
+    // But if we have paragraphs, don't add 1
     if (pCount > 0) {
-      return pCount;
+      return pCount + brCount;
     } else if (brCount > 0) {
       return brCount + 1;
     } else {
-      // Remove HTML tags and count newlines
-      const textContent = htmlContent.replace(/<[^>]*>/g, '');
-      const newlineCount = (textContent.match(/\n/g) || []).length;
-      return Math.max(newlineCount + 1, 1);
+      // Single line of text
+      return 1;
     }
   }
 
   // Calculate lines in rev name (includes designation now)
-  const revLines = countHTMLLines(letterpad.rev_name || '<strong>Rev. T SAMUEL</strong><br>Pastorate Chairman');
+  const revLines = countActualLines(letterpad.rev_name || '<strong>Rev. T SAMUEL</strong><br>Pastorate Chairman');
 
   // Calculate lines in parsonage_address
-  const parsonageLines = countHTMLLines(letterpad.parsonage_address || 'Christ Church Parsonage<br>14, Zion Church Street,<br>Samathanapuram<br>Tenkasi<br>Ph:75388122218');
+  const parsonageLines = countActualLines(letterpad.parsonage_address || 'Christ Church Parsonage<br>14, Zion Church Street,<br>Samathanapuram<br>Tenkasi<br>Ph:75388122218');
 
-  // Line height is approximately 5.5mm per line (based on 13pt font with 1.4 line-height)
-  const lineHeight = 5.5;
+  // Line height is approximately 5.2mm per line (based on 13pt font with 1.4 line-height)
+  const lineHeight = 5.2;
 
   // Use the maximum of the two sections
   const maxLines = Math.max(revLines, parsonageLines);
 
-  // Calculate new top position (add some padding)
-  const calculatedTop = baseTop + (maxLines * lineHeight) + 3; // 3mm padding
+  // Calculate new top position (minimal padding)
+  const calculatedTop = baseTop + (maxLines * lineHeight) + 2; // 2mm padding
 
-  // Minimum position to avoid overlap with pastorate name
-  const minTop = 72.00;
-
-  return Math.max(calculatedTop, minTop);
+  // No minimum - let it be truly dynamic
+  return calculatedTop;
 }
 
 const dynamicTop = calculateDynamicTop();
@@ -392,7 +396,7 @@ function processContentHTML(htmlContent) {
 
   <!-- Parsonage Address -->
   <div class="text-frame" style="
-    left: 140.33mm;
+    left: 148.33mm;
     top: 43.42mm;
     width: 56.97mm;
     height: auto;

@@ -30,11 +30,13 @@ const LetterHead = () => {
   const [formData, setFormData] = useState({
     letterhead_number: '',
     letter_date: '',
+    verse: 'Fear of the Lord is the beginning of wisdom',
     diocese_name: 'CHURCH OF SOUTH INDIA - TIRUNELVELI DIOCESE',
     pastorate_name: '',
     rev_name: '',
     parsonage_address: '',
     content: '',
+    line_color: '#000000',
     church_id: null
   });
 
@@ -55,6 +57,7 @@ const LetterHead = () => {
   useEffect(() => {
     loadLetterheads();
     loadNextLetterheadNumber();
+    loadLastLetterheadData();
   }, []);
 
   const loadLetterheads = async () => {
@@ -88,6 +91,27 @@ const LetterHead = () => {
     }
   };
 
+  const loadLastLetterheadData = async () => {
+    try {
+      const result = await window.electron.letterhead.getAll();
+
+      if (result.success && result.data.length > 0) {
+        const lastLetterhead = result.data[result.data.length - 1];
+        setFormData(prev => ({
+          ...prev,
+          verse: lastLetterhead.verse || prev.verse,
+          diocese_name: lastLetterhead.diocese_name || prev.diocese_name,
+          pastorate_name: lastLetterhead.pastorate_name || prev.pastorate_name,
+          rev_name: lastLetterhead.rev_name || prev.rev_name,
+          parsonage_address: lastLetterhead.parsonage_address || prev.parsonage_address,
+          line_color: lastLetterhead.line_color || prev.line_color
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading last letterhead data:', error);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -109,6 +133,10 @@ const LetterHead = () => {
     }
     if (!formData.letter_date) {
       toast.error('Letter date is required');
+      return false;
+    }
+    if (!formData.verse?.trim()) {
+      toast.error('Verse is required');
       return false;
     }
     if (!formData.diocese_name?.trim()) {
@@ -211,22 +239,66 @@ const LetterHead = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      letterhead_number: '',
-      letter_date: '',
-      diocese_name: 'CHURCH OF SOUTH INDIA - TIRUNELVELI DIOCESE',
-      pastorate_name: '',
-      rev_name: '',
-      parsonage_address: '',
-      content: '',
-      church_id: 1
-    });
+  const resetForm = async () => {
+    // Load last letterhead data for defaults
+    try {
+      const result = await window.electron.letterhead.getAll();
+      let lastData = {
+        verse: 'Fear of the Lord is the beginning of wisdom',
+        diocese_name: 'CHURCH OF SOUTH INDIA - TIRUNELVELI DIOCESE',
+        pastorate_name: '',
+        rev_name: '',
+        parsonage_address: '',
+        line_color: '#000000'
+      };
+
+      if (result.success && result.data.length > 0) {
+        const lastLetterhead = result.data[result.data.length - 1];
+        lastData = {
+          verse: lastLetterhead.verse || lastData.verse,
+          diocese_name: lastLetterhead.diocese_name || lastData.diocese_name,
+          pastorate_name: lastLetterhead.pastorate_name || lastData.pastorate_name,
+          rev_name: lastLetterhead.rev_name || lastData.rev_name,
+          parsonage_address: lastLetterhead.parsonage_address || lastData.parsonage_address,
+          line_color: lastLetterhead.line_color || lastData.line_color
+        };
+      }
+
+      setFormData({
+        letterhead_number: '',
+        letter_date: '',
+        ...lastData,
+        content: '',
+        church_id: 1
+      });
+    } catch (error) {
+      setFormData({
+        letterhead_number: '',
+        letter_date: '',
+        verse: 'Fear of the Lord is the beginning of wisdom',
+        diocese_name: 'CHURCH OF SOUTH INDIA - TIRUNELVELI DIOCESE',
+        pastorate_name: '',
+        rev_name: '',
+        parsonage_address: '',
+        content: '',
+        line_color: '#000000',
+        church_id: 1
+      });
+    }
     loadNextLetterheadNumber();
   };
 
   const openEditModal = (letterhead) => {
-    setEditingLetterhead({ ...letterhead });
+    setEditingLetterhead({
+      ...letterhead,
+      verse: letterhead.verse || '',
+      diocese_name: letterhead.diocese_name || '',
+      pastorate_name: letterhead.pastorate_name || '',
+      rev_name: letterhead.rev_name || '',
+      parsonage_address: letterhead.parsonage_address || '',
+      content: letterhead.content || '',
+      line_color: letterhead.line_color || '#000000'
+    });
     setIsEditModalOpen(true);
   };
 
@@ -452,6 +524,17 @@ const LetterHead = () => {
                 </div>
 
                 <div className="form-group">
+                  <label>Verse *</label>
+                  <input
+                    type="text"
+                    name="verse"
+                    value={formData.verse}
+                    onChange={handleInputChange}
+                    placeholder="Verse"
+                  />
+                </div>
+
+                <div className="form-group">
                   <label>Diocese Name *</label>
                   <input
                     type="text"
@@ -470,6 +553,16 @@ const LetterHead = () => {
                     value={formData.pastorate_name}
                     onChange={handleInputChange}
                     placeholder="Pastorate Name"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Line Color *</label>
+                  <input
+                    type="color"
+                    name="line_color"
+                    value={formData.line_color}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -573,6 +666,17 @@ const LetterHead = () => {
                 </div>
 
                 <div className="form-group">
+                  <label>Verse *</label>
+                  <input
+                    type="text"
+                    name="verse"
+                    value={editingLetterhead.verse}
+                    onChange={handleEditInputChange}
+                    placeholder="Verse"
+                  />
+                </div>
+
+                <div className="form-group">
                   <label>Diocese Name *</label>
                   <input
                     type="text"
@@ -591,6 +695,16 @@ const LetterHead = () => {
                     value={editingLetterhead.pastorate_name}
                     onChange={handleEditInputChange}
                     placeholder="Pastorate Name"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Line Color *</label>
+                  <input
+                    type="color"
+                    name="line_color"
+                    value={editingLetterhead.line_color}
+                    onChange={handleEditInputChange}
                   />
                 </div>
               </div>

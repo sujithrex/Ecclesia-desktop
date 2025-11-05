@@ -163,28 +163,51 @@ function getFontSize(text, baseSize) {
 
 // Calculate dynamic position for letterpad number and date based on content above
 function calculateDynamicTop() {
-  // Base top position
-  const baseTop = 38.42; // mm - starting position of rev details
+  // Base top position (where rev details start)
+  const baseTop = 43.42; // mm - starting position of rev details (adjusted for verse)
+
+  // Helper function to count lines in HTML content
+  function countHTMLLines(htmlContent) {
+    if (!htmlContent) return 1;
+
+    // Count <br> tags
+    const brCount = (htmlContent.match(/<br\s*\/?>/gi) || []).length;
+
+    // Count <p> tags
+    const pCount = (htmlContent.match(/<p[^>]*>/gi) || []).length;
+
+    // If we have paragraphs, use paragraph count
+    // If we have line breaks, use br count + 1
+    // Otherwise, count newlines in text content
+    if (pCount > 0) {
+      return pCount;
+    } else if (brCount > 0) {
+      return brCount + 1;
+    } else {
+      // Remove HTML tags and count newlines
+      const textContent = htmlContent.replace(/<[^>]*>/g, '');
+      const newlineCount = (textContent.match(/\n/g) || []).length;
+      return Math.max(newlineCount + 1, 1);
+    }
+  }
 
   // Calculate lines in rev name (includes designation now)
-  const revName = letterpad.rev_name || 'Rev. T SAMUEL\nPastorate Chairman';
-  const revLines = revName.split('\n').length;
+  const revLines = countHTMLLines(letterpad.rev_name || '<strong>Rev. T SAMUEL</strong><br>Pastorate Chairman');
 
   // Calculate lines in parsonage_address
-  const parsonageAddress = letterpad.parsonage_address || 'Christ Church Parsonage\n14, Zion Church Street,\nSamathanapuram\nTenkasi\nPh:75388122218';
-  const parsonageLines = parsonageAddress.split('\n').length;
+  const parsonageLines = countHTMLLines(letterpad.parsonage_address || 'Christ Church Parsonage<br>14, Zion Church Street,<br>Samathanapuram<br>Tenkasi<br>Ph:75388122218');
 
-  // Line height is approximately 5.8mm per line (based on 13pt font with 1.4 line-height)
-  const lineHeight = 5.8;
+  // Line height is approximately 5.5mm per line (based on 13pt font with 1.4 line-height)
+  const lineHeight = 5.5;
 
   // Use the maximum of the two sections
   const maxLines = Math.max(revLines, parsonageLines);
 
   // Calculate new top position (add some padding)
-  const calculatedTop = baseTop + (maxLines * lineHeight) + 4; // 4mm padding
+  const calculatedTop = baseTop + (maxLines * lineHeight) + 3; // 3mm padding
 
   // Minimum position to avoid overlap with pastorate name
-  const minTop = 70.50;
+  const minTop = 72.00;
 
   return Math.max(calculatedTop, minTop);
 }
@@ -273,10 +296,34 @@ function processContentHTML(htmlContent) {
     <img src="<%= dioceseLogoBase64 %>" style="width: 100%; height: 100%; object-fit: cover;" />
   </div>
 
+  <!-- Verse -->
+  <div class="text-frame" style="
+    left: 12.70mm;
+    top: 14.70mm;
+    width: 184.60mm;
+    height: 4.00mm;
+  ">
+    <div class="text-content" style="
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 0.00mm 0.00mm 0.00mm 0.00mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      font-size: 10.0pt;
+      font-family: 'Times New Roman', serif;
+      color: #000000;
+      text-align: center;
+      font-style: italic;
+    "><%= letterpad.verse || 'Fear of the Lord is the beginning of wisdom' %></div>
+  </div>
+
   <!-- Diocese Name -->
   <div class="text-frame" style="
     left: 12.70mm;
-    top: 17.70mm;
+    top: 20.70mm;
     width: 184.60mm;
     height: 5.47mm;
   ">
@@ -301,7 +348,7 @@ function processContentHTML(htmlContent) {
   <!-- Pastorate Name -->
   <div class="text-frame" style="
     left: 12.70mm;
-    top: 24.42mm;
+    top: 27.42mm;
     width: 184.60mm;
     height: 8.73mm;
   ">
@@ -326,7 +373,7 @@ function processContentHTML(htmlContent) {
   <!-- Chairman Details (Rev Name and Designation) -->
   <div class="text-frame" style="
     left: 12.70mm;
-    top: 38.42mm;
+    top: 43.42mm;
     width: 72.63mm;
     height: auto;
     max-height: 50mm;
@@ -346,7 +393,7 @@ function processContentHTML(htmlContent) {
   <!-- Parsonage Address -->
   <div class="text-frame" style="
     left: 140.33mm;
-    top: 36.17mm;
+    top: 43.42mm;
     width: 56.97mm;
     height: auto;
     max-height: 50mm;
@@ -365,7 +412,7 @@ function processContentHTML(htmlContent) {
 
   <!-- Horizontal Line (Dynamic position based on address height) -->
   <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
-    <line x1="12.70mm" y1="<%= dynamicTop - 2 %>mm" x2="197.30mm" y2="<%= dynamicTop - 2 %>mm" stroke="#000000" stroke-width="0.35mm" />
+    <line x1="12.70mm" y1="<%= dynamicTop - 2 %>mm" x2="197.30mm" y2="<%= dynamicTop - 2 %>mm" stroke="<%= letterpad.line_color || '#000000' %>" stroke-width="0.35mm" />
   </svg>
 
   <!-- Letterpad Number -->

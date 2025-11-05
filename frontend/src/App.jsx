@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import ChurchDetail from './pages/ChurchDetail';
 import AdultBaptismCertificate from './pages/reports/AdultBaptismCertificate';
 import InfantBaptismCertificate from './pages/reports/InfantBaptismCertificate';
 import BurialCertificate from './pages/reports/BurialCertificate';
@@ -69,6 +70,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/congregation/:id"
+            element={
+              <ProtectedRoute>
+                <ChurchDetail />
               </ProtectedRoute>
             }
           />

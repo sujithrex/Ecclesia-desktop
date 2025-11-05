@@ -1,0 +1,37 @@
+.status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  user-select: none;
+  font-size: 13px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-bar-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-username {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-separator {
+  opacity: 0.6;
+}
+
+.status-datetime {
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+

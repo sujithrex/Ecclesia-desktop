@@ -7,6 +7,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import ChurchDetail from './pages/ChurchDetail';
+import AreaDetail from './pages/AreaDetail';
+import FamilyDetail from './pages/FamilyDetail';
+import MemberDetail from './pages/MemberDetail';
 import AdultBaptismCertificate from './pages/reports/AdultBaptismCertificate';
 import InfantBaptismCertificate from './pages/reports/InfantBaptismCertificate';
 import BurialCertificate from './pages/reports/BurialCertificate';
@@ -78,6 +81,38 @@ function App() {
             element={
               <ProtectedRoute>
                 <ChurchDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/church/:id"
+            element={
+              <ProtectedRoute>
+                <ChurchDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/area/:id"
+            element={
+              <ProtectedRoute>
+                <AreaDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/area/:areaId/family/:id"
+            element={
+              <ProtectedRoute>
+                <FamilyDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/area/:areaId/family/:familyId/member/:id"
+            element={
+              <ProtectedRoute>
+                <MemberDetail />
               </ProtectedRoute>
             }
           />

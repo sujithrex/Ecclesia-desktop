@@ -138,7 +138,7 @@ for (let pageNum = 0; pageNum < totalPages; pageNum++) {
   <% if (pageNum === 0) { %>
   <!-- Header - Only on first page - EXACT positions from HTML -->
   <div class="text-frame" style="left: 35.13mm; top: 14.48mm; width: 139.39mm; height: 5.56mm;">
-    <div class="text-content english-text bold-text" style="width: 100%; height: 100%; box-sizing: border-box; padding: 0.00mm 0.00mm 0.00mm 0.00mm; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; font-size: 12.0pt; color: #000000; text-align: center;">Diocese of <%= church.diocese_name || 'Tirunelveli' %> - <%= church.pastorate_name || 'Tenkasi North Zion Nagar Pastorate' %></div>
+    <div class="text-content english-text bold-text" style="width: 100%; height: 100%; box-sizing: border-box; padding: 0.00mm 0.00mm 0.00mm 0.00mm; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; font-size: 12.0pt; color: #000000; text-align: center;"><%= church.pastorateName || church.pastorate_name || 'Pastorate' %></div>
   </div>
   <div class="text-frame" style="left: 36.61mm; top: 20.95mm; width: 139.39mm; height: 5.56mm;">
     <div class="text-content english-text bold-text" style="width: 100%; height: 100%; box-sizing: border-box; padding: 0.00mm 0.00mm 0.00mm 0.00mm; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; font-size: 12.0pt; color: #000000; text-align: center;">Wedding Anniversary List - From <%= formatDateRange(dateRange.fromDate) %> to <%= formatDateRange(dateRange.toDate) %></div>
@@ -253,6 +253,14 @@ for (let pageNum = 0; pageNum < totalPages; pageNum++) {
   <%
   const celebrantIds = celebrants.map(c => c.id);
 
+  // Get all spouse IDs from celebrants
+  const spouseIds = celebrants
+    .filter(c => c.spouseId)
+    .map(c => c.spouseId);
+
+  // Combine celebrant IDs and spouse IDs for bold formatting
+  const boldMemberIds = [...celebrantIds, ...spouseIds];
+
   members.forEach((member, memberIdx) => {
     const memberTop = firstMemberTop + (memberIdx * memberRowHeight);
 
@@ -262,7 +270,8 @@ for (let pageNum = 0; pageNum < totalPages; pageNum++) {
     const age = calculateAge(member.dob);
     const anniversaryYears = member.date_of_marriage ? calculateAnniversaryYears(member.date_of_marriage) : '';
     const isCelebrant = celebrantIds.includes(member.id);
-    const boldClass = isCelebrant ? 'bold-text' : '';
+    const isBold = boldMemberIds.includes(member.id);
+    const boldClass = isBold ? 'bold-text' : '';
 
     // Debug calculated values
     console.log('Calculated age:', age, 'Anniversary years:', anniversaryYears);

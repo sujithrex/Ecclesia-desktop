@@ -58,6 +58,40 @@ contextBridge.exposeInMainWorld('electron', {
     getNextNumber: (churchId) => ipcRenderer.invoke('letterhead:getNextNumber', { churchId }),
     generatePDF: (letterheadId) => ipcRenderer.invoke('letterhead:generatePDF', { letterheadId })
   },
+  area: {
+    getAll: () => ipcRenderer.invoke('area:getAll'),
+    getById: (id) => ipcRenderer.invoke('area:getById', { id }),
+    getByChurch: (churchId) => ipcRenderer.invoke('area:getByChurch', { churchId }),
+    create: (areaData) => ipcRenderer.invoke('area:create', areaData),
+    update: (id, updates) => ipcRenderer.invoke('area:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('area:delete', { id })
+  },
+  family: {
+    getAll: () => ipcRenderer.invoke('family:getAll'),
+    getById: (id) => ipcRenderer.invoke('family:getById', { id }),
+    getByArea: (areaId) => ipcRenderer.invoke('family:getByArea', { areaId }),
+    create: (familyData) => ipcRenderer.invoke('family:create', familyData),
+    update: (id, updates) => ipcRenderer.invoke('family:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('family:delete', { id }),
+    getAutoNumbers: (areaId) => ipcRenderer.invoke('family:getAutoNumbers', { areaId })
+  },
+  member: {
+    getAll: () => ipcRenderer.invoke('member:getAll'),
+    getById: (id) => ipcRenderer.invoke('member:getById', { id }),
+    getByFamily: (familyId) => ipcRenderer.invoke('member:getByFamily', { familyId }),
+    create: (memberData) => ipcRenderer.invoke('member:create', memberData),
+    update: (id, updates) => ipcRenderer.invoke('member:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('member:delete', { id }),
+    getAutoNumbers: (familyId) => ipcRenderer.invoke('member:getAutoNumbers', { familyId }),
+    getBirthdaysByDateRange: (params) => ipcRenderer.invoke('member:getBirthdaysByDateRange', params),
+    getWeddingsByDateRange: (params) => ipcRenderer.invoke('member:getWeddingsByDateRange', params)
+  },
+  birthday: {
+    generatePDF: (params) => ipcRenderer.invoke('birthday:generatePDF', params)
+  },
+  wedding: {
+    generatePDF: (params) => ipcRenderer.invoke('wedding:generatePDF', params)
+  },
   window: {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),

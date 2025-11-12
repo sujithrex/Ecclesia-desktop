@@ -1,0 +1,71 @@
+/* Import base styles */
+@import './FamilyDetail.css';
+
+.member-header-section {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
+}
+
+.member-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.member-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.member-id-display {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.member-id-display strong {
+  color: #722f37;
+  margin-right: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.badge-alive {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-deceased {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.badge-married {
+  background: #fce4ec;
+  color: #c2185b;
+}
+

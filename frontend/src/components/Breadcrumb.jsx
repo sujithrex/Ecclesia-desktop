@@ -5,9 +5,9 @@ import './Breadcrumb.css';
 const Breadcrumb = ({ items }) => {
   const navigate = useNavigate();
 
-  const handleClick = (path) => {
+  const handleClick = (path, state) => {
     if (path) {
-      navigate(path);
+      navigate(path, { state });
     }
   };
 
@@ -19,7 +19,7 @@ const Breadcrumb = ({ items }) => {
           {item.path ? (
             <button
               className="breadcrumb-link"
-              onClick={() => handleClick(item.path)}
+              onClick={() => handleClick(item.path, item.state)}
             >
               {item.label}
             </button>

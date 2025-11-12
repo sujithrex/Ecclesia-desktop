@@ -34,7 +34,36 @@ const {
   createLetterhead,
   updateLetterhead,
   deleteLetterhead,
-  getNextLetterheadNumber
+  getNextLetterheadNumber,
+  getAllAreas,
+  getAreaById,
+  getAreasByChurch,
+  createArea,
+  updateArea,
+  deleteArea,
+  getAllFamilies,
+  getFamilyById,
+  getFamiliesByArea,
+  createFamily,
+  updateFamily,
+  deleteFamily,
+  getNextFamilyNumber,
+  getNextLayoutNumber,
+  getFamilyByAreaAndNumber,
+  getFamilyByAreaAndLayoutNumber,
+  getAllMembers,
+  getMemberById,
+  getMembersByFamily,
+  createMember,
+  updateMember,
+  deleteMember,
+  getNextMemberNumber,
+  getNextMemberId,
+  getMemberByFamilyAndNumber,
+  getBirthdaysByDateRange,
+  getBirthdayReportData,
+  getWeddingsByDateRange,
+  getWeddingReportData
 } = require('./backend/database');
 const {
   login,
@@ -48,6 +77,8 @@ const {
   generateAdultBaptismPDF,
   generateBurialRegisterPDF,
   generateLetterheadPDF,
+  generateBirthdayListPDF,
+  generateWeddingListPDF,
   openPDF
 } = require('./backend/pdfGenerator');
 
@@ -553,6 +584,293 @@ app.whenReady().then(async () => {
       return { success: true, data: { pdfPath } };
     } catch (error) {
       console.error('PDF generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  // Area handlers
+  ipcMain.handle('area:getAll', async () => {
+    try {
+      const areas = await getAllAreas();
+      return { success: true, data: areas };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch areas' };
+    }
+  });
+
+  ipcMain.handle('area:getById', async (event, { id }) => {
+    try {
+      const area = await getAreaById(id);
+      if (area) {
+        return { success: true, data: area };
+      }
+      return { success: false, message: 'Area not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch area' };
+    }
+  });
+
+  ipcMain.handle('area:getByChurch', async (event, { churchId }) => {
+    try {
+      const areas = await getAreasByChurch(churchId);
+      return { success: true, data: areas };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch areas' };
+    }
+  });
+
+  ipcMain.handle('area:create', async (event, areaData) => {
+    try {
+      const newArea = await createArea(areaData);
+      return { success: true, data: newArea };
+    } catch (error) {
+      return { success: false, message: 'Failed to create area' };
+    }
+  });
+
+  ipcMain.handle('area:update', async (event, { id, updates }) => {
+    try {
+      const updatedArea = await updateArea(id, updates);
+      if (updatedArea) {
+        return { success: true, data: updatedArea };
+      }
+      return { success: false, message: 'Area not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update area' };
+    }
+  });
+
+  ipcMain.handle('area:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteArea(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Area not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete area' };
+    }
+  });
+
+  // Family handlers
+  ipcMain.handle('family:getAll', async () => {
+    try {
+      const families = await getAllFamilies();
+      return { success: true, data: families };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch families' };
+    }
+  });
+
+  ipcMain.handle('family:getById', async (event, { id }) => {
+    try {
+      const family = await getFamilyById(id);
+      if (family) {
+        return { success: true, data: family };
+      }
+      return { success: false, message: 'Family not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch family' };
+    }
+  });
+
+  ipcMain.handle('family:getByArea', async (event, { areaId }) => {
+    try {
+      const families = await getFamiliesByArea(areaId);
+      return { success: true, data: families };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch families' };
+    }
+  });
+
+  ipcMain.handle('family:create', async (event, familyData) => {
+    try {
+      const newFamily = await createFamily(familyData);
+      return { success: true, data: newFamily };
+    } catch (error) {
+      return { success: false, message: error.message || 'Failed to create family' };
+    }
+  });
+
+  ipcMain.handle('family:update', async (event, { id, updates }) => {
+    try {
+      const updatedFamily = await updateFamily(id, updates);
+      if (updatedFamily) {
+        return { success: true, data: updatedFamily };
+      }
+      return { success: false, message: 'Family not found' };
+    } catch (error) {
+      return { success: false, message: error.message || 'Failed to update family' };
+    }
+  });
+
+  ipcMain.handle('family:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteFamily(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Family not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete family' };
+    }
+  });
+
+  ipcMain.handle('family:getAutoNumbers', async (event, { areaId }) => {
+    try {
+      const familyNumber = await getNextFamilyNumber(areaId);
+      const layoutNumber = await getNextLayoutNumber(areaId);
+      return { success: true, data: { familyNumber, layoutNumber } };
+    } catch (error) {
+      return { success: false, message: 'Failed to get auto numbers' };
+    }
+  });
+
+  // Member handlers
+  ipcMain.handle('member:getAll', async () => {
+    try {
+      const members = await getAllMembers();
+      return { success: true, data: members };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch members' };
+    }
+  });
+
+  ipcMain.handle('member:getById', async (event, { id }) => {
+    try {
+      const member = await getMemberById(id);
+      if (member) {
+        return { success: true, data: member };
+      }
+      return { success: false, message: 'Member not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch member' };
+    }
+  });
+
+  ipcMain.handle('member:getByFamily', async (event, { familyId }) => {
+    try {
+      const members = await getMembersByFamily(familyId);
+      return { success: true, data: members };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch members' };
+    }
+  });
+
+  ipcMain.handle('member:create', async (event, memberData) => {
+    try {
+      const newMember = await createMember(memberData);
+      return { success: true, data: newMember };
+    } catch (error) {
+      return { success: false, message: error.message || 'Failed to create member' };
+    }
+  });
+
+  ipcMain.handle('member:update', async (event, { id, updates }) => {
+    try {
+      const updatedMember = await updateMember(id, updates);
+      if (updatedMember) {
+        return { success: true, data: updatedMember };
+      }
+      return { success: false, message: 'Member not found' };
+    } catch (error) {
+      return { success: false, message: error.message || 'Failed to update member' };
+    }
+  });
+
+  ipcMain.handle('member:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteMember(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Member not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete member' };
+    }
+  });
+
+  ipcMain.handle('member:getAutoNumbers', async (event, { familyId }) => {
+    try {
+      const memberNumber = await getNextMemberNumber(familyId);
+      const memberId = await getNextMemberId();
+      return { success: true, data: { memberNumber, memberId } };
+    } catch (error) {
+      return { success: false, message: 'Failed to get auto numbers' };
+    }
+  });
+
+  ipcMain.handle('member:getBirthdaysByDateRange', async (event, { churchId, fromDate, toDate }) => {
+    try {
+      const birthdays = await getBirthdaysByDateRange(churchId, fromDate, toDate);
+      return { success: true, data: birthdays };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch birthdays' };
+    }
+  });
+
+  ipcMain.handle('birthday:generatePDF', async (event, { churchId, fromDate, toDate }) => {
+    try {
+      // Get church data
+      const church = await getChurchById(churchId);
+      if (!church) {
+        return { success: false, message: 'Church not found' };
+      }
+
+      // Get birthday report data
+      const birthdayData = await getBirthdayReportData(churchId, fromDate, toDate);
+
+      // Generate PDF
+      const pdfPath = await generateBirthdayListPDF({
+        churchData: church,
+        birthdayData: birthdayData,
+        dateRange: { fromDate, toDate }
+      });
+
+      // Open PDF
+      await openPDF(pdfPath);
+
+      return { success: true, pdfPath };
+    } catch (error) {
+      console.error('Birthday PDF generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  // Wedding List handlers
+  ipcMain.handle('member:getWeddingsByDateRange', async (event, { churchId, fromDate, toDate }) => {
+    try {
+      const weddings = await getWeddingsByDateRange(churchId, fromDate, toDate);
+      return { success: true, data: weddings };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch weddings' };
+    }
+  });
+
+  ipcMain.handle('wedding:generatePDF', async (event, { churchId, fromDate, toDate }) => {
+    try {
+      // Get church data
+      const church = await getChurchById(churchId);
+      if (!church) {
+        return { success: false, message: 'Church not found' };
+      }
+
+      // Get wedding report data
+      const weddingData = await getWeddingReportData(churchId, fromDate, toDate);
+
+      // Generate PDF
+      const pdfPath = await generateWeddingListPDF({
+        churchData: church,
+        weddingData: weddingData,
+        dateRange: { fromDate, toDate }
+      });
+
+      // Open PDF
+      await openPDF(pdfPath);
+
+      return { success: true, pdfPath };
+    } catch (error) {
+      console.error('Wedding PDF generation error:', error);
       return { success: false, message: error.message || 'Failed to generate PDF' };
     }
   });

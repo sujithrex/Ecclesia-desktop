@@ -15,6 +15,8 @@ import InfantBaptismCertificate from './pages/reports/InfantBaptismCertificate';
 import BurialCertificate from './pages/reports/BurialCertificate';
 import SabaiJabitha from './pages/reports/SabaiJabitha';
 import WeddingList from './pages/reports/WeddingList';
+import Marriage from './pages/reports/Marriage';
+import CreateMarriageRecord from './pages/reports/CreateMarriageRecord';
 import BirthdayList from './pages/reports/BirthdayList';
 import LetterHead from './pages/reports/LetterHead';
 import './App.css';
@@ -153,6 +155,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <WeddingList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/marriage"
+            element={
+              <ProtectedRoute>
+                <Marriage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/marriage/create"
+            element={
+              <ProtectedRoute>
+                <CreateMarriageRecord />
               </ProtectedRoute>
             }
           />

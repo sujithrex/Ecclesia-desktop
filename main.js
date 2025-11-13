@@ -28,6 +28,13 @@ const {
   updateBurialRegister,
   deleteBurialRegister,
   getNextBurialRegisterNumber,
+  getAllMarriageRecords,
+  getMarriageRecordById,
+  getMarriageRecordsByChurch,
+  createMarriageRecord,
+  updateMarriageRecord,
+  deleteMarriageRecord,
+  getNextMarriageRecordNumber,
   getAllLetterheads,
   getLetterheadById,
   getLetterheadsByChurch,
@@ -484,6 +491,107 @@ app.whenReady().then(async () => {
       return { success: true, data: { pdfPath } };
     } catch (error) {
       console.error('PDF generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  // Marriage Record handlers
+  ipcMain.handle('marriage:getAll', async () => {
+    try {
+      const records = await getAllMarriageRecords();
+      return { success: true, data: records };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch records' };
+    }
+  });
+
+  ipcMain.handle('marriage:getById', async (event, { id }) => {
+    try {
+      const record = await getMarriageRecordById(id);
+      if (record) {
+        return { success: true, data: record };
+      }
+      return { success: false, message: 'Record not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch record' };
+    }
+  });
+
+  ipcMain.handle('marriage:getByChurch', async (event, { churchId }) => {
+    try {
+      const records = await getMarriageRecordsByChurch(churchId);
+      return { success: true, data: records };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch records' };
+    }
+  });
+
+  ipcMain.handle('marriage:create', async (event, recordData) => {
+    try {
+      const newRecord = await createMarriageRecord(recordData);
+      return { success: true, data: newRecord };
+    } catch (error) {
+      return { success: false, message: 'Failed to create record' };
+    }
+  });
+
+  ipcMain.handle('marriage:update', async (event, { id, updates }) => {
+    try {
+      const updatedRecord = await updateMarriageRecord(id, updates);
+      if (updatedRecord) {
+        return { success: true, data: updatedRecord };
+      }
+      return { success: false, message: 'Record not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update record' };
+    }
+  });
+
+  ipcMain.handle('marriage:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteMarriageRecord(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Record not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete record' };
+    }
+  });
+
+  ipcMain.handle('marriage:getNextNumber', async (event, { churchId }) => {
+    try {
+      const nextNumber = await getNextMarriageRecordNumber(churchId);
+      return { success: true, data: nextNumber };
+    } catch (error) {
+      return { success: false, message: 'Failed to get next record number' };
+    }
+  });
+
+  ipcMain.handle('marriage:generateCertificate', async (event, { recordId }) => {
+    try {
+      // Get record data
+      const record = await getMarriageRecordById(recordId);
+      if (!record) {
+        return { success: false, message: 'Record not found' };
+      }
+
+      // TODO: Implement marriage certificate generation
+      // For now, just return success
+      return { success: true, data: { message: 'Marriage certificate generation not implemented yet' } };
+    } catch (error) {
+      console.error('Certificate generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate certificate' };
+    }
+  });
+
+  ipcMain.handle('marriage:generatePDF', async (event, { churchId, fromDate, toDate }) => {
+    try {
+      // TODO: Implement marriage PDF generation
+      // For now, just return success
+      return { success: true, data: { message: 'Marriage PDF generation not implemented yet' } };
+    } catch (error) {
+      console.error('Marriage PDF generation error:', error);
       return { success: false, message: error.message || 'Failed to generate PDF' };
     }
   });

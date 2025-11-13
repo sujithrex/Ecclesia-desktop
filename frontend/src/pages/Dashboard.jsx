@@ -14,6 +14,7 @@ import {
   Heart,
   Cake,
   FileText,
+  Users,
   Eye,
   PencilSimple,
   Trash,
@@ -371,6 +372,14 @@ const Dashboard = () => {
               </div>
               <h3>Wedding List</h3>
               <p>View wedding records</p>
+            </div>
+
+            <div className="dashboard-card" onClick={() => navigate('/reports/marriage')}>
+              <div className="card-icon">
+                <Users size={40} weight="duotone" />
+              </div>
+              <h3>Marriage</h3>
+              <p>Generate marriage certificates</p>
             </div>
 
             <div className="dashboard-card" onClick={() => navigate('/reports/birthday-list')}>

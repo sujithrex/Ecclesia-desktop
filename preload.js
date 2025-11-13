@@ -92,6 +92,17 @@ contextBridge.exposeInMainWorld('electron', {
   wedding: {
     generatePDF: (params) => ipcRenderer.invoke('wedding:generatePDF', params)
   },
+  marriage: {
+    getAll: () => ipcRenderer.invoke('marriage:getAll'),
+    getById: (id) => ipcRenderer.invoke('marriage:getById', { id }),
+    getByChurch: (churchId) => ipcRenderer.invoke('marriage:getByChurch', { churchId }),
+    create: (recordData) => ipcRenderer.invoke('marriage:create', recordData),
+    update: (id, updates) => ipcRenderer.invoke('marriage:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('marriage:delete', { id }),
+    getNextNumber: (churchId) => ipcRenderer.invoke('marriage:getNextNumber', { churchId }),
+    generateCertificate: (recordId) => ipcRenderer.invoke('marriage:generateCertificate', { recordId }),
+    generatePDF: (params) => ipcRenderer.invoke('marriage:generatePDF', params)
+  },
   window: {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),

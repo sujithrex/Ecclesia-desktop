@@ -402,28 +402,15 @@ const MemberDetail = () => {
               </div>
               <div className="form-group">
                 <label>Sex <span className="required">*</span></label>
-                <div className="radio-group">
-                  <label>
-                    <input
-                      type="radio"
-                      name="sex"
-                      value="Male"
-                      checked={formData.sex === 'Male'}
-                      onChange={handleInputChange}
-                    />
-                    Male
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="sex"
-                      value="Female"
-                      checked={formData.sex === 'Female'}
-                      onChange={handleInputChange}
-                    />
-                    Female
-                  </label>
-                </div>
+                <select
+                  name="sex"
+                  value={formData.sex}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
               </div>
             </div>
 
@@ -483,28 +470,14 @@ const MemberDetail = () => {
               </div>
               <div className="form-group">
                 <label>Status</label>
-                <div className="radio-group">
-                  <label>
-                    <input
-                      type="radio"
-                      name="isAlive"
-                      value="true"
-                      checked={formData.isAlive === true}
-                      onChange={handleInputChange}
-                    />
-                    Alive
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="isAlive"
-                      value="false"
-                      checked={formData.isAlive === false}
-                      onChange={handleInputChange}
-                    />
-                    Deceased
-                  </label>
-                </div>
+                <select
+                  name="isAlive"
+                  value={formData.isAlive ? 'true' : 'false'}
+                  onChange={handleInputChange}
+                >
+                  <option value="true">Alive</option>
+                  <option value="false">Deceased</option>
+                </select>
               </div>
             </div>
 
@@ -535,28 +508,14 @@ const MemberDetail = () => {
             <h4>Marriage Information</h4>
             <div className="form-group">
               <label>Marital Status</label>
-              <div className="radio-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="isMarried"
-                    value="false"
-                    checked={formData.isMarried === false}
-                    onChange={handleInputChange}
-                  />
-                  Single
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="isMarried"
-                    value="true"
-                    checked={formData.isMarried === true}
-                    onChange={handleInputChange}
-                  />
-                  Married
-                </label>
-              </div>
+              <select
+                name="isMarried"
+                value={formData.isMarried ? 'true' : 'false'}
+                onChange={handleInputChange}
+              >
+                <option value="false">Single</option>
+                <option value="true">Married</option>
+              </select>
             </div>
 
             {formData.isMarried && (
@@ -594,28 +553,14 @@ const MemberDetail = () => {
             <h4>Religious Information</h4>
             <div className="form-group">
               <label>Baptised</label>
-              <div className="radio-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="isBaptised"
-                    value="false"
-                    checked={formData.isBaptised === false}
-                    onChange={handleInputChange}
-                  />
-                  No
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="isBaptised"
-                    value="true"
-                    checked={formData.isBaptised === true}
-                    onChange={handleInputChange}
-                  />
-                  Yes
-                </label>
-              </div>
+              <select
+                name="isBaptised"
+                value={formData.isBaptised ? 'true' : 'false'}
+                onChange={handleInputChange}
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
             </div>
 
             {formData.isBaptised && (
@@ -632,28 +577,14 @@ const MemberDetail = () => {
 
             <div className="form-group">
               <label>Confirmed</label>
-              <div className="radio-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="isConfirmed"
-                    value="false"
-                    checked={formData.isConfirmed === false}
-                    onChange={handleInputChange}
-                  />
-                  No
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="isConfirmed"
-                    value="true"
-                    checked={formData.isConfirmed === true}
-                    onChange={handleInputChange}
-                  />
-                  Yes
-                </label>
-              </div>
+              <select
+                name="isConfirmed"
+                value={formData.isConfirmed ? 'true' : 'false'}
+                onChange={handleInputChange}
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
             </div>
 
             {formData.isConfirmed && (
@@ -672,28 +603,14 @@ const MemberDetail = () => {
             <h4>Congregation Participation</h4>
             <div className="form-group">
               <label>Congregation Participation (அயலிடம்)</label>
-              <div className="radio-group">
-                <label>
-                  <input
-                    type="radio"
-                    name="congregationParticipation"
-                    value="false"
-                    checked={formData.congregationParticipation === false}
-                    onChange={handleInputChange}
-                  />
-                  No
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="congregationParticipation"
-                    value="true"
-                    checked={formData.congregationParticipation === true}
-                    onChange={handleInputChange}
-                  />
-                  Yes
-                </label>
-              </div>
+              <select
+                name="congregationParticipation"
+                value={formData.congregationParticipation ? 'true' : 'false'}
+                onChange={handleInputChange}
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
             </div>
           </div>
           <div className="form-actions">

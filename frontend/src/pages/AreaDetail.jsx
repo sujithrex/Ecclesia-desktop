@@ -194,7 +194,20 @@ const AreaDetail = () => {
       if (result.success) {
         toast.success(isEditMode ? 'Family updated successfully' : 'Family created successfully');
         closeModal();
-        await loadFamilies();
+        
+        if (isEditMode) {
+          // If editing, just reload the families list
+          await loadFamilies();
+        } else {
+          // If creating new family, redirect to the family detail page
+          navigate(`/area/${area.id}/family/${result.data.id}`, { 
+            state: { 
+              family: result.data, 
+              area: area,
+              church: church 
+            } 
+          });
+        }
       } else {
         toast.error(result.message || 'Operation failed');
       }

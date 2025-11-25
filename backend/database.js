@@ -1046,6 +1046,34 @@ async function createFamily(familyData) {
   db.data.families.push(newFamily);
   await db.write();
 
+  // Automatically create the family head as the first member
+  const memberId = await getNextMemberId();
+  const familyHeadMember = {
+    id: memberId,
+    familyId: newFamily.id,
+    memberNumber: '01',
+    memberId: String(memberId).padStart(4, '0'),
+    name: familyData.familyName,
+    respect: familyData.respect || 'Mr',
+    relation: 'Head',
+    sex: 'Male',
+    dob: null,
+    isAlive: true,
+    isMarried: false,
+    isBaptised: true,
+    isConfirmed: true,
+    congregationParticipation: false,
+    occupation: '',
+    workingPlace: '',
+    education: '',
+    spouseId: null,
+    dateOfMarriage: null,
+    createdAt: new Date().toISOString()
+  };
+
+  db.data.members.push(familyHeadMember);
+  await db.write();
+
   return newFamily;
 }
 

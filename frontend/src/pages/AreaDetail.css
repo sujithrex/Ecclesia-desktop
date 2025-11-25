@@ -1,6 +1,12 @@
 /* Use the same styles as ChurchDetail.css */
 @import './ChurchDetail.css';
 
+/* Override modal width for family edit modal */
+.church-modal {
+  max-width: 90%;
+  width: 90%;
+}
+
 .form-row {
   display: flex;
   gap: 20px;

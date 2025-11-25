@@ -18,7 +18,10 @@ import {
   Eye,
   PencilSimple,
   Trash,
-  Plus
+  Plus,
+  Database,
+  CloudArrowUp,
+  CloudArrowDown
 } from '@phosphor-icons/react';
 import $ from 'jquery';
 import 'datatables.net-dt';
@@ -396,6 +399,43 @@ const Dashboard = () => {
               </div>
               <h3>Letter Head</h3>
               <p>Generate letter head documents</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="backups-section">
+          <h2 className="section-title">Backups</h2>
+          <div className="dashboard-grid">
+            <div className="dashboard-card" onClick={() => navigate('/backups/congregation-backup')}>
+              <div className="card-icon">
+                <CloudArrowUp size={40} weight="duotone" />
+              </div>
+              <h3>Congregation Backup</h3>
+              <p>Backup congregation data</p>
+            </div>
+
+            <div className="dashboard-card" onClick={() => navigate('/backups/congregation-restore')}>
+              <div className="card-icon">
+                <CloudArrowDown size={40} weight="duotone" />
+              </div>
+              <h3>Congregation Restore</h3>
+              <p>Restore congregation data</p>
+            </div>
+
+            <div className="dashboard-card" onClick={() => navigate('/backups/reports-backup')}>
+              <div className="card-icon">
+                <Database size={40} weight="duotone" />
+              </div>
+              <h3>Reports Backup</h3>
+              <p>Backup reports data</p>
+            </div>
+
+            <div className="dashboard-card" onClick={() => navigate('/backups/reports-restore')}>
+              <div className="card-icon">
+                <Database size={40} weight="duotone" />
+              </div>
+              <h3>Reports Restore</h3>
+              <p>Restore reports data</p>
             </div>
           </div>
         </div>

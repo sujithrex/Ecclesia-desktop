@@ -100,6 +100,9 @@ const {
   generateSabaiJabithaPDF,
   openPDF
 } = require('./backend/pdfGenerator');
+const {
+  createCongregationBackup
+} = require('./backend/csvGenerator');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -1133,6 +1136,17 @@ app.whenReady().then(async () => {
     } catch (error) {
       console.error('Sabai Jabitha PDF generation error:', error);
       return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  // Backup handlers
+  ipcMain.handle('backup:createCongregationBackup', async (event, { churchId }) => {
+    try {
+      const result = await createCongregationBackup(churchId);
+      return result;
+    } catch (error) {
+      console.error('Congregation backup error:', error);
+      return { success: false, message: error.message || 'Failed to create backup' };
     }
   });
 

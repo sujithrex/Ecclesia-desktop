@@ -113,13 +113,35 @@ if (require('electron-squirrel-startup')) {
 
 const isDev = process.env.NODE_ENV === 'development';
 
+let splashWindow;
+let mainWindow;
+
+function createSplashScreen() {
+  splashWindow = new BrowserWindow({
+    width: 500,
+    height: 300,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+
+  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+  splashWindow.center();
+}
+
 function createWindow() {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     frame: false,
     titleBarStyle: 'hidden',
     icon: path.join(__dirname, 'icon.png'),
+    show: false, // Don't show until ready
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -129,13 +151,25 @@ function createWindow() {
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools(); // Open DevTools in dev mode
   } else {
     mainWindow.loadFile(path.join(__dirname, 'frontend/dist/index.html'));
   }
+
+  // Show main window when ready and close splash
+  mainWindow.once('ready-to-show', () => {
+    setTimeout(() => {
+      if (splashWindow) {
+        splashWindow.close();
+      }
+      mainWindow.show();
+    }, 500); // Small delay for smooth transition
+  });
 }
 
 app.whenReady().then(async () => {
+  // Show splash screen first
+  createSplashScreen();
+  
   await initDatabase();
 
   ipcMain.handle('auth:login', async (event, { username, password, rememberMe }) => {

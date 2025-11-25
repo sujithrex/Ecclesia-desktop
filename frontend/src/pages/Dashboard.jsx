@@ -422,7 +422,16 @@ const Dashboard = () => {
               <p>Restore congregation data</p>
             </div>
 
-            <div className="dashboard-card" onClick={() => navigate('/backups/reports-backup')}>
+            <div className="dashboard-card" onClick={() => {
+              toast('Reports Backup feature will be implemented soon!', {
+                duration: 4000,
+                icon: '🔄',
+                style: {
+                  background: '#3b82f6',
+                  color: '#fff',
+                }
+              });
+            }}>
               <div className="card-icon">
                 <Database size={40} weight="duotone" />
               </div>
@@ -430,7 +439,16 @@ const Dashboard = () => {
               <p>Backup reports data</p>
             </div>
 
-            <div className="dashboard-card" onClick={() => navigate('/backups/reports-restore')}>
+            <div className="dashboard-card" onClick={() => {
+              toast('Reports Restore feature will be implemented soon!', {
+                duration: 4000,
+                icon: '🔄',
+                style: {
+                  background: '#3b82f6',
+                  color: '#fff',
+                }
+              });
+            }}>
               <div className="card-icon">
                 <Database size={40} weight="duotone" />
               </div>

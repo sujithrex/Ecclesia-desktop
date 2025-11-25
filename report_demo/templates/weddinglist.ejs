@@ -125,14 +125,57 @@ function getFontSize(text, baseSize) {
   return isTamilText(text) ? (baseSize + 1) : baseSize;
 }
 
-// Calculate total pages needed (2 families per page)
-const familiesPerPage = 2;
-const totalPages = Math.ceil(reportData.length / familiesPerPage);
+// DYNAMIC PAGINATION - Calculate actual height needed for each family
+// Constants
+const pageHeight = 271.60; // mm (297 - top/bottom margins 12.70mm each)
+const headerHeight = 27.00; // mm (header on first page only)
+const familyHeaderHeight = 28.65; // mm (family info section before table)
+const tableHeaderHeight = 7.65; // mm (table header row)
+const memberRowHeight = 8.05; // mm (each member row)
+const familySeparatorHeight = 0.35; // mm (line between families)
 
+// Calculate height for each family based on number of members
+function calculateFamilyHeight(familyData) {
+  const memberCount = familyData.members.length;
+  return familyHeaderHeight + tableHeaderHeight + (memberCount * memberRowHeight) + familySeparatorHeight;
+}
+
+// Distribute families across pages dynamically
+const pages = [];
+let currentPage = [];
+let currentPageHeight = 0;
+let isFirstPage = true;
+
+reportData.forEach((familyData, index) => {
+  const familyHeight = calculateFamilyHeight(familyData);
+  const availableHeight = isFirstPage ? (pageHeight - headerHeight) : pageHeight;
+  
+  // Check if family fits on current page
+  if (currentPageHeight + familyHeight <= availableHeight) {
+    currentPage.push(familyData);
+    currentPageHeight += familyHeight;
+  } else {
+    // Start new page
+    if (currentPage.length > 0) {
+      pages.push(currentPage);
+      isFirstPage = false;
+    }
+    currentPage = [familyData];
+    currentPageHeight = familyHeight;
+  }
+});
+
+// Add last page
+if (currentPage.length > 0) {
+  pages.push(currentPage);
+}
+
+const totalPages = pages.length;
+
+// Render pages
 for (let pageNum = 0; pageNum < totalPages; pageNum++) {
-  const startIdx = pageNum * familiesPerPage;
-  const endIdx = Math.min(startIdx + familiesPerPage, reportData.length);
-  const familiesOnPage = reportData.slice(startIdx, endIdx);
+  const familiesOnPage = pages[pageNum];
+  const isFirstPage = pageNum === 0;
 %>
 <div class="page">
   <% if (pageNum === 0) { %>
@@ -150,16 +193,20 @@ for (let pageNum = 0; pageNum < totalPages; pageNum++) {
   </svg>
   <% } %>
   
-  <% familiesOnPage.forEach((familyData, familyIdx) => {
+  <% 
+  // Track cumulative position on this page
+  let currentTop = isFirstPage ? 30.30 : 12.70;
+  
+  familiesOnPage.forEach((familyData, familyIdx) => {
     const family = familyData.family;
     const members = familyData.members;
     const celebrants = familyData.celebrants || [];
 
-    // EXACT positions from HTML - First family: 30.30mm, Second: 86.30mm
-    const familyTop = 30.30 + (familyIdx * 56);
-    const tableHeaderTop = familyTop + 28.65; // 58.95 - 30.30 = 28.65mm
-    const firstMemberTop = tableHeaderTop + 7.65; // Height of header row
-    const memberRowHeight = 8.05; // Space between member rows
+    // Use cumulative position for this family
+    const familyTop = currentTop;
+    const tableHeaderTop = familyTop + 28.65;
+    const firstMemberTop = tableHeaderTop + 7.65;
+    const memberRowHeight = 8.05;
     
     // Detect font and size for family data
     const familyNameText = formatRespect(family.respect) + ' ' + (family.family_name || '');
@@ -268,12 +315,13 @@ for (let pageNum = 0; pageNum < totalPages; pageNum++) {
     console.log('Member:', member.name, 'DOB:', member.dob, 'Marriage:', member.date_of_marriage);
 
     const age = calculateAge(member.dob);
-    const anniversaryYears = member.date_of_marriage ? calculateAnniversaryYears(member.date_of_marriage) : '';
+    const anniversaryYears = member.dateOfMarriage ? calculateAnniversaryYears(member.dateOfMarriage) : '';
     const isCelebrant = celebrantIds.includes(member.id);
     const isBold = boldMemberIds.includes(member.id);
     const boldClass = isBold ? 'bold-text' : '';
 
     // Debug calculated values
+    console.log('Member:', member.name, 'DOB:', member.dob, 'Marriage:', member.dateOfMarriage);
     console.log('Calculated age:', age, 'Anniversary years:', anniversaryYears);
 
     // Format age with anniversary: "45 (20)" or just "45" if no anniversary
@@ -330,11 +378,21 @@ for (let pageNum = 0; pageNum < totalPages; pageNum++) {
   </svg>
 
   <!-- Separator Line between families -->
-  <% if (familyIdx < familiesOnPage.length - 1) { %>
+  <% 
+  // Calculate actual height used by this family
+  const actualFamilyHeight = lastMemberTop - familyTop + 0.35; // +0.35 for separator line
+  
+  if (familyIdx < familiesOnPage.length - 1) { 
+    const separatorTop = lastMemberTop;
+  %>
   <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
-    <line x1="12.70mm" y1="<%= familyTop + 56 %>mm" x2="197.10mm" y2="<%= familyTop + 56 %>mm" stroke="#000000" stroke-width="0.35mm" />
+    <line x1="12.70mm" y1="<%= separatorTop %>mm" x2="197.10mm" y2="<%= separatorTop %>mm" stroke="#000000" stroke-width="0.35mm" />
   </svg>
-  <% } %>
+  <% 
+    // Update position for next family (add small gap after separator)
+    currentTop = separatorTop + 2.00; // 2mm gap after separator
+  } 
+  %>
   
   <% }); %>
   

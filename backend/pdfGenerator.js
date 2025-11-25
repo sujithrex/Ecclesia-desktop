@@ -1361,25 +1361,64 @@ function getAgeGroup(age) {
 }
 
 /**
- * Generate HTML for Sabai Jabitha report
+ * Generate HTML for Sabai Jabitha report with pagination
  */
 function generateSabaiJabithaHTML(reportData, churchData, year) {
   const churchName = churchData?.churchName || 'Church';
   const pastorateName = churchData?.pastorateName || '';
   const fullChurchName = pastorateName ? `${churchName} - ${pastorateName}` : churchName;
   
-  // Generate rows for all families and members
-  let memberRows = '';
-  let horizontalLines = '';
-  let currentTop = 74.25; // Starting position after header
-
+  const HEADER_HEIGHT_FIRST = 74.25; // Height of header section on first page
+  const HEADER_HEIGHT_OTHER = 44.25; // Height of header section on other pages (30mm less)
+  const PAGE_HEIGHT = 284.30; // Total usable height on page
+  const ROW_HEIGHT = 9; // Height per member row
+  
+  // Split families into pages
+  const pages = [];
+  let currentPage = { families: [], currentTop: HEADER_HEIGHT_FIRST, isFirstPage: true };
+  
   for (const familyData of reportData) {
     const { area, family, members } = familyData;
-    const familyNumber = `${area.areaId}${family.familyNumber}`; // Use areaId from area table
-    const familyStartTop = currentTop;
+    const familyHeight = members.length * ROW_HEIGHT;
+    
+    // Check if family fits on current page
+    if (currentPage.currentTop + familyHeight > PAGE_HEIGHT) {
+      // Start new page
+      pages.push(currentPage);
+      currentPage = { families: [], currentTop: HEADER_HEIGHT_OTHER, isFirstPage: false };
+    }
+    
+    // Add family to current page
+    currentPage.families.push({
+      ...familyData,
+      startTop: currentPage.currentTop
+    });
+    currentPage.currentTop += familyHeight;
+  }
+  
+  // Add last page
+  if (currentPage.families.length > 0) {
+    pages.push(currentPage);
+  }
+  
+  // Generate HTML for all pages
+  let pagesHTML = '';
+  
+  for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+    const page = pages[pageIndex];
+    const isFirstPage = page.isFirstPage;
+    
+    let memberRows = '';
+    let horizontalLines = '';
+    
+    for (const familyData of page.families) {
+      const { area, family, members, startTop } = familyData;
+      const familyNumber = `${area.areaId}${family.familyNumber}`;
+      let currentTop = startTop; // Use the pre-calculated startTop (already accounts for header height)
+      const familyStartTop = currentTop;
 
-    // Add members
-    for (let i = 0; i < members.length; i++) {
+      // Add members
+      for (let i = 0; i < members.length; i++) {
       const member = members[i];
       
       // Determine color based on age and gender
@@ -1512,21 +1551,22 @@ function generateSabaiJabithaHTML(reportData, churchData, year) {
       currentTop += 9; // Move to next row
     }
 
-    // Add family number centered across all members
-    const familyHeight = members.length * 9; // 9mm per member
-    memberRows += `
-      <div class="text-frame" style="left: 12.70mm; top: ${familyStartTop}mm; width: 8.60mm; height: ${familyHeight}mm;">
-        <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 11.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
-          ${familyNumber}
+      // Add family number centered across all members
+      const familyHeight = members.length * ROW_HEIGHT;
+      memberRows += `
+        <div class="text-frame" style="left: 12.70mm; top: ${familyStartTop}mm; width: 8.60mm; height: ${familyHeight}mm;">
+          <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 11.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
+            ${familyNumber}
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-    // Add horizontal line after family (from family number to notes)
-    horizontalLines += `<line x1="12.70mm" y1="${currentTop}mm" x2="197.14mm" y2="${currentTop}mm" stroke="#000000" stroke-width="0.35mm" />`;
-
-    // Add 4 blank rows between families (36mm spacing)
-    currentTop += 36;
+      // Add horizontal line after family (from family number to notes)
+      horizontalLines += `<line x1="12.70mm" y1="${currentTop}mm" x2="197.14mm" y2="${currentTop}mm" stroke="#000000" stroke-width="0.35mm" />`;
+    }
+    
+    // Generate page HTML
+    pagesHTML += generatePageHTML(memberRows, horizontalLines, fullChurchName, year, isFirstPage);
   }
 
   return `
@@ -1544,11 +1584,23 @@ function generateSabaiJabithaHTML(reportData, churchData, year) {
           padding: 0;
           box-sizing: border-box;
         }
+        @page {
+          size: A4;
+          margin: 0;
+        }
         body {
+          width: 210.00mm;
+          position: relative;
+        }
+        .page {
           width: 210.00mm;
           height: 297.00mm;
           position: relative;
+          page-break-after: always;
           overflow: hidden;
+        }
+        .page:last-child {
+          page-break-after: auto;
         }
         .text-frame {
           position: absolute;
@@ -1570,75 +1622,96 @@ function generateSabaiJabithaHTML(reportData, churchData, year) {
       </style>
     </head>
     <body>
-      <!-- Title -->
-      <div class="text-frame" style="left: 12.70mm; top: 16.95mm; width: 184.60mm; height: 8.05mm;">
-        <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; font-size: 24.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
-          சபை அங்கத்தினர் ஜாபிதா
-        </div>
-      </div>
+      ${pagesHTML}
+    </body>
+    </html>
+  `;
+}
 
-      <!-- Note -->
-      <div class="text-frame" style="left: 11.00mm; top: 26.00mm; width: 184.60mm; height: 5.75mm;">
-        <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
-          ( ஒவ்வொரு குடும்பத்தினர்க்கும் அடுத்த குடும்பத்திற்கும் இடையில் 4 கோடுகள் விடப்படவும் )
-        </div>
+/**
+ * Generate HTML for a single page
+ */
+function generatePageHTML(memberRows, horizontalLines, fullChurchName, year, isFirstPage) {
+  // Title and note only on first page
+  const titleSection = isFirstPage ? `
+    <!-- Title -->
+    <div class="text-frame" style="left: 12.70mm; top: 16.95mm; width: 184.60mm; height: 8.05mm;">
+      <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; font-size: 24.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
+        சபை அங்கத்தினர் ஜாபிதா
       </div>
+    </div>
 
-      <!-- Church Name -->
-      <div class="text-frame" style="left: 15.00mm; top: 32.25mm; width: 180mm; height: 4.25mm;">
-        <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: left;">
-          சபை : ${fullChurchName}
-        </div>
+    <!-- Note -->
+    <div class="text-frame" style="left: 11.00mm; top: 26.00mm; width: 184.60mm; height: 5.75mm;">
+      <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
+        ( ஒவ்வொரு குடும்பத்தினர்க்கும் அடுத்த குடும்பத்திற்கும் இடையில் 4 கோடுகள் விடப்படவும் )
       </div>
+    </div>
 
-      <!-- Year -->
-      <div class="text-frame" style="left: 113.75mm; top: 37.25mm; width: 83.60mm; height: 5.75mm;">
-        <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
-          ${year}
-        </div>
+    <!-- Church Name -->
+    <div class="text-frame" style="left: 15.00mm; top: 32.25mm; width: 180mm; height: 4.25mm;">
+      <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: left;">
+        சபை : ${fullChurchName}
       </div>
+    </div>
+
+    <!-- Year -->
+    <div class="text-frame" style="left: 113.75mm; top: 37.25mm; width: 83.60mm; height: 5.75mm;">
+      <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">
+        ${year}
+      </div>
+    </div>
+  ` : '';
+
+  // Adjust vertical positions based on whether it's first page or not
+  // On non-first pages, move everything up by 30mm to eliminate empty space
+  const topOffset = isFirstPage ? 0 : -30;
+  
+  return `
+    <div class="page">
+      ${titleSection}
 
       <!-- Column Headers -->
-      <div class="text-frame" style="left: 17.02mm; top: 58.87mm; margin-left: -15.21mm; margin-top: -4.11mm; width: 30.41mm; height: 8.21mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 17.02mm; top: ${58.87 + topOffset}mm; margin-left: -15.21mm; margin-top: -4.11mm; width: 30.41mm; height: 8.21mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">குடும்ப எண்</div>
       </div>
-      <div class="text-frame" style="left: 29.01mm; top: 58.91mm; margin-left: -15.34mm; margin-top: -7.17mm; width: 30.67mm; height: 14.33mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 29.01mm; top: ${58.91 + topOffset}mm; margin-left: -15.34mm; margin-top: -7.17mm; width: 30.67mm; height: 14.33mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">இனமுறை</div>
       </div>
-      <div class="text-frame" style="left: 36.32mm; top: 43.68mm; width: 75.85mm; height: 30.39mm;">
+      <div class="text-frame" style="left: 36.32mm; top: ${43.68 + topOffset}mm; width: 75.85mm; height: 30.39mm;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">பெயர் மற்றும் ஆதார் எண்<br/>(பெயர் ஆதார் அட்டையில் உள்ளபடி)</div>
       </div>
-      <div class="text-frame" style="left: 116.46mm; top: 59.09mm; margin-left: -15.34mm; margin-top: -4.11mm; width: 30.67mm; height: 8.21mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 116.46mm; top: ${59.09 + topOffset}mm; margin-left: -15.34mm; margin-top: -4.11mm; width: 30.67mm; height: 8.21mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">சங்கம் ${year}</div>
       </div>
-      <div class="text-frame" style="left: 120.75mm; top: 43.93mm; width: 25.57mm; height: 7.20mm;">
+      <div class="text-frame" style="left: 120.75mm; top: ${43.93 + topOffset}mm; width: 25.57mm; height: 7.20mm;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">வயது</div>
       </div>
-      <div class="text-frame" style="left: 124.86mm; top: 62.77mm; margin-left: -11.47mm; margin-top: -4.07mm; width: 22.95mm; height: 8.13mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 124.86mm; top: ${62.77 + topOffset}mm; margin-left: -11.47mm; margin-top: -4.07mm; width: 22.95mm; height: 8.13mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">1-15</div>
       </div>
-      <div class="text-frame" style="left: 133.34mm; top: 62.60mm; margin-left: -11.47mm; margin-top: -4.07mm; width: 22.95mm; height: 8.13mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 133.34mm; top: ${62.60 + topOffset}mm; margin-left: -11.47mm; margin-top: -4.07mm; width: 22.95mm; height: 8.13mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">16-35</div>
       </div>
-      <div class="text-frame" style="left: 141.91mm; top: 62.60mm; margin-left: -11.47mm; margin-top: -4.07mm; width: 22.95mm; height: 8.13mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 141.91mm; top: ${62.60 + topOffset}mm; margin-left: -11.47mm; margin-top: -4.07mm; width: 22.95mm; height: 8.13mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">35க்கு மேல்</div>
       </div>
-      <div class="text-frame" style="left: 150.32mm; top: 59.00mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 150.32mm; top: ${59.00 + topOffset}mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">ஆ.பெ.பி</div>
       </div>
-      <div class="text-frame" style="left: 158.93mm; top: 59.07mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 158.93mm; top: ${59.07 + topOffset}mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">வரிசை எண்</div>
       </div>
-      <div class="text-frame" style="left: 167.53mm; top: 59.00mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 167.53mm; top: ${59.00 + topOffset}mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">ஞானஸ்நானம்</div>
       </div>
-      <div class="text-frame" style="left: 176.13mm; top: 59.35mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 176.13mm; top: ${59.35 + topOffset}mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">இராபோஜனம்</div>
       </div>
-      <div class="text-frame" style="left: 184.50mm; top: 59.00mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 184.50mm; top: ${59.00 + topOffset}mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">அயலிடம்</div>
       </div>
-      <div class="text-frame" style="left: 192.88mm; top: 58.82mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
+      <div class="text-frame" style="left: 192.88mm; top: ${58.82 + topOffset}mm; margin-left: -15.07mm; margin-top: -4.17mm; width: 30.15mm; height: 8.35mm; transform: rotate(-90.0deg); transform-origin: center center;">
         <div class="text-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 12.0pt; font-family: 'Vijaya'; color: #000000; text-align: center;">குறிப்புகள்</div>
       </div>
 
@@ -1647,32 +1720,31 @@ function generateSabaiJabithaHTML(reportData, churchData, year) {
 
       <!-- Horizontal Lines -->
       <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
-        <line x1="12.92mm" y1="36.50mm" x2="197.06mm" y2="36.50mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="12.92mm" y1="43.75mm" x2="197.12mm" y2="43.75mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="120.40mm" y1="51.30mm" x2="145.97mm" y2="51.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="12.92mm" y1="74.25mm" x2="197.14mm" y2="74.25mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="12.92mm" y1="${36.50 + topOffset}mm" x2="197.06mm" y2="${36.50 + topOffset}mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="12.92mm" y1="${43.75 + topOffset}mm" x2="197.12mm" y2="${43.75 + topOffset}mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="120.40mm" y1="${51.30 + topOffset}mm" x2="145.97mm" y2="${51.30 + topOffset}mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="12.92mm" y1="${74.25 + topOffset}mm" x2="197.14mm" y2="${74.25 + topOffset}mm" stroke="#000000" stroke-width="0.35mm" />
         ${horizontalLines}
       </svg>
 
       <!-- Vertical Lines -->
       <svg class="line" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none;">
-        <line x1="21.30mm" y1="43.68mm" x2="21.30mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="36.00mm" y1="43.75mm" x2="36.00mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="112.18mm" y1="36.32mm" x2="112.18mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="120.58mm" y1="43.57mm" x2="120.58mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="129.10mm" y1="51.12mm" x2="129.10mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="137.62mm" y1="51.12mm" x2="137.62mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="146.15mm" y1="43.57mm" x2="146.15mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="154.67mm" y1="43.57mm" x2="154.67mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="163.19mm" y1="43.57mm" x2="163.19mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="171.72mm" y1="43.57mm" x2="171.72mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="180.24mm" y1="43.57mm" x2="180.24mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
-        <line x1="188.76mm" y1="43.57mm" x2="188.76mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="21.30mm" y1="${43.68 + topOffset}mm" x2="21.30mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="36.00mm" y1="${43.75 + topOffset}mm" x2="36.00mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="112.18mm" y1="${36.32 + topOffset}mm" x2="112.18mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="120.58mm" y1="${43.57 + topOffset}mm" x2="120.58mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="129.10mm" y1="${51.12 + topOffset}mm" x2="129.10mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="137.62mm" y1="${51.12 + topOffset}mm" x2="137.62mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="146.15mm" y1="${43.57 + topOffset}mm" x2="146.15mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="154.67mm" y1="${43.57 + topOffset}mm" x2="154.67mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="163.19mm" y1="${43.57 + topOffset}mm" x2="163.19mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="171.72mm" y1="${43.57 + topOffset}mm" x2="171.72mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="180.24mm" y1="${43.57 + topOffset}mm" x2="180.24mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
+        <line x1="188.76mm" y1="${43.57 + topOffset}mm" x2="188.76mm" y2="284.30mm" stroke="#000000" stroke-width="0.35mm" />
       </svg>
 
       <!-- Member Rows -->
       ${memberRows}
-    </body>
-    </html>
+    </div>
   `;
 }

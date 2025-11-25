@@ -20,6 +20,7 @@ import CreateMarriageRecord from './pages/reports/CreateMarriageRecord';
 import BirthdayList from './pages/reports/BirthdayList';
 import LetterHead from './pages/reports/LetterHead';
 import CongregationBackup from './pages/backups/CongregationBackup';
+import CongregationRestore from './pages/backups/CongregationRestore';
 import './App.css';
 
 function App() {
@@ -196,6 +197,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CongregationBackup />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/backups/congregation-restore"
+            element={
+              <ProtectedRoute>
+                <CongregationRestore />
               </ProtectedRoute>
             }
           />

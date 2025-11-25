@@ -101,7 +101,10 @@ const {
   openPDF
 } = require('./backend/pdfGenerator');
 const {
-  createCongregationBackup
+  createCongregationBackup,
+  selectRestoreFile,
+  previewCongregationRestore,
+  restoreCongregationBackup
 } = require('./backend/csvGenerator');
 
 if (require('electron-squirrel-startup')) {
@@ -126,6 +129,7 @@ function createWindow() {
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
+    mainWindow.webContents.openDevTools(); // Open DevTools in dev mode
   } else {
     mainWindow.loadFile(path.join(__dirname, 'frontend/dist/index.html'));
   }
@@ -1147,6 +1151,38 @@ app.whenReady().then(async () => {
     } catch (error) {
       console.error('Congregation backup error:', error);
       return { success: false, message: error.message || 'Failed to create backup' };
+    }
+  });
+
+  ipcMain.handle('backup:selectRestoreFile', async (event) => {
+    try {
+      console.log('IPC: backup:selectRestoreFile called');
+      const result = await selectRestoreFile();
+      console.log('IPC: selectRestoreFile result:', result);
+      return result;
+    } catch (error) {
+      console.error('IPC: File selection error:', error);
+      return { success: false, message: error.message || 'Failed to select file' };
+    }
+  });
+
+  ipcMain.handle('backup:previewCongregationRestore', async (event, { filePath, churchId }) => {
+    try {
+      const result = await previewCongregationRestore(filePath, churchId);
+      return result;
+    } catch (error) {
+      console.error('Congregation restore preview error:', error);
+      return { success: false, message: error.message || 'Failed to preview restore' };
+    }
+  });
+
+  ipcMain.handle('backup:restoreCongregationBackup', async (event, { filePath, churchId, mode }) => {
+    try {
+      const result = await restoreCongregationBackup(filePath, churchId, mode);
+      return result;
+    } catch (error) {
+      console.error('Congregation restore error:', error);
+      return { success: false, message: error.message || 'Failed to restore data' };
     }
   });
 

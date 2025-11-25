@@ -98,7 +98,10 @@ contextBridge.exposeInMainWorld('electron', {
     generatePDF: (params) => ipcRenderer.invoke('sabaiJabitha:generatePDF', params)
   },
   backup: {
-    createCongregationBackup: (params) => ipcRenderer.invoke('backup:createCongregationBackup', params)
+    createCongregationBackup: (params) => ipcRenderer.invoke('backup:createCongregationBackup', params),
+    selectRestoreFile: () => ipcRenderer.invoke('backup:selectRestoreFile'),
+    previewCongregationRestore: (params) => ipcRenderer.invoke('backup:previewCongregationRestore', params),
+    restoreCongregationBackup: (params) => ipcRenderer.invoke('backup:restoreCongregationBackup', params)
   },
   marriage: {
     getAll: () => ipcRenderer.invoke('marriage:getAll'),

@@ -191,3 +191,475 @@ function escapeCSVValue(value) {
 module.exports = {
   createCongregationBackup
 };
+
+/**
+ * Select restore file using dialog
+ */
+async function selectRestoreFile() {
+  try {
+    console.log('Backend: selectRestoreFile called');
+    
+    const result = await dialog.showOpenDialog({
+      title: 'Select Congregation Backup CSV',
+      filters: [
+        { name: 'CSV Files', extensions: ['csv'] },
+        { name: 'All Files', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    });
+
+    console.log('Backend: dialog result:', result);
+
+    if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+      console.log('Backend: File selection was canceled');
+      return { success: false, message: 'File selection canceled' };
+    }
+
+    const selectedPath = result.filePaths[0];
+    const fileName = path.basename(selectedPath);
+
+    console.log('Backend: File selected:', selectedPath);
+
+    return {
+      success: true,
+      filePath: selectedPath,
+      fileName: fileName
+    };
+  } catch (error) {
+    console.error('Backend: Error selecting file:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to select file'
+    };
+  }
+}
+
+/**
+ * Preview congregation restore from CSV
+ */
+async function previewCongregationRestore(filePath, churchId) {
+  try {
+    console.log('Preview restore - filePath:', filePath, 'churchId:', churchId);
+    
+    const {
+      getChurchById,
+      getAreasByChurch,
+      getAllFamilies,
+      getAllMembers
+    } = require('./database');
+
+    // Read and parse CSV
+    const csvContent = await fs.readFile(filePath, 'utf8');
+    const rows = parseCSV(csvContent);
+
+    console.log('Parsed rows:', rows.length);
+
+    if (rows.length === 0) {
+      return { success: false, message: 'CSV file is empty' };
+    }
+
+    // Validate headers
+    const requiredHeaders = ['areaName', 'familyName', 'familyNumber', 'memberName', 'memberNumber', 'relation', 'sex'];
+    const headers = Object.keys(rows[0]);
+    const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+
+    if (missingHeaders.length > 0) {
+      return {
+        success: false,
+        message: `Missing required columns: ${missingHeaders.join(', ')}`
+      };
+    }
+
+    // Analyze data
+    const areas = new Set();
+    const families = new Set();
+    const errors = [];
+    const warnings = [];
+
+    rows.forEach((row, index) => {
+      const rowNum = index + 2; // +2 because index starts at 0 and row 1 is header
+
+      // Validate required fields
+      if (!row.areaName || !row.areaName.trim()) {
+        errors.push({ row: rowNum, message: 'Area name is required' });
+      }
+      if (!row.familyName || !row.familyName.trim()) {
+        errors.push({ row: rowNum, message: 'Family name is required' });
+      }
+      if (!row.familyNumber || !row.familyNumber.trim()) {
+        errors.push({ row: rowNum, message: 'Family number is required' });
+      }
+      if (!row.memberName || !row.memberName.trim()) {
+        errors.push({ row: rowNum, message: 'Member name is required' });
+      }
+      if (!row.memberNumber || !row.memberNumber.trim()) {
+        errors.push({ row: rowNum, message: 'Member number is required' });
+      }
+      if (!row.relation || !row.relation.trim()) {
+        errors.push({ row: rowNum, message: 'Relation is required' });
+      }
+      if (!row.sex || !row.sex.trim()) {
+        errors.push({ row: rowNum, message: 'Sex is required' });
+      }
+
+      // Validate member number format (2 digits)
+      if (row.memberNumber && !/^\d{2}$/.test(row.memberNumber)) {
+        errors.push({ row: rowNum, message: 'Member number must be exactly 2 digits' });
+      }
+
+      // Validate family number format (3 digits)
+      if (row.familyNumber && !/^\d{3}$/.test(row.familyNumber)) {
+        errors.push({ row: rowNum, message: 'Family number must be exactly 3 digits' });
+      }
+
+      // Check for spouse name without finding spouse
+      if (row.spouseName && row.spouseName.trim()) {
+        warnings.push({ row: rowNum, message: `Spouse "${row.spouseName}" will be linked if found in same family` });
+      }
+
+      // Collect unique areas and families
+      if (row.areaName) areas.add(row.areaName);
+      if (row.areaName && row.familyNumber) families.add(`${row.areaName}|${row.familyNumber}`);
+    });
+
+    return {
+      success: true,
+      preview: {
+        totalRows: rows.length,
+        areas: areas.size,
+        families: families.size,
+        members: rows.length,
+        errors: errors,
+        warnings: warnings
+      }
+    };
+
+  } catch (error) {
+    console.error('Error previewing restore:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to preview file'
+    };
+  }
+}
+
+/**
+ * Restore congregation from CSV backup
+ */
+async function restoreCongregationBackup(filePath, churchId, mode) {
+  try {
+    const {
+      getChurchById,
+      getAreasByChurch,
+      createArea,
+      updateArea,
+      getAllFamilies,
+      createFamily,
+      updateFamily,
+      getAllMembers,
+      createMember,
+      updateMember,
+      deleteArea
+    } = require('./database');
+
+    // Get church
+    const church = await getChurchById(churchId);
+    if (!church) {
+      return { success: false, message: 'Church not found' };
+    }
+
+    // If replace mode, delete all existing data
+    if (mode === 'replace') {
+      const existingAreas = await getAreasByChurch(churchId);
+      for (const area of existingAreas) {
+        await deleteArea(area.id);
+      }
+    }
+
+    // Read and parse CSV
+    const csvContent = await fs.readFile(filePath, 'utf8');
+    const rows = parseCSV(csvContent);
+
+    if (rows.length === 0) {
+      return { success: false, message: 'CSV file is empty' };
+    }
+
+    // Get existing data
+    const existingAreas = await getAreasByChurch(churchId);
+    const allFamilies = await getAllFamilies();
+    const allMembers = await getAllMembers();
+
+    // Track statistics
+    const stats = {
+      imported: 0,
+      updated: 0,
+      skipped: 0,
+      failed: 0
+    };
+
+    // Track created entities for ID mapping
+    const areaMap = new Map(); // areaName -> area object
+    const familyMap = new Map(); // areaName|familyNumber -> family object
+    const memberMap = new Map(); // familyId|memberNumber -> member object
+    const spouseLinkQueue = []; // Queue for linking spouses after all members created
+
+    // Process each row
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowNum = i + 2;
+
+      try {
+        // Validate required fields
+        if (!row.areaName || !row.familyName || !row.familyNumber || !row.memberName || !row.memberNumber || !row.relation || !row.sex) {
+          stats.failed++;
+          continue;
+        }
+
+        // Validate formats
+        if (!/^\d{2}$/.test(row.memberNumber) || !/^\d{3}$/.test(row.familyNumber)) {
+          stats.failed++;
+          continue;
+        }
+
+        // 1. Handle Area
+        let area = areaMap.get(row.areaName);
+        if (!area) {
+          // Check if area exists
+          area = existingAreas.find(a => a.areaName === row.areaName);
+          if (!area) {
+            // Create new area
+            area = await createArea({
+              churchId: churchId,
+              areaName: row.areaName,
+              areaId: row.areaId || row.areaName.substring(0, 3).toUpperCase()
+            });
+          }
+          areaMap.set(row.areaName, area);
+        }
+
+        // 2. Handle Family
+        const familyKey = `${row.areaName}|${row.familyNumber}`;
+        let family = familyMap.get(familyKey);
+        if (!family) {
+          // Check if family exists
+          family = allFamilies.find(f => f.areaId === area.id && f.familyNumber === row.familyNumber);
+          if (family) {
+            // Update existing family
+            if (mode === 'merge') {
+              await updateFamily(family.id, {
+                respect: row.familyRespect || family.respect,
+                familyName: row.familyName || family.familyName,
+                familyPhone: row.familyPhone || family.familyPhone,
+                familyEmail: row.familyEmail || family.familyEmail,
+                familyAddress: row.familyAddress || family.familyAddress,
+                notes: row.familyNotes || family.notes,
+                prayerPoints: row.familyPrayerPoints || family.prayerPoints
+              });
+              stats.updated++;
+            }
+          } else {
+            // Create new family
+            family = await createFamily({
+              areaId: area.id,
+              respect: row.familyRespect || 'Mr',
+              familyName: row.familyName,
+              familyNumber: row.familyNumber,
+              layoutNumber: row.layoutNumber || row.familyNumber,
+              familyPhone: row.familyPhone || '',
+              familyEmail: row.familyEmail || '',
+              familyAddress: row.familyAddress || '',
+              notes: row.familyNotes || '',
+              prayerPoints: row.familyPrayerPoints || ''
+            });
+            stats.imported++;
+          }
+          familyMap.set(familyKey, family);
+        }
+
+        // 3. Handle Member
+        const memberKey = `${family.id}|${row.memberNumber}`;
+        let member = memberMap.get(memberKey);
+        if (!member) {
+          // Check if member exists
+          member = allMembers.find(m => m.familyId === family.id && m.memberNumber === row.memberNumber);
+          if (member) {
+            // Update existing member
+            if (mode === 'merge') {
+              await updateMember(member.id, {
+                respect: row.memberRespect || member.respect,
+                name: row.memberName || member.name,
+                relation: row.relation || member.relation,
+                sex: row.sex || member.sex,
+                dob: row.dob || member.dob,
+                mobile: row.mobile || member.mobile,
+                aadharNumber: row.aadharNumber || member.aadharNumber,
+                occupation: row.occupation || member.occupation,
+                workingPlace: row.workingPlace || member.workingPlace,
+                isAlive: row.isAlive !== undefined ? parseBool(row.isAlive) : member.isAlive,
+                isMarried: row.isMarried !== undefined ? parseBool(row.isMarried) : member.isMarried,
+                dateOfMarriage: row.dateOfMarriage || member.dateOfMarriage,
+                isBaptised: row.isBaptised !== undefined ? parseBool(row.isBaptised) : member.isBaptised,
+                dateOfBaptism: row.dateOfBaptism || member.dateOfBaptism,
+                isConfirmed: row.isConfirmed !== undefined ? parseBool(row.isConfirmed) : member.isConfirmed,
+                dateOfConfirmation: row.dateOfConfirmation || member.dateOfConfirmation,
+                congregationParticipation: row.congregationParticipation !== undefined ? parseBool(row.congregationParticipation) : member.congregationParticipation
+              });
+              stats.updated++;
+            } else {
+              stats.skipped++;
+            }
+          } else {
+            // Create new member
+            member = await createMember({
+              familyId: family.id,
+              respect: row.memberRespect || 'Mr',
+              name: row.memberName,
+              relation: row.relation,
+              sex: row.sex,
+              memberNumber: row.memberNumber,
+              dob: row.dob || '',
+              mobile: row.mobile || '',
+              aadharNumber: row.aadharNumber || '',
+              occupation: row.occupation || '',
+              workingPlace: row.workingPlace || '',
+              isAlive: row.isAlive !== undefined ? parseBool(row.isAlive) : true,
+              isMarried: row.isMarried !== undefined ? parseBool(row.isMarried) : false,
+              dateOfMarriage: row.dateOfMarriage || '',
+              isBaptised: row.isBaptised !== undefined ? parseBool(row.isBaptised) : false,
+              dateOfBaptism: row.dateOfBaptism || '',
+              isConfirmed: row.isConfirmed !== undefined ? parseBool(row.isConfirmed) : false,
+              dateOfConfirmation: row.dateOfConfirmation || '',
+              congregationParticipation: row.congregationParticipation !== undefined ? parseBool(row.congregationParticipation) : false
+            });
+            stats.imported++;
+          }
+          memberMap.set(memberKey, member);
+        }
+
+        // Queue spouse linking if spouseName exists
+        if (row.spouseName && row.spouseName.trim()) {
+          spouseLinkQueue.push({
+            member: member,
+            spouseName: row.spouseName.trim(),
+            familyId: family.id
+          });
+        }
+
+      } catch (error) {
+        console.error(`Error processing row ${rowNum}:`, error);
+        stats.failed++;
+      }
+    }
+
+    // Link spouses
+    const updatedAllMembers = await getAllMembers();
+    for (const link of spouseLinkQueue) {
+      try {
+        const spouse = updatedAllMembers.find(m => 
+          m.familyId === link.familyId && 
+          m.name === link.spouseName &&
+          m.id !== link.member.id
+        );
+        
+        if (spouse) {
+          await updateMember(link.member.id, { spouseId: spouse.id, isMarried: true });
+          await updateMember(spouse.id, { spouseId: link.member.id, isMarried: true });
+        }
+      } catch (error) {
+        console.error('Error linking spouse:', error);
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Restore completed successfully',
+      stats: stats
+    };
+
+  } catch (error) {
+    console.error('Error restoring congregation:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to restore data'
+    };
+  }
+}
+
+/**
+ * Parse CSV content to array of objects
+ */
+function parseCSV(csvContent) {
+  // Remove BOM if present
+  const content = csvContent.replace(/^\uFEFF/, '');
+  
+  const lines = content.split('\n').filter(line => line.trim());
+  if (lines.length === 0) return [];
+
+  // Parse header
+  const headers = parseCSVLine(lines[0]);
+  
+  // Parse data rows
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseCSVLine(lines[i]);
+    const row = {};
+    headers.forEach((header, index) => {
+      row[header] = values[index] || '';
+    });
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+/**
+ * Parse a single CSV line (handles quoted values)
+ */
+function parseCSVLine(line) {
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i++; // Skip next quote
+      } else {
+        // Toggle quote mode
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // End of value
+      values.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  // Add last value
+  values.push(current.trim());
+
+  return values;
+}
+
+/**
+ * Parse boolean value from string
+ */
+function parseBool(value) {
+  if (typeof value === 'boolean') return value;
+  const str = String(value).toLowerCase().trim();
+  return str === 'true' || str === '1' || str === 'yes';
+}
+
+module.exports = {
+  createCongregationBackup,
+  selectRestoreFile,
+  previewCongregationRestore,
+  restoreCongregationBackup
+};

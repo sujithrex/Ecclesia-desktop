@@ -1,0 +1,274 @@
+.preview-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.preview-section h2 {
+  margin-bottom: 20px;
+  color: #722f37;
+}
+
+.preview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #722f37;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.error-list {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.error-list h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c33;
+  margin-bottom: 15px;
+}
+
+.error-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.error-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 4px;
+  display: flex;
+  gap: 10px;
+}
+
+.error-row {
+  font-weight: bold;
+  color: #c33;
+  min-width: 80px;
+}
+
+.error-message {
+  color: #333;
+}
+
+.error-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  padding: 10px;
+  background: #fff3cd;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 14px;
+}
+
+.warning-list {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.warning-list h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #856404;
+  margin-bottom: 15px;
+}
+
+.warning-items {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.warning-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 4px;
+  display: flex;
+  gap: 10px;
+}
+
+.warning-row {
+  font-weight: bold;
+  color: #856404;
+  min-width: 80px;
+}
+
+.warning-message {
+  color: #333;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  color: #155724;
+  font-weight: 500;
+}
+
+.file-select-btn {
+  padding: 10px 20px;
+  background: #722f37;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.file-select-btn:hover:not(:disabled) {
+  background: #5a2329;
+}
+
+.file-select-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.file-selected {
+  margin-top: 8px;
+  color: #722f37;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.next-btn {
+  padding: 12px 30px;
+  background: #722f37;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.next-btn:hover {
+  background: #5a2329;
+}
+
+.action-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.delete-confirm-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.delete-confirm-modal h2 {
+  color: #c33;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.warning-text {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.warning-subtext {
+  font-size: 14px;
+  color: #c33;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #5a6268;
+}
+
+.delete-confirm-btn {
+  background: #c33;
+  color: white;
+}
+
+.delete-confirm-btn:hover:not(:disabled) {
+  background: #a22;
+}
+
+.delete-confirm-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

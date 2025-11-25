@@ -63,10 +63,20 @@ Ecclesia Desktop is a comprehensive church management system designed specifical
 ## 🚀 Download & Installation
 
 ### Windows
-1. Download `Ecclesia-Desktop-Setup-1.0.0.exe` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
+
+**For 64-bit Windows (Recommended)**
+1. Download `Ecclesia-Desktop-Setup-1.0.0.exe` (x64) from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
 2. Run the installer
 3. Follow the installation wizard
 4. Launch Ecclesia Desktop from your Start Menu
+
+**For 32-bit Windows**
+1. Download `Ecclesia-Desktop-Setup-1.0.0-ia32.exe` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
+2. Run the installer
+3. Follow the installation wizard
+4. Launch Ecclesia Desktop from your Start Menu
+
+> **Note**: Not sure which version? Right-click "This PC" → Properties. If it says "64-bit", use the 64-bit version.
 
 ### macOS
 1. Download `Ecclesia-Desktop-1.0.0-darwin-x64.zip` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
@@ -90,11 +100,13 @@ sudo rpm -i ecclesia-desktop-1.0.0-1.x86_64.rpm
 
 ## 💻 System Requirements
 
-- **Windows**: Windows 10 or later
-- **macOS**: macOS 10.13 (High Sierra) or later
-- **Linux**: Ubuntu 18.04+, Fedora 32+, or equivalent
+- **Windows**: Windows 10 or later (both 32-bit and 64-bit supported)
+- **macOS**: macOS 10.13 (High Sierra) or later (64-bit only)
+- **Linux**: Ubuntu 18.04+, Fedora 32+, or equivalent (64-bit only)
 - **RAM**: 4GB minimum, 8GB recommended
 - **Storage**: 500MB free space
+
+> **Note**: Windows 7/8 are not officially supported by Electron 39, but may work on Windows 10/11 32-bit systems.
 
 ## 🛠️ Development
 

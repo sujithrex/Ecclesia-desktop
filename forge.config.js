@@ -7,6 +7,7 @@ module.exports = {
       unpack: '*.{node,dll}'
     },
     icon: './backend/assets/images/favicon.ico',
+    arch: ['x64', 'ia32'], // Support both 64-bit and 32-bit
     ignore: [
       /^\/\.git/,
       /^\/\.vscode/,
@@ -42,6 +43,8 @@ module.exports = {
       config: {
         setupIcon: './backend/assets/images/favicon.ico',
       },
+      platforms: ['win32'],
+      arch: ['x64', 'ia32'], // Build both 64-bit and 32-bit installers
     },
     {
       name: '@electron-forge/maker-zip',

@@ -12,6 +12,13 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
+        arch: [x64, ia32]
+        exclude:
+          # Only build ia32 on Windows
+          - os: macos-latest
+            arch: ia32
+          - os: ubuntu-latest
+            arch: ia32
     
     steps:
       - name: Checkout code

@@ -7,6 +7,20 @@ module.exports = {
       unpack: '*.{node,dll}'
     },
     icon: './backend/assets/images/favicon.ico',
+    ignore: [
+      /^\/\.git/,
+      /^\/\.vscode/,
+      /^\/out/,
+      /^\/frontend\/node_modules/,
+      /^\/frontend\/src/,
+      /^\/frontend\/public/,
+      /^\/frontend\/\.gitignore/,
+      /^\/frontend\/eslint\.config\.js/,
+      /^\/frontend\/vite\.config\.js/,
+      /^\/frontend\/package/,
+      /^\/report_demo/,
+      /^\/\.env/
+    ],
   },
   rebuildConfig: {},
   publishers: [

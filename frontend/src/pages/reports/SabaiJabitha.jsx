@@ -108,8 +108,7 @@ const SabaiJabitha = () => {
 
         <main className="report-main">
           <div className="report-content">
-            <h1>சபை அங்கத்தினர் ஜாபிதா (Congregation Members Register)</h1>
-            <p>Generate congregation members register for the selected church and year.</p>
+            <h1>Sabai Jabitha</h1>
 
             {/* Filter Section */}
             <div className="filter-section">
@@ -141,7 +140,6 @@ const SabaiJabitha = () => {
                     onChange={(e) => setYear(e.target.value)}
                     maxLength="9"
                   />
-                  <small>Format: YYYY-YYYY (e.g., 2025-2026)</small>
                 </div>
 
                 <div className="form-group">
@@ -155,18 +153,6 @@ const SabaiJabitha = () => {
                   </button>
                 </div>
               </div>
-            </div>
-
-            {/* Info Section */}
-            <div className="info-section" style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-              <h3>Report Information</h3>
-              <ul style={{ marginTop: '10px', lineHeight: '1.8' }}>
-                <li>This report generates a comprehensive congregation members register</li>
-                <li>Members are organized by Area and Family</li>
-                <li>Includes: Name, Aadhaar Number, Age, Gender, Baptism Date, Confirmation Status, and Congregation Participation</li>
-                <li>Age groups are automatically categorized: 1-15, 16-35, 35+</li>
-                <li>4 blank rows are added between families for manual entries</li>
-              </ul>
             </div>
           </div>
         </main>

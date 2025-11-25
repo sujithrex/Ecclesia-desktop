@@ -47,4 +47,4 @@ jobs:
       - name: Publish to GitHub Releases
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        run: npx electron-forge publish
+        run: npx electron-forge publish --arch=${{ matrix.arch }}

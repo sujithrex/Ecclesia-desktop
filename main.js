@@ -1251,6 +1251,11 @@ app.whenReady().then(async () => {
     }
   });
 
+  // Version handler
+  ipcMain.handle('app:getVersion', async () => {
+    return app.getVersion();
+  });
+
   ipcMain.on('window:minimize', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     win.minimize();

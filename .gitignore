@@ -36,3 +36,6 @@ Thumbs.db
 userData/
 data/
 
+# Release script
+release.ps1
+

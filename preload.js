@@ -130,7 +130,8 @@ contextBridge.exposeInMainWorld('electron', {
     close: () => ipcRenderer.send('window:close')
   },
   app: {
-    checkForUpdates: () => ipcRenderer.invoke('app:checkForUpdates')
+    checkForUpdates: () => ipcRenderer.invoke('app:checkForUpdates'),
+    getVersion: () => ipcRenderer.invoke('app:getVersion')
   }
 });
 

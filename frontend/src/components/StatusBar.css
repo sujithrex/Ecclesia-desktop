@@ -21,6 +21,11 @@
   gap: 10px;
 }
 
+.status-version {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
 .status-username {
   font-weight: 600;
   text-transform: capitalize;

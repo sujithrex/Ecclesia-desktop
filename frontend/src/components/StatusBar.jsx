@@ -5,11 +5,17 @@ import './StatusBar.css';
 const StatusBar = () => {
   const { user } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [version, setVersion] = useState('');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
+
+    // Get app version
+    if (window.electron?.app?.getVersion) {
+      window.electron.app.getVersion().then(v => setVersion(v));
+    }
 
     return () => clearInterval(timer);
   }, []);
@@ -39,6 +45,12 @@ const StatusBar = () => {
   return (
     <div className="status-bar">
       <div className="status-bar-content">
+        {version && (
+          <>
+            <span className="status-version">v{version}</span>
+            <span className="status-separator">|</span>
+          </>
+        )}
         {user && (
           <>
             <span className="status-username">{user.username}</span>

@@ -65,13 +65,13 @@ Ecclesia Desktop is a comprehensive church management system designed specifical
 ### Windows
 
 **For 64-bit Windows (Recommended)**
-1. Download `Ecclesia-Desktop-Setup-1.0.0.exe` (x64) from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
+1. Download `Ecclesia-Desktop-Setup-1.0.4.exe` (x64) from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
 2. Run the installer
 3. Follow the installation wizard
 4. Launch Ecclesia Desktop from your Start Menu
 
 **For 32-bit Windows**
-1. Download `Ecclesia-Desktop-Setup-1.0.0-ia32.exe` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
+1. Download `Ecclesia-Desktop-Setup-1.0.4-ia32.exe` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
 2. Run the installer
 3. Follow the installation wizard
 4. Launch Ecclesia Desktop from your Start Menu
@@ -79,7 +79,7 @@ Ecclesia Desktop is a comprehensive church management system designed specifical
 > **Note**: Not sure which version? Right-click "This PC" → Properties. If it says "64-bit", use the 64-bit version.
 
 ### macOS
-1. Download `Ecclesia-Desktop-1.0.0-darwin-x64.zip` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
+1. Download `Ecclesia-Desktop-1.0.4-darwin-x64.zip` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
 2. Extract the ZIP file
 3. Move Ecclesia Desktop to your Applications folder
 4. Launch the application
@@ -88,14 +88,14 @@ Ecclesia Desktop is a comprehensive church management system designed specifical
 
 **Debian/Ubuntu (.deb)**
 ```bash
-wget https://github.com/sujithrex/Ecclesia-desktop/releases/download/v1.0.0/ecclesia-desktop_1.0.0_amd64.deb
-sudo dpkg -i ecclesia-desktop_1.0.0_amd64.deb
+wget https://github.com/sujithrex/Ecclesia-desktop/releases/download/v1.0.4/ecclesia-desktop_.deb
+sudo dpkg -i ecclesia-desktop_.deb
 ```
 
 **Fedora/RHEL (.rpm)**
 ```bash
-wget https://github.com/sujithrex/Ecclesia-desktop/releases/download/v1.0.0/ecclesia-desktop-1.0.0-1.x86_64.rpm
-sudo rpm -i ecclesia-desktop-1.0.0-1.x86_64.rpm
+wget https://github.com/sujithrex/Ecclesia-desktop/releases/download/v1.0.4/ecclesia-desktop-1.0.4-1.x86_64.rpm
+sudo rpm -i ecclesia-desktop-1.0.4-1.x86_64.rpm
 ```
 
 ## 💻 System Requirements

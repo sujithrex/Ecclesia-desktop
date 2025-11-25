@@ -32,7 +32,7 @@ module.exports = {
           name: 'Ecclesia-desktop'
         },
         prerelease: false,
-        draft: true
+        draft: false
       }
     }
   ],

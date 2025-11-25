@@ -3,7 +3,9 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electron', {
   platform: process.platform,
   auth: {
-    login: (username, password) => ipcRenderer.invoke('auth:login', { username, password }),
+    login: (username, password, rememberMe) => ipcRenderer.invoke('auth:login', { username, password, rememberMe }),
+    loginWithToken: (token) => ipcRenderer.invoke('auth:loginWithToken', { token }),
+    logout: (token) => ipcRenderer.invoke('auth:logout', { token }),
     verifyPin: (username, pin) => ipcRenderer.invoke('auth:verifyPin', { username, pin }),
     resetPassword: (username, newPassword) => ipcRenderer.invoke('auth:resetPassword', { username, newPassword }),
     changePassword: (username, currentPassword, newPassword) =>

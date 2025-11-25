@@ -81,6 +81,8 @@ const {
 } = require('./backend/database');
 const {
   login,
+  loginWithToken,
+  logout,
   verifyRecoveryPin,
   resetPassword,
   changePassword,
@@ -120,7 +122,6 @@ function createWindow() {
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, 'frontend/dist/index.html'));
   }
@@ -129,8 +130,16 @@ function createWindow() {
 app.whenReady().then(async () => {
   await initDatabase();
 
-  ipcMain.handle('auth:login', async (event, { username, password }) => {
-    return await login(username, password);
+  ipcMain.handle('auth:login', async (event, { username, password, rememberMe }) => {
+    return await login(username, password, rememberMe);
+  });
+
+  ipcMain.handle('auth:loginWithToken', async (event, { token }) => {
+    return await loginWithToken(token);
+  });
+
+  ipcMain.handle('auth:logout', async (event, { token }) => {
+    return await logout(token);
   });
 
   ipcMain.handle('auth:verifyPin', async (event, { username, pin }) => {

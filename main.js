@@ -106,6 +106,10 @@ const {
   previewCongregationRestore,
   restoreCongregationBackup
 } = require('./backend/csvGenerator');
+const {
+  setupAutoUpdater,
+  checkForUpdates
+} = require('./backend/updater');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -162,6 +166,11 @@ function createWindow() {
         splashWindow.close();
       }
       mainWindow.show();
+      
+      // Setup auto-updater (only in production)
+      if (!isDev) {
+        setupAutoUpdater(mainWindow);
+      }
     }, 500); // Small delay for smooth transition
   });
 }
@@ -1217,6 +1226,19 @@ app.whenReady().then(async () => {
     } catch (error) {
       console.error('Congregation restore error:', error);
       return { success: false, message: error.message || 'Failed to restore data' };
+    }
+  });
+
+  // Update handler
+  ipcMain.handle('app:checkForUpdates', async () => {
+    try {
+      if (!isDev) {
+        checkForUpdates(mainWindow, true);
+      }
+      return { success: true };
+    } catch (error) {
+      console.error('Update check error:', error);
+      return { success: false, message: error.message || 'Failed to check for updates' };
     }
   });
 

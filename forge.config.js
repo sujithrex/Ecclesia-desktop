@@ -12,8 +12,8 @@ module.exports = {
       name: '@electron-forge/publisher-github',
       config: {
         repository: {
-          owner: 'YOUR_USERNAME',
-          name: 'ecclesia-desktop'
+          owner: 'sujithrex',
+          name: 'Ecclesia-desktop'
         },
         prerelease: false,
         draft: true

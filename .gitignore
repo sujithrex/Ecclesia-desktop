@@ -17,3 +17,22 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Database files
+*.db
+*.sqlite
+
+# Backup files
+*_backup.csv
+*.bak
+
+# Build artifacts
+*.exe
+*.dmg
+*.deb
+*.rpm
+*.zip
+
+# User data
+userData/
+data/
+

@@ -5,7 +5,7 @@
   "main": "main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/ecclesia-desktop.git"
+    "url": "https://github.com/sujithrex/Ecclesia-desktop.git"
   },
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"cross-env NODE_ENV=development electron-forge start\"",

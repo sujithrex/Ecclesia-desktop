@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import TitleBar from '../../components/TitleBar';
 import StatusBar from '../../components/StatusBar';
@@ -11,9 +11,12 @@ import './ReportPage.css';
 const CreateMarriageRecord = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
     groomName: '',
     groomNameTamil: '',
@@ -50,10 +53,71 @@ const CreateMarriageRecord = () => {
     navigate('/login');
   };
 
+  // Check for edit mode on component mount
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) {
+      setIsEditMode(true);
+      setEditId(parseInt(id));
+      loadMarriageRecordForEdit(parseInt(id));
+    }
+  }, [searchParams]);
+
+  const loadMarriageRecordForEdit = async (id) => {
+    try {
+      setLoadingMessage('Loading marriage record...');
+      setIsLoading(true);
+
+      const result = await window.electron.marriage.getById(id);
+
+      if (result.success) {
+        const record = result.data;
+        setFormData({
+          groomName: record.groomName || '',
+          groomNameTamil: record.groomNameTamil || '',
+          brideName: record.brideName || '',
+          brideNameTamil: record.brideNameTamil || '',
+          congregation: record.congregation || '',
+          groomFatherName: record.groomFatherName || '',
+          groomMotherName: record.groomMotherName || '',
+          brideFatherName: record.brideFatherName || '',
+          brideMotherName: record.brideMotherName || '',
+          groomDOB: record.groomDOB || '',
+          brideDOB: record.brideDOB || '',
+          isGroomBachelor: record.isGroomBachelor || '',
+          isBrideSpinster: record.isBrideSpinster || '',
+          groomProfession: record.groomProfession || '',
+          brideProfession: record.brideProfession || '',
+          groomMobile: record.groomMobile || '',
+          brideMobile: record.brideMobile || '',
+          groomChurchName: record.groomChurchName || '',
+          groomPastorateName: record.groomPastorateName || '',
+          brideChurchName: record.brideChurchName || '',
+          bridePastorateName: record.bridePastorateName || '',
+          marriageDate: record.marriageDate || '',
+          weddingPlace: record.weddingPlace || '',
+          firstBansDate: record.firstBansDate || '',
+          secondBansDate: record.secondBansDate || '',
+          thirdBansDate: record.thirdBansDate || '',
+          serialNumber: record.serialNumber || '',
+          solemnizedBy: record.solemnizedBy || ''
+        });
+      } else {
+        toast.error('Failed to load marriage record for editing');
+        navigate('/reports/marriage');
+      }
+    } catch (error) {
+      toast.error('Failed to load marriage record');
+      console.error('Load error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Marriage Records', path: '/reports/marriage' },
-    { label: 'Create Marriage Record' }
+    { label: isEditMode ? 'Edit Marriage Record' : 'Create Marriage Record' }
   ];
 
   const handleInputChange = (e) => {
@@ -68,20 +132,24 @@ const CreateMarriageRecord = () => {
     e.preventDefault();
 
     try {
-      setLoadingMessage('Saving marriage record...');
+      setLoadingMessage(isEditMode ? 'Updating marriage record...' : 'Saving marriage record...');
       setIsLoading(true);
 
-      // TODO: Implement API call to save marriage record
-      const result = await window.electron.marriage.create(formData);
+      let result;
+      if (isEditMode) {
+        result = await window.electron.marriage.update(editId, formData);
+      } else {
+        result = await window.electron.marriage.create(formData);
+      }
 
       if (result.success) {
-        toast.success('Marriage record created successfully!');
+        toast.success(`Marriage record ${isEditMode ? 'updated' : 'created'} successfully!`);
         navigate('/reports/marriage');
       } else {
-        toast.error(result.message || 'Failed to create marriage record');
+        toast.error(result.message || `Failed to ${isEditMode ? 'update' : 'create'} marriage record`);
       }
     } catch (error) {
-      toast.error('Failed to create marriage record. Please try again.');
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} marriage record. Please try again.`);
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +181,7 @@ const CreateMarriageRecord = () => {
 
         <main className="report-main">
           <div className="report-content">
-            <h1>Create Marriage Record</h1>
+            <h1>{isEditMode ? 'Edit Marriage Record' : 'Create Marriage Record'}</h1>
 
             <form onSubmit={handleSubmit} className="marriage-form">
               {/* Row 1: Groom Name, Groom Name in Tamil, Bride Name */}
@@ -456,7 +524,7 @@ const CreateMarriageRecord = () => {
                   Cancel
                 </button>
                 <button type="submit" className="submit-btn">
-                  Save Marriage Record
+                  {isEditMode ? 'Update Marriage Record' : 'Save Marriage Record'}
                 </button>
               </div>
             </form>

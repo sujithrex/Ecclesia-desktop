@@ -265,6 +265,24 @@
   background: #138496;
 }
 
+.edit-btn {
+  background: #ffc107;
+  color: #212529;
+}
+
+.edit-btn:hover {
+  background: #e0a800;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
 /* Marriage Form Styles */
 .marriage-form {
   max-width: 1000px;
@@ -351,6 +369,53 @@
 
 .form-actions .submit-btn:hover {
   background: #5a2429 !important;
+}
+
+/* Delete Confirmation Modal */
+.delete-confirmation {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.delete-confirmation p {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.record-details {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 15px 0;
+  border: 1px solid #e0e0e0;
+}
+
+.record-details strong {
+  color: #722f37;
+  font-size: 18px;
+}
+
+.warning-text {
+  color: #dc3545;
+  font-weight: 600;
+  margin: 15px 0 0 0;
+}
+
+.delete-confirm-btn {
+  background: #dc3545 !important;
+  color: white !important;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.delete-confirm-btn:hover {
+  background: #c82333 !important;
 }
 
 

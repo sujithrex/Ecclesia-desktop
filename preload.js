@@ -100,8 +100,18 @@ contextBridge.exposeInMainWorld('electron', {
     update: (id, updates) => ipcRenderer.invoke('marriage:update', { id, updates }),
     delete: (id) => ipcRenderer.invoke('marriage:delete', { id }),
     getNextNumber: (churchId) => ipcRenderer.invoke('marriage:getNextNumber', { churchId }),
-    generateCertificate: (recordId) => ipcRenderer.invoke('marriage:generateCertificate', { recordId }),
+    generateCertificate: (recordId, additionalData) => ipcRenderer.invoke('marriage:generateCertificate', { recordId, additionalData }),
     generatePDF: (params) => ipcRenderer.invoke('marriage:generatePDF', params)
+  },
+  marriageBans: {
+    getAll: () => ipcRenderer.invoke('marriageBans:getAll'),
+    getById: (id) => ipcRenderer.invoke('marriageBans:getById', { id }),
+    getByChurch: (churchId) => ipcRenderer.invoke('marriageBans:getByChurch', { churchId }),
+    create: (bansData) => ipcRenderer.invoke('marriageBans:create', bansData),
+    update: (id, updates) => ipcRenderer.invoke('marriageBans:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('marriageBans:delete', { id }),
+    getNextNumber: (churchId) => ipcRenderer.invoke('marriageBans:getNextNumber', { churchId }),
+    generatePDF: (bansId, additionalData) => ipcRenderer.invoke('marriageBans:generatePDF', { bansId, additionalData })
   },
   window: {
     minimize: () => ipcRenderer.send('window:minimize'),

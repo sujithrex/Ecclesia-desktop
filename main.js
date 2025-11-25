@@ -35,6 +35,13 @@ const {
   updateMarriageRecord,
   deleteMarriageRecord,
   getNextMarriageRecordNumber,
+  getAllMarriageBans,
+  getMarriageBansById,
+  getMarriageBansByChurch,
+  createMarriageBans,
+  updateMarriageBans,
+  deleteMarriageBans,
+  getNextMarriageBansNumber,
   getAllLetterheads,
   getLetterheadById,
   getLetterheadsByChurch,
@@ -83,6 +90,8 @@ const {
   generateInfantBaptismPDF,
   generateAdultBaptismPDF,
   generateBurialRegisterPDF,
+  generateMarriageBansPDF,
+  generateMarriageCertificatePDF,
   generateLetterheadPDF,
   generateBirthdayListPDF,
   generateWeddingListPDF,
@@ -568,7 +577,108 @@ app.whenReady().then(async () => {
     }
   });
 
-  ipcMain.handle('marriage:generateCertificate', async (event, { recordId }) => {
+  // Marriage Bans handlers
+  ipcMain.handle('marriageBans:getAll', async () => {
+    try {
+      const bans = await getAllMarriageBans();
+      return { success: true, data: bans };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch marriage bans' };
+    }
+  });
+
+  ipcMain.handle('marriageBans:getById', async (event, { id }) => {
+    try {
+      const bans = await getMarriageBansById(id);
+      if (bans) {
+        return { success: true, data: bans };
+      }
+      return { success: false, message: 'Marriage bans not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch marriage bans' };
+    }
+  });
+
+  ipcMain.handle('marriageBans:getByChurch', async (event, { churchId }) => {
+    try {
+      const bans = await getMarriageBansByChurch(churchId);
+      return { success: true, data: bans };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch marriage bans' };
+    }
+  });
+
+  ipcMain.handle('marriageBans:create', async (event, bansData) => {
+    try {
+      const newBans = await createMarriageBans(bansData);
+      return { success: true, data: newBans };
+    } catch (error) {
+      return { success: false, message: 'Failed to create marriage bans' };
+    }
+  });
+
+  ipcMain.handle('marriageBans:update', async (event, { id, updates }) => {
+    try {
+      const updatedBans = await updateMarriageBans(id, updates);
+      if (updatedBans) {
+        return { success: true, data: updatedBans };
+      }
+      return { success: false, message: 'Marriage bans not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update marriage bans' };
+    }
+  });
+
+  ipcMain.handle('marriageBans:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteMarriageBans(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Marriage bans not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete marriage bans' };
+    }
+  });
+
+  ipcMain.handle('marriageBans:getNextNumber', async (event, { churchId }) => {
+    try {
+      const nextNumber = await getNextMarriageBansNumber(churchId);
+      return { success: true, data: nextNumber };
+    } catch (error) {
+      return { success: false, message: 'Failed to get next marriage bans number' };
+    }
+  });
+
+  ipcMain.handle('marriageBans:generatePDF', async (event, { bansId, additionalData }) => {
+    try {
+      // Get marriage bans data
+      const bans = await getMarriageBansById(bansId);
+      if (!bans) {
+        return { success: false, message: 'Marriage bans not found' };
+      }
+
+      // Get church data if available
+      let church = null;
+      if (bans.church_id) {
+        church = await getChurchById(bans.church_id);
+        console.log('Church data for bans:', church); // Debug log
+      }
+
+      // Generate PDF using existing marriage bans template
+      const pdfPath = await generateMarriageBansPDF(bans, church, additionalData);
+
+      // Open PDF
+      await openPDF(pdfPath);
+
+      return { success: true, data: { pdfPath } };
+    } catch (error) {
+      console.error('Marriage Bans PDF generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  ipcMain.handle('marriage:generateCertificate', async (event, { recordId, additionalData }) => {
     try {
       // Get record data
       const record = await getMarriageRecordById(recordId);
@@ -576,9 +686,20 @@ app.whenReady().then(async () => {
         return { success: false, message: 'Record not found' };
       }
 
-      // TODO: Implement marriage certificate generation
-      // For now, just return success
-      return { success: true, data: { message: 'Marriage certificate generation not implemented yet' } };
+      // Get church data if available (same pattern as marriage bans)
+      let church = null;
+      if (additionalData.church_id) {
+        church = await getChurchById(additionalData.church_id);
+        console.log('Church data for certificate:', church); // Debug log
+      }
+
+      // Generate PDF
+      const pdfPath = await generateMarriageCertificatePDF(record, church, additionalData);
+
+      // Open PDF
+      await openPDF(pdfPath);
+
+      return { success: true, data: { pdfPath } };
     } catch (error) {
       console.error('Certificate generation error:', error);
       return { success: false, message: error.message || 'Failed to generate certificate' };

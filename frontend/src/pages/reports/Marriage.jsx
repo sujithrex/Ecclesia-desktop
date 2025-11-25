@@ -2,11 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
+import Modal from 'react-modal';
 import TitleBar from '../../components/TitleBar';
 import StatusBar from '../../components/StatusBar';
 import Breadcrumb from '../../components/Breadcrumb';
 import LoadingScreen from '../../components/LoadingScreen';
-import { Bell, FileText, CalendarPlus } from '@phosphor-icons/react';
 import $ from 'jquery';
 import 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
@@ -21,6 +21,19 @@ const Marriage = () => {
   const [marriageData, setMarriageData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [isBansModalOpen, setIsBansModalOpen] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedMarriage, setSelectedMarriage] = useState(null);
+  const [marriageToDelete, setMarriageToDelete] = useState(null);
+  const [bansFormData, setBansFormData] = useState({
+    place: '',
+    date: ''
+  });
+  const [certificateFormData, setCertificateFormData] = useState({
+    place: '',
+    date: ''
+  });
 
   const handleLogout = () => {
     logout();
@@ -55,7 +68,7 @@ const Marriage = () => {
         }));
 
         setMarriageData(transformedData);
-        toast.success(`Found ${result.data.length} marriage records`);
+        // Removed toast notification on load - only show errors
       } else {
         toast.error(result.message || 'Failed to load marriage records');
         setMarriageData([]);
@@ -112,14 +125,17 @@ const Marriage = () => {
           render: (data, type, row) => {
             return `
               <div class="action-buttons">
-                <button class="action-btn notification-btn" data-id="${row.id}" title="Send Notification">
-                  <i class="ph-bell"></i>
+                <button class="action-btn notification-btn" data-id="${row.id}" title="Generate Marriage Bans Notice">
+                  Notice
                 </button>
-                <button class="action-btn certificate-btn" data-id="${row.id}" title="Generate Certificate">
-                  <i class="ph-file-text"></i>
+                <button class="action-btn certificate-btn" data-id="${row.id}" title="Generate Marriage Certificate">
+                  Certificate
                 </button>
-                <button class="action-btn schedule-btn" data-id="${row.id}" title="Schedule IV">
-                  <i class="ph-calendar-plus"></i>
+                <button class="action-btn edit-btn" data-id="${row.id}" title="Edit Marriage Record">
+                  Edit
+                </button>
+                <button class="action-btn delete-btn" data-id="${row.id}" title="Delete Marriage Record">
+                  Delete
                 </button>
               </div>
             `;
@@ -141,7 +157,7 @@ const Marriage = () => {
     };
   }, [marriageData]);
 
-  // Event handlers for DataTable buttons - matching BirthdayList pattern
+  // Event handlers for DataTable buttons
   useEffect(() => {
     if (!tableRef.current) return;
 
@@ -151,7 +167,31 @@ const Marriage = () => {
         const id = btn.data('id');
         const record = marriageData.find(r => r.id === id);
         if (record) {
-          toast.success(`Notification sent for ${record.coupleNames}`);
+          openMarriageBansModal(record);
+        }
+      }
+    };
+
+    const handleEditClick = (e) => {
+      const btn = $(e.target).closest('.edit-btn');
+      if (btn.length) {
+        const id = btn.data('id');
+        const record = marriageData.find(r => r.id === id);
+        if (record) {
+          // Navigate to create marriage record page with edit mode
+          navigate(`/reports/marriage/create?id=${id}`);
+        }
+      }
+    };
+
+    const handleDeleteClick = (e) => {
+      const btn = $(e.target).closest('.delete-btn');
+      if (btn.length) {
+        const id = btn.data('id');
+        const record = marriageData.find(r => r.id === id);
+        if (record) {
+          setMarriageToDelete(record);
+          setIsDeleteModalOpen(true);
         }
       }
     };
@@ -162,34 +202,207 @@ const Marriage = () => {
         const id = btn.data('id');
         const record = marriageData.find(r => r.id === id);
         if (record) {
-          toast.success(`Certificate generated for ${record.coupleNames}`);
-        }
-      }
-    };
-
-    const handleScheduleClick = (e) => {
-      const btn = $(e.target).closest('.schedule-btn');
-      if (btn.length) {
-        const id = btn.data('id');
-        const record = marriageData.find(r => r.id === id);
-        if (record) {
-          toast.success(`Schedule IV created for ${record.coupleNames}`);
+          openMarriageCertificateModal(record);
         }
       }
     };
 
     $(tableRef.current).on('click', '.notification-btn', handleNotificationClick);
     $(tableRef.current).on('click', '.certificate-btn', handleCertificateClick);
-    $(tableRef.current).on('click', '.schedule-btn', handleScheduleClick);
+    $(tableRef.current).on('click', '.edit-btn', handleEditClick);
+    $(tableRef.current).on('click', '.delete-btn', handleDeleteClick);
 
     return () => {
       if (tableRef.current) {
         $(tableRef.current).off('click', '.notification-btn', handleNotificationClick);
         $(tableRef.current).off('click', '.certificate-btn', handleCertificateClick);
-        $(tableRef.current).off('click', '.schedule-btn', handleScheduleClick);
+        $(tableRef.current).off('click', '.edit-btn', handleEditClick);
+        $(tableRef.current).off('click', '.delete-btn', handleDeleteClick);
       }
     };
-  }, [marriageData]);
+  }, [marriageData, navigate]);
+    
+      // Marriage Bans functionality
+      const openMarriageBansModal = (marriageRecord) => {
+        setSelectedMarriage(marriageRecord);
+        
+        // Pre-fill form with existing marriage data
+        setBansFormData({
+          place: '',
+          date: new Date().toISOString().split('T')[0] // Today's date
+        });
+        
+        setIsBansModalOpen(true);
+      };
+    
+      const closeMarriageBansModal = () => {
+        setIsBansModalOpen(false);
+        setSelectedMarriage(null);
+        setBansFormData({
+          place: '',
+          date: ''
+        });
+      };
+    
+      const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setMarriageToDelete(null);
+      };
+    
+      const handleDeleteMarriageRecord = async (id) => {
+        try {
+          setLoadingMessage('Deleting marriage record...');
+          setIsLoading(true);
+    
+          const result = await window.electron.marriage.delete(id);
+    
+          if (result.success) {
+            toast.success('Marriage record deleted successfully!');
+            loadMarriageRecords(); // Refresh the table
+          } else {
+            toast.error(result.message || 'Failed to delete marriage record');
+          }
+        } catch (error) {
+          toast.error('Failed to delete marriage record');
+          console.error('Delete error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+    
+      const handleBansInputChange = (e) => {
+        const { name, value } = e.target;
+        setBansFormData(prev => ({ ...prev, [name]: value }));
+      };
+    
+      // Marriage Certificate functionality
+      const openMarriageCertificateModal = (marriageRecord) => {
+        setSelectedMarriage(marriageRecord);
+        
+        // Pre-fill form with today's date
+        setCertificateFormData({
+          place: '',
+          date: new Date().toISOString().split('T')[0]
+        });
+        
+        setIsCertificateModalOpen(true);
+      };
+
+      const closeMarriageCertificateModal = () => {
+        setIsCertificateModalOpen(false);
+        setSelectedMarriage(null);
+        setCertificateFormData({
+          place: '',
+          date: ''
+        });
+      };
+
+      const handleCertificateInputChange = (e) => {
+        const { name, value } = e.target;
+        setCertificateFormData(prev => ({ ...prev, [name]: value }));
+      };
+
+      const handleGenerateMarriageCertificate = async () => {
+        if (!selectedMarriage) return;
+
+        try {
+          setLoadingMessage('Generating Marriage Certificate PDF...');
+          setIsLoading(true);
+
+          const pdfResult = await window.electron.marriage.generateCertificate(selectedMarriage.id, {
+            church_id: 1, // Default church ID (same as Notice)
+            place: certificateFormData.place,
+            date: certificateFormData.date
+          });
+
+          if (pdfResult.success) {
+            toast.success('Marriage Certificate PDF generated and opened successfully!');
+            closeMarriageCertificateModal();
+          } else {
+            toast.error(pdfResult.message || 'Failed to generate certificate');
+          }
+        } catch (error) {
+          toast.error('Failed to generate Marriage Certificate PDF');
+          console.error('Marriage Certificate generation error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      const handleGenerateMarriageBans = async () => {
+        if (!selectedMarriage) return;
+    
+        try {
+          setLoadingMessage('Generating Marriage Bans PDF...');
+          setIsLoading(true);
+    
+          // Get the full marriage record from database
+          const recordResult = await window.electron.marriage.getById(selectedMarriage.id);
+          
+          if (!recordResult.success) {
+            toast.error('Failed to load marriage record details');
+            return;
+          }
+
+          const fullRecord = recordResult.data;
+
+          // Use the marriage record data directly (it now contains all the fields)
+          const bansData = {
+            church_id: 1, // Default church ID
+            // Use data from the marriage record
+            groomName: fullRecord.groomName,
+            brideName: fullRecord.brideName,
+            groomDOB: fullRecord.groomDOB,
+            brideDOB: fullRecord.brideDOB,
+            groomProfession: fullRecord.groomProfession,
+            brideProfession: fullRecord.brideProfession,
+            groomFatherName: fullRecord.groomFatherName,
+            groomMotherName: fullRecord.groomMotherName,
+            brideFatherName: fullRecord.brideFatherName,
+            brideMotherName: fullRecord.brideMotherName,
+            isGroomBachelor: fullRecord.isGroomBachelor,
+            isBrideSpinster: fullRecord.isBrideSpinster,
+            groomChurchName: fullRecord.groomChurchName,
+            groomPastorateName: fullRecord.groomPastorateName,
+            brideChurchName: fullRecord.brideChurchName,
+            bridePastorateName: fullRecord.bridePastorateName,
+            firstBansDate: fullRecord.firstBansDate,
+            secondBansDate: fullRecord.secondBansDate,
+            thirdBansDate: fullRecord.thirdBansDate,
+            marriageDate: fullRecord.marriageDate,
+            congregation: fullRecord.congregation, // Add congregation field
+            // Additional data from modal
+            date: bansFormData.date,
+            place: bansFormData.place
+          };
+    
+          // First create the marriage bans record
+          const createResult = await window.electron.marriageBans.create(bansData);
+    
+          if (!createResult.success) {
+            toast.error(createResult.message || 'Failed to create marriage bans record');
+            return;
+          }
+    
+          // Generate PDF with additional data (place and date from modal)
+          const pdfResult = await window.electron.marriageBans.generatePDF(createResult.data.id, {
+            place: bansFormData.place,
+            date: bansFormData.date
+          });
+    
+          if (pdfResult.success) {
+            toast.success('Marriage Bans PDF generated and opened successfully!');
+            closeMarriageBansModal();
+          } else {
+            toast.error(pdfResult.message || 'Failed to generate PDF');
+          }
+        } catch (error) {
+          toast.error('Failed to generate Marriage Bans PDF');
+          console.error('Marriage Bans generation error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
   return (
     <>
@@ -216,7 +429,6 @@ const Marriage = () => {
             <div className="section-header">
               <h1>Marriage Records</h1>
               <button onClick={() => navigate('/reports/marriage/create')} className="create-btn">
-                <CalendarPlus size={20} weight="bold" />
                 Create Marriage Record
               </button>
             </div>
@@ -230,6 +442,172 @@ const Marriage = () => {
           </div>
         </main>
       </div>
+
+      {/* Marriage Bans Modal */}
+      <Modal
+        isOpen={isBansModalOpen}
+        onRequestClose={closeMarriageBansModal}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h2>Generate Marriage Bans Notice</h2>
+          <button onClick={closeMarriageBansModal} className="modal-close-btn">×</button>
+        </div>
+
+        <div className="modal-body">
+          {selectedMarriage && (
+            <>
+              <div className="form-group">
+                <label>Marriage Record:</label>
+                <div className="readonly-field">
+                  {selectedMarriage.coupleNames} - {new Date(selectedMarriage.marriageDate).toLocaleDateString()}
+                </div>
+              </div>
+
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Place *</label>
+                  <input
+                    type="text"
+                    name="place"
+                    value={bansFormData.place}
+                    onChange={handleBansInputChange}
+                    placeholder="Enter place"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Date *</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={bansFormData.date}
+                    onChange={handleBansInputChange}
+                    required
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={closeMarriageBansModal} className="cancel-btn">
+            Cancel
+          </button>
+          <button onClick={handleGenerateMarriageBans} className="save-btn">
+            Generate PDF
+          </button>
+        </div>
+      </Modal>
+
+      {/* Marriage Certificate Modal */}
+      <Modal
+        isOpen={isCertificateModalOpen}
+        onRequestClose={closeMarriageCertificateModal}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h2>Generate Marriage Certificate</h2>
+          <button onClick={closeMarriageCertificateModal} className="modal-close-btn">×</button>
+        </div>
+
+        <div className="modal-body">
+          {selectedMarriage && (
+            <>
+              <div className="form-group">
+                <label>Marriage Record:</label>
+                <div className="readonly-field">
+                  {selectedMarriage.coupleNames} - {new Date(selectedMarriage.marriageDate).toLocaleDateString()}
+                </div>
+              </div>
+
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Place *</label>
+                  <input
+                    type="text"
+                    name="place"
+                    value={certificateFormData.place}
+                    onChange={handleCertificateInputChange}
+                    placeholder="Enter place"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Date *</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={certificateFormData.date}
+                    onChange={handleCertificateInputChange}
+                    required
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={closeMarriageCertificateModal} className="cancel-btn">
+            Cancel
+          </button>
+          <button onClick={handleGenerateMarriageCertificate} className="save-btn">
+            Generate PDF
+          </button>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={closeDeleteModal}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h2>Confirm Delete</h2>
+          <button onClick={closeDeleteModal} className="modal-close-btn">×</button>
+        </div>
+
+        <div className="modal-body">
+          {marriageToDelete && (
+            <div className="delete-confirmation">
+              <p>Are you sure you want to delete the marriage record for:</p>
+              <div className="record-details">
+                <strong>{marriageToDelete.coupleNames}</strong><br/>
+                Marriage Date: {new Date(marriageToDelete.marriageDate).toLocaleDateString()}
+              </div>
+              <p className="warning-text">This action cannot be undone.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={closeDeleteModal} className="cancel-btn">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (marriageToDelete) {
+                handleDeleteMarriageRecord(marriageToDelete.id);
+                closeDeleteModal();
+              }
+            }}
+            className="delete-confirm-btn"
+          >
+            Delete Record
+          </button>
+        </div>
+      </Modal>
     </>
   );
 };

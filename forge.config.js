@@ -7,6 +7,19 @@ module.exports = {
     icon: './icon',
   },
   rebuildConfig: {},
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'YOUR_USERNAME',
+          name: 'ecclesia-desktop'
+        },
+        prerelease: false,
+        draft: true
+      }
+    }
+  ],
   makers: [
     {
       name: '@electron-forge/maker-squirrel',

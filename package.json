@@ -1,15 +1,20 @@
 {
   "name": "ecclesia-desktop",
   "version": "1.0.0",
-  "description": "",
+  "description": "Church Management System",
   "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/ecclesia-desktop.git"
+  },
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"cross-env NODE_ENV=development electron-forge start\"",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +27,7 @@
     "@electron-forge/maker-zip": "^7.10.2",
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
     "@electron-forge/plugin-fuses": "^7.10.2",
+    "@electron-forge/publisher-github": "^7.10.2",
     "@electron/fuses": "^1.8.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
@@ -31,6 +37,7 @@
     "bcryptjs": "^3.0.3",
     "ejs": "^3.1.10",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.6.2",
     "lowdb": "^6.1.1",
     "puppeteer": "^24.28.0"
   }

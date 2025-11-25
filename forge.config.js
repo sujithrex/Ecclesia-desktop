@@ -3,8 +3,10 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
-    asar: true,
-    icon: './icon',
+    asar: {
+      unpack: '*.{node,dll}'
+    },
+    icon: './backend/assets/images/favicon.ico',
   },
   rebuildConfig: {},
   publishers: [
@@ -24,8 +26,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        setupIcon: './icon.png',
-        iconUrl: './icon.png',
+        setupIcon: './backend/assets/images/favicon.ico',
       },
     },
     {

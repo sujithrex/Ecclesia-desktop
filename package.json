@@ -12,12 +12,17 @@
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "package": "npm run build && electron-forge package",
+    "make": "npm run build && electron-forge make",
+    "publish": "npm run build && dotenv -e .env electron-forge publish"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "church",
+    "management",
+    "csi",
+    "tirunelveli"
+  ],
+  "author": "Mr. Sujith & Mrs. Remina Sujith",
   "license": "ISC",
   "devDependencies": {
     "@electron-forge/cli": "^7.10.2",
@@ -31,6 +36,7 @@
     "@electron/fuses": "^1.8.0",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
+    "dotenv-cli": "^11.0.0",
     "electron": "^39.0.0"
   },
   "dependencies": {

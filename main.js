@@ -120,6 +120,12 @@ const isDev = process.env.NODE_ENV === 'development';
 let splashWindow;
 let mainWindow;
 
+// Helper to get the correct path for resources
+function getResourcePath(relativePath) {
+  // __dirname works correctly with asar archives
+  return path.join(__dirname, relativePath);
+}
+
 function createSplashScreen() {
   splashWindow = new BrowserWindow({
     width: 500,
@@ -155,8 +161,11 @@ function createWindow() {
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
+    mainWindow.webContents.openDevTools(); // Open dev tools in development
   } else {
-    mainWindow.loadFile(path.join(__dirname, 'frontend/dist/index.html'));
+    const indexPath = getResourcePath('frontend/dist/index.html');
+    console.log('Loading index from:', indexPath);
+    mainWindow.loadFile(indexPath);
   }
 
   // Show main window when ready and close splash

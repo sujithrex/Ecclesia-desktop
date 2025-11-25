@@ -67,7 +67,8 @@ const FamilyDetail = () => {
     isBaptised: false,
     dateOfBaptism: '',
     isConfirmed: false,
-    dateOfConfirmation: ''
+    dateOfConfirmation: '',
+    congregationParticipation: false
   });
 
   const handleLogout = () => {
@@ -205,7 +206,8 @@ const FamilyDetail = () => {
           isBaptised: false,
           dateOfBaptism: '',
           isConfirmed: false,
-          dateOfConfirmation: ''
+          dateOfConfirmation: '',
+          congregationParticipation: false
         });
       }
     } catch (error) {
@@ -228,7 +230,8 @@ const FamilyDetail = () => {
         isBaptised: false,
         dateOfBaptism: '',
         isConfirmed: false,
-        dateOfConfirmation: ''
+        dateOfConfirmation: '',
+        congregationParticipation: false
       });
     }
     
@@ -257,7 +260,8 @@ const FamilyDetail = () => {
       isBaptised: member.isBaptised || false,
       dateOfBaptism: member.dateOfBaptism || '',
       isConfirmed: member.isConfirmed || false,
-      dateOfConfirmation: member.dateOfConfirmation || ''
+      dateOfConfirmation: member.dateOfConfirmation || '',
+      congregationParticipation: member.congregationParticipation || false
     });
     setIsModalOpen(true);
   };
@@ -276,7 +280,7 @@ const FamilyDetail = () => {
       }
     } else if (type === 'checkbox') {
       setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (name === 'isAlive' || name === 'isMarried' || name === 'isBaptised' || name === 'isConfirmed') {
+    } else if (name === 'isAlive' || name === 'isMarried' || name === 'isBaptised' || name === 'isConfirmed' || name === 'congregationParticipation') {
       setFormData(prev => ({ ...prev, [name]: value === 'true' }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -1017,6 +1021,20 @@ const FamilyDetail = () => {
                   />
                 </div>
               )}
+            </div>
+
+            {/* Congregation Participation */}
+            <h4>Congregation Participation</h4>
+            <div className="form-group">
+              <label>Congregation Participation (அயலிடம்)</label>
+              <select
+                name="congregationParticipation"
+                value={formData.congregationParticipation ? 'true' : 'false'}
+                onChange={handleInputChange}
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
             </div>
           </div>
           <div className="modal-footer">

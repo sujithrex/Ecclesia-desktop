@@ -94,6 +94,9 @@ contextBridge.exposeInMainWorld('electron', {
   wedding: {
     generatePDF: (params) => ipcRenderer.invoke('wedding:generatePDF', params)
   },
+  sabaiJabitha: {
+    generatePDF: (params) => ipcRenderer.invoke('sabaiJabitha:generatePDF', params)
+  },
   marriage: {
     getAll: () => ipcRenderer.invoke('marriage:getAll'),
     getById: (id) => ipcRenderer.invoke('marriage:getById', { id }),

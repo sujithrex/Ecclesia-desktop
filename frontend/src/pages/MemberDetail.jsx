@@ -46,7 +46,8 @@ const MemberDetail = () => {
     isBaptised: false,
     dateOfBaptism: '',
     isConfirmed: false,
-    dateOfConfirmation: ''
+    dateOfConfirmation: '',
+    congregationParticipation: false
   });
 
   const handleLogout = () => {
@@ -96,7 +97,8 @@ const MemberDetail = () => {
       isBaptised: member.isBaptised || false,
       dateOfBaptism: member.dateOfBaptism || '',
       isConfirmed: member.isConfirmed || false,
-      dateOfConfirmation: member.dateOfConfirmation || ''
+      dateOfConfirmation: member.dateOfConfirmation || '',
+      congregationParticipation: member.congregationParticipation || false
     });
     setIsEditModalOpen(true);
   };
@@ -114,7 +116,7 @@ const MemberDetail = () => {
       }
     } else if (type === 'checkbox') {
       setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (name === 'isAlive' || name === 'isMarried' || name === 'isBaptised' || name === 'isConfirmed') {
+    } else if (name === 'isAlive' || name === 'isMarried' || name === 'isBaptised' || name === 'isConfirmed' || name === 'congregationParticipation') {
       setFormData(prev => ({ ...prev, [name]: value === 'true' }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -314,6 +316,10 @@ const MemberDetail = () => {
                   <span className="detail-value">{member.dateOfConfirmation ? new Date(member.dateOfConfirmation).toLocaleDateString() : 'N/A'}</span>
                 </div>
               )}
+              <div className="detail-row">
+                <span className="detail-label">Congregation Participation (அயலிடம்):</span>
+                <span className="detail-value">{member.congregationParticipation ? 'Yes' : 'No'}</span>
+              </div>
             </div>
 
             {/* Family Information */}
@@ -661,6 +667,34 @@ const MemberDetail = () => {
                 />
               </div>
             )}
+
+            {/* Congregation Participation */}
+            <h4>Congregation Participation</h4>
+            <div className="form-group">
+              <label>Congregation Participation (அயலிடம்)</label>
+              <div className="radio-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="congregationParticipation"
+                    value="false"
+                    checked={formData.congregationParticipation === false}
+                    onChange={handleInputChange}
+                  />
+                  No
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="congregationParticipation"
+                    value="true"
+                    checked={formData.congregationParticipation === true}
+                    onChange={handleInputChange}
+                  />
+                  Yes
+                </label>
+              </div>
+            </div>
           </div>
           <div className="form-actions">
             <button type="button" className="cancel-btn" onClick={closeEditModal}>

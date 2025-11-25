@@ -97,6 +97,7 @@ const {
   generateLetterheadPDF,
   generateBirthdayListPDF,
   generateWeddingListPDF,
+  generateSabaiJabithaPDF,
   openPDF
 } = require('./backend/pdfGenerator');
 
@@ -1109,6 +1110,28 @@ app.whenReady().then(async () => {
       return { success: true, pdfPath };
     } catch (error) {
       console.error('Wedding PDF generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  // Sabai Jabitha handler
+  ipcMain.handle('sabaiJabitha:generatePDF', async (event, { churchId, year }) => {
+    try {
+      // Get church data
+      const church = await getChurchById(churchId);
+      if (!church) {
+        return { success: false, message: 'Church not found' };
+      }
+
+      // Generate PDF
+      const pdfPath = await generateSabaiJabithaPDF(churchId, year, church);
+
+      // Open PDF
+      await openPDF(pdfPath);
+
+      return { success: true, pdfPath };
+    } catch (error) {
+      console.error('Sabai Jabitha PDF generation error:', error);
       return { success: false, message: error.message || 'Failed to generate PDF' };
     }
   });

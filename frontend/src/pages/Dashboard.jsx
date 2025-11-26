@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import toast from 'react-hot-toast';
 import TitleBar from '../components/TitleBar';
@@ -15,17 +15,11 @@ import {
   Cake,
   FileText,
   Users,
-  Eye,
-  PencilSimple,
-  Trash,
   Plus,
   Database,
   CloudArrowUp,
   CloudArrowDown
 } from '@phosphor-icons/react';
-import $ from 'jquery';
-import 'datatables.net-dt';
-import 'datatables.net-dt/css/dataTables.dataTables.css';
 import './Dashboard.css';
 
 Modal.setAppElement('#root');
@@ -33,8 +27,6 @@ Modal.setAppElement('#root');
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const tableRef = useRef(null);
-  const dataTableRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentChurch, setCurrentChurch] = useState(null);
@@ -208,98 +200,6 @@ const Dashboard = () => {
     loadChurches();
   }, []);
 
-  useEffect(() => {
-    if (tableRef.current && !dataTableRef.current) {
-      dataTableRef.current = $(tableRef.current).DataTable({
-        data: churches,
-        columns: [
-          { data: 'churchName', title: 'Church Name' },
-          { data: 'pastorateName', title: 'Pastorate Name' },
-          { data: 'churchShortName', title: 'Church Short Name' },
-          { data: 'pastorateShortName', title: 'Pastorate Short Name' },
-          {
-            data: null,
-            title: 'Actions',
-            orderable: false,
-            render: function(data, type, row) {
-              return `
-                <div class="action-buttons">
-                  <button class="action-btn view-btn" data-id="${row.id}" title="View">
-                    <i class="ph-eye"></i>
-                  </button>
-                  <button class="action-btn edit-btn" data-id="${row.id}" title="Edit">
-                    <i class="ph-pencil"></i>
-                  </button>
-                  <button class="action-btn delete-btn" data-id="${row.id}" title="Delete">
-                    <i class="ph-trash"></i>
-                  </button>
-                </div>
-              `;
-            }
-          }
-        ],
-        pageLength: 10,
-        destroy: true
-      });
-    }
-
-    return () => {
-      if (dataTableRef.current) {
-        $(tableRef.current).off('click');
-      }
-    };
-  }, []);
-
-  // Separate useEffect for event handlers to avoid stale closure
-  useEffect(() => {
-    if (!tableRef.current) return;
-
-    const handleViewClick = (e) => {
-      const btn = $(e.target).closest('.view-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const church = churches.find(c => c.id === id);
-        if (church) handleView(church);
-      }
-    };
-
-    const handleEditClick = (e) => {
-      const btn = $(e.target).closest('.edit-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const church = churches.find(c => c.id === id);
-        if (church) openEditModal(church);
-      }
-    };
-
-    const handleDeleteClick = (e) => {
-      const btn = $(e.target).closest('.delete-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const church = churches.find(c => c.id === id);
-        if (church) openDeleteModal(church);
-      }
-    };
-
-    $(tableRef.current).on('click', '.view-btn', handleViewClick);
-    $(tableRef.current).on('click', '.edit-btn', handleEditClick);
-    $(tableRef.current).on('click', '.delete-btn', handleDeleteClick);
-
-    return () => {
-      $(tableRef.current).off('click', '.view-btn', handleViewClick);
-      $(tableRef.current).off('click', '.edit-btn', handleEditClick);
-      $(tableRef.current).off('click', '.delete-btn', handleDeleteClick);
-    };
-  }, [churches]);
-
-  useEffect(() => {
-    if (dataTableRef.current) {
-      dataTableRef.current.clear();
-      dataTableRef.current.rows.add(churches);
-      dataTableRef.current.draw();
-    }
-  }, [churches]);
-
   return (
     <>
       <TitleBar />
@@ -308,7 +208,9 @@ const Dashboard = () => {
       <div className="dashboard-container">
         <header className="dashboard-header">
         <div className="header-content">
-          <h1 className="dashboard-title">Dashboard</h1>
+          <h1 className="dashboard-title">
+            {user?.name ? `Welcome ${user.name}` : 'Dashboard'}
+          </h1>
           <div className="header-actions">
             <button onClick={handleSettings} className="settings-btn">
               Settings
@@ -321,17 +223,41 @@ const Dashboard = () => {
       </header>
 
       <main className="dashboard-main">
-        <div className="congregation-section">
+        <div className="churches-section">
           <div className="section-header">
-            <h2 className="section-title">Congregation</h2>
+            <h2 className="section-title">Churches</h2>
             <button onClick={openCreateModal} className="create-church-btn">
               <Plus size={20} weight="bold" />
               Create Church
             </button>
           </div>
-          <div className="table-container">
-            <table ref={tableRef} className="display" style={{ width: '100%' }}></table>
-          </div>
+          {churches.length === 0 ? (
+            <div className="empty-state">
+              <p className="empty-state-text">No churches found. Create your first church to get started.</p>
+            </div>
+          ) : (
+            <div className="church-cards-grid">
+              {churches.map((church) => (
+                <div key={church.id} className="church-card">
+                  <div className="church-card-content">
+                    <h3 className="church-card-title">{church.churchName}</h3>
+                    <p className="church-card-subtitle">{church.pastorateShortName}</p>
+                  </div>
+                  <div className="church-card-actions">
+                    <button onClick={() => handleView(church)} className="church-action-btn view-btn">
+                      View
+                    </button>
+                    <button onClick={() => openEditModal(church)} className="church-action-btn edit-btn">
+                      Edit
+                    </button>
+                    <button onClick={() => openDeleteModal(church)} className="church-action-btn delete-btn">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="reports-section">
@@ -425,9 +351,8 @@ const Dashboard = () => {
             <div className="dashboard-card" onClick={() => {
               toast('Reports Backup feature will be implemented soon!', {
                 duration: 4000,
-                icon: '🔄',
                 style: {
-                  background: '#3b82f6',
+                  background: '#722f37',
                   color: '#fff',
                 }
               });
@@ -442,9 +367,8 @@ const Dashboard = () => {
             <div className="dashboard-card" onClick={() => {
               toast('Reports Restore feature will be implemented soon!', {
                 duration: 4000,
-                icon: '🔄',
                 style: {
-                  background: '#3b82f6',
+                  background: '#722f37',
                   color: '#fff',
                 }
               });

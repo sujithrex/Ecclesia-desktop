@@ -21,43 +21,43 @@ const StatusBar = () => {
   }, []);
 
   const formatDateTime = (date) => {
-    // Convert to IST (UTC+5:30)
-    const istOffset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
-    const istDate = new Date(date.getTime() + istOffset - (date.getTimezoneOffset() * 60 * 1000));
+    // Use Asia/Kolkata timezone (Chennai/Indian Standard Time)
+    const options = {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    };
     
-    const day = istDate.getUTCDate().toString().padStart(2, '0');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[istDate.getUTCMonth()];
-    const year = istDate.getUTCFullYear();
+    const formatter = new Intl.DateTimeFormat('en-IN', options);
+    const parts = formatter.formatToParts(date);
     
-    let hours = istDate.getUTCHours();
-    const minutes = istDate.getUTCMinutes().toString().padStart(2, '0');
-    const seconds = istDate.getUTCSeconds().toString().padStart(2, '0');
+    const partsMap = {};
+    parts.forEach(part => {
+      partsMap[part.type] = part.value;
+    });
     
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    const hoursStr = hours.toString().padStart(2, '0');
-    
-    return `${day} ${month} ${year} ${hoursStr}:${minutes}:${seconds} ${ampm} IST`;
+    return `${partsMap.day} ${partsMap.month} ${partsMap.year} ${partsMap.hour}:${partsMap.minute}:${partsMap.second} ${partsMap.dayPeriod} IST`;
   };
 
   return (
     <div className="status-bar">
-      <div className="status-bar-content">
-        {version && (
-          <>
-            <span className="status-version">v{version}</span>
-            <span className="status-separator">|</span>
-          </>
-        )}
+      <div className="status-bar-left">
         {user && (
-          <>
-            <span className="status-username">{user.username}</span>
-            <span className="status-separator">|</span>
-          </>
+          <span className="status-name">{user.name || user.username}</span>
         )}
+      </div>
+      <div className="status-bar-center">
         <span className="status-datetime">{formatDateTime(currentTime)}</span>
+      </div>
+      <div className="status-bar-right">
+        {version && (
+          <span className="status-version">v{version}</span>
+        )}
       </div>
     </div>
   );

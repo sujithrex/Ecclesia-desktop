@@ -1,57 +1,47 @@
 /* Import base styles */
 @import './FamilyDetail.css';
 
-.member-header-section {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-  padding: 20px;
-  background: #f9fafb;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  border: 1px solid #e5e7eb;
+/* Override content width */
+.church-detail-content {
+  width: 95% !important;
+  max-width: 95% !important;
 }
 
-.member-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+/* Member Header */
+.member-page-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.member-title-section h1 {
+  margin: 0 0 12px 0;
+}
+
+.member-id-badge {
+  background: #722f37;
   color: white;
-  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
 }
 
 .member-badges {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  flex: 1;
-}
-
-.member-id-display {
-  color: #6b7280;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 10px 20px;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.member-id-display strong {
-  color: #722f37;
-  margin-right: 8px;
+  margin-top: 12px;
 }
 
 .badge {
   display: inline-block;
   padding: 6px 14px;
   border-radius: 4px;
-  font-size: 0.85em;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .badge-alive {
@@ -69,3 +59,80 @@
   color: #c2185b;
 }
 
+.badge-baptised {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge-confirmed {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.member-edit-btn-top {
+  background: #722f37;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.member-edit-btn-top:hover {
+  background: #5a2429;
+}
+
+/* Member Info Grid - 3 columns */
+.member-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.member-info-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.member-info-card h3 {
+  color: #722f37;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #722f37;
+}
+
+.member-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.member-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.member-info-item .detail-label {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.member-info-item .detail-value {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 500;
+}

@@ -69,64 +69,32 @@
   border-bottom: 2px solid #722f37;
 }
 
-/* Action Buttons in DataTable */
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
+/* DataTable Styling - Reset to defaults for hyperlink style */
+.letterhead-table .action-buttons {
+  all: unset;
+  display: inline;
 }
 
-.view-btn,
-.edit-btn,
-.delete-btn {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 4px;
+.letterhead-table .view-btn,
+.letterhead-table .edit-btn,
+.letterhead-table .delete-btn {
+  all: unset;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.view-btn {
-  background: #722f37;
-  color: white;
-}
-
-.view-btn:hover {
-  background: #5a2429;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(114, 47, 55, 0.3);
-}
-
-.edit-btn {
-  background: #722f37;
-  color: white;
-}
-
-.edit-btn:hover {
-  background: #5a2429;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(114, 47, 55, 0.3);
-}
-
-.delete-btn {
-  background: white;
   color: #722f37;
-  border: 1px solid #722f37;
+  text-decoration: none;
+  padding: 0 8px;
+  font-size: 13px;
+  border-right: 1px solid #ddd;
 }
 
-.delete-btn:hover {
-  background: #722f37;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(114, 47, 55, 0.3);
+.letterhead-table .delete-btn {
+  border-right: none;
 }
 
-.view-btn svg,
-.edit-btn svg,
-.delete-btn svg {
-  width: 18px;
-  height: 18px;
+.letterhead-table .view-btn:hover,
+.letterhead-table .edit-btn:hover,
+.letterhead-table .delete-btn:hover {
+  text-decoration: underline;
+  background: #722f37 !important;
+  color: white !important;
 }

@@ -291,6 +291,12 @@ const InfantBaptismCertificate = () => {
         ordering: true,
         info: true,
         autoWidth: false,
+        columnDefs: [
+          { width: '10%', targets: 0 },
+          { width: '40%', targets: 1 },
+          { width: '10%', targets: 2 },
+          { width: '40%', targets: 3, orderable: false }
+        ],
         language: {
           search: 'Search certificates:',
           paginate: {
@@ -314,24 +320,19 @@ const InfantBaptismCertificate = () => {
     if (dataTableRef.current) {
       dataTableRef.current.clear();
       dataTableRef.current.rows.add(
-        certificates.map(cert => [
-          cert.certificate_number,
-          cert.christian_name,
-          new Date(cert.date_of_birth).toLocaleDateString(),
-          cert.certified_rev_name,
-          new Date(cert.certificate_date).toLocaleDateString(),
-          `<div class="action-buttons">
-            <button class="view-btn" data-id="${cert.id}" title="View PDF">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path></svg>
-            </button>
-            <button class="edit-btn" data-id="${cert.id}" title="Edit">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg>
-            </button>
-            <button class="delete-btn" data-id="${cert.id}" title="Delete">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
-            </button>
-          </div>`
-        ])
+        certificates.map(cert => {
+          const age = new Date().getFullYear() - new Date(cert.date_of_birth).getFullYear();
+          return [
+            cert.certificate_number,
+            cert.christian_name,
+            age,
+            `<div class="action-buttons">
+              <button class="view-btn" data-id="${cert.id}">PDF</button>
+              <button class="edit-btn" data-id="${cert.id}">Edit</button>
+              <button class="delete-btn" data-id="${cert.id}">Delete</button>
+            </div>`
+          ];
+        })
       );
       dataTableRef.current.draw();
     }
@@ -420,37 +421,36 @@ const InfantBaptismCertificate = () => {
 
         <main className="report-main">
           <div className="report-content">
-            {/* Previous Records Section */}
-            <div className="table-section">
-              <div className="section-header">
-                <h2>Previous Records</h2>
-                <button onClick={handleRefresh} className="refresh-btn">
-                  <ArrowClockwise size={18} weight="bold" />
-                  Refresh
-                </button>
+            <div className="content-wrapper">
+              {/* Previous Records Section */}
+              <div className="table-section">
+                <div className="section-header">
+                  <h2>Infant Baptism Certificate</h2>
+                  <button onClick={handleRefresh} className="refresh-btn">
+                    <ArrowClockwise size={18} weight="bold" />
+                    Refresh
+                  </button>
+                </div>
+
+                <div className="table-wrapper infant-baptism-table">
+                  <table ref={tableRef} className="display" style={{ width: '100%' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '10%' }}>Cert No.</th>
+                        <th style={{ width: '40%' }}>Name</th>
+                        <th style={{ width: '10%' }}>Age</th>
+                        <th style={{ width: '40%' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* DataTable will populate this */}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <table ref={tableRef} className="display" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>Number</th>
-                    <th>Name</th>
-                    <th>Date of Birth</th>
-                    <th>Certified Rev Name</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* DataTable will populate this */}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Generate Certificate Form */}
-            <div className="form-section">
-              <h2>Generate Certificate</h2>
-
+              {/* Generate Certificate Form */}
+              <div className="form-section">
               <div className="form-grid">
                 <div className="form-group">
                   <label>Certificate Number *</label>
@@ -669,6 +669,7 @@ const InfantBaptismCertificate = () => {
                   View PDF
                 </button>
               </div>
+            </div>
             </div>
           </div>
         </main>

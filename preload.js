@@ -11,7 +11,11 @@ contextBridge.exposeInMainWorld('electron', {
     changePassword: (username, currentPassword, newPassword) =>
       ipcRenderer.invoke('auth:changePassword', { username, currentPassword, newPassword }),
     changePin: (username, currentPassword, newPin) =>
-      ipcRenderer.invoke('auth:changePin', { username, currentPassword, newPin })
+      ipcRenderer.invoke('auth:changePin', { username, currentPassword, newPin }),
+    updateProfile: (username, profileData) =>
+      ipcRenderer.invoke('auth:updateProfile', { username, profileData }),
+    getProfile: (username) =>
+      ipcRenderer.invoke('auth:getProfile', { username })
   },
   church: {
     getAll: () => ipcRenderer.invoke('church:getAll'),

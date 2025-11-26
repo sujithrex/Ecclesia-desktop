@@ -26,7 +26,10 @@ async function login(username, password, rememberMe = false) {
       success: true,
       user: {
         id: user.id,
-        username: user.username
+        username: user.username,
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || ''
       }
     };
     
@@ -62,7 +65,10 @@ async function loginWithToken(token) {
       success: true,
       user: {
         id: user.id,
-        username: user.username
+        username: user.username,
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || ''
       },
       rememberToken: token // Return the same token to keep it
     };
@@ -163,6 +169,60 @@ async function changeRecoveryPin(username, currentPassword, newPin) {
   }
 }
 
+async function updateProfile(username, profileData) {
+  try {
+    const user = await findUserByUsername(username);
+    
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+    
+    const updates = {};
+    if (profileData.name !== undefined) updates.name = profileData.name;
+    if (profileData.email !== undefined) updates.email = profileData.email;
+    if (profileData.phone !== undefined) updates.phone = profileData.phone;
+    
+    await updateUser(username, updates);
+    
+    return { 
+      success: true, 
+      message: 'Profile updated successfully',
+      user: {
+        id: user.id,
+        username: user.username,
+        name: updates.name || user.name,
+        email: updates.email || user.email,
+        phone: updates.phone || user.phone
+      }
+    };
+  } catch (error) {
+    return { success: false, message: 'Profile update failed' };
+  }
+}
+
+async function getProfile(username) {
+  try {
+    const user = await findUserByUsername(username);
+    
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+    
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      }
+    };
+  } catch (error) {
+    return { success: false, message: 'Failed to get profile' };
+  }
+}
+
 module.exports = {
   login,
   loginWithToken,
@@ -170,6 +230,8 @@ module.exports = {
   verifyRecoveryPin,
   resetPassword,
   changePassword,
-  changeRecoveryPin
+  changeRecoveryPin,
+  updateProfile,
+  getProfile
 };
 

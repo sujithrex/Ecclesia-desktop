@@ -7,10 +7,7 @@ import TitleBar from '../components/TitleBar';
 import StatusBar from '../components/StatusBar';
 import Breadcrumb from '../components/Breadcrumb';
 import LoadingScreen from '../components/LoadingScreen';
-import { Plus, Eye, PencilSimple, Trash } from '@phosphor-icons/react';
-import $ from 'jquery';
-import 'datatables.net-dt';
-import 'datatables.net-dt/css/dataTables.dataTables.css';
+import { Plus } from '@phosphor-icons/react';
 import './AreaDetail.css';
 
 Modal.setAppElement('#root');
@@ -24,9 +21,13 @@ const AreaDetail = () => {
   const { id } = useParams();
   const area = location.state?.area;
   const church = location.state?.church;
-  const tableRef = useRef(null);
-  const dataTableRef = useRef(null);
   const [families, setFamilies] = useState([]);
+  const [stats, setStats] = useState({
+    totalFamilies: 0,
+    totalMembers: 0,
+    totalCommunicants: 0,
+    totalBaptised: 0
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentFamily, setCurrentFamily] = useState(null);
@@ -34,6 +35,9 @@ const AreaDetail = () => {
   const [familyToDelete, setFamilyToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 16;
   const [formData, setFormData] = useState({
     respect: 'Mr',
     familyName: '',
@@ -76,6 +80,38 @@ const AreaDetail = () => {
       toast.error('Failed to load families');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadStats = async () => {
+    if (!area) return;
+
+    try {
+      // Get all families for this area
+      const familiesResult = await window.electron.family.getByArea(area.id);
+      const areaFamilies = familiesResult.success ? familiesResult.data : [];
+
+      // Get all members for this area
+      const membersResult = await window.electron.member.getAll();
+      const areaMembers = membersResult.success
+        ? membersResult.data.filter(m => {
+            const family = areaFamilies.find(f => f.id === m.familyId);
+            return family !== undefined;
+          })
+        : [];
+
+      // Calculate statistics
+      const totalCommunicants = areaMembers.filter(m => m.communicant === 'Yes').length;
+      const totalBaptised = areaMembers.filter(m => m.baptised === 'Yes').length;
+
+      setStats({
+        totalFamilies: areaFamilies.length,
+        totalMembers: areaMembers.length,
+        totalCommunicants,
+        totalBaptised
+      });
+    } catch (error) {
+      console.error('Failed to load statistics');
     }
   };
 
@@ -264,118 +300,31 @@ const AreaDetail = () => {
     }
 
     loadFamilies();
+    loadStats();
   }, []);
 
+  // Filter families based on search term
+  const filteredFamilies = families.filter(family => {
+    const searchLower = searchTerm.toLowerCase();
+    const familyName = `${family.respect || ''} ${family.familyName || ''}`.toLowerCase();
+    const familyNumber = (family.familyNumber || '').toString().toLowerCase();
+    const phone = (family.familyPhone || '').toLowerCase();
+    
+    return familyName.includes(searchLower) || 
+           familyNumber.includes(searchLower) || 
+           phone.includes(searchLower);
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredFamilies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentFamilies = filteredFamilies.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search term changes
   useEffect(() => {
-    if (families.length > 0 && tableRef.current) {
-      if (dataTableRef.current) {
-        dataTableRef.current.destroy();
-      }
-
-      dataTableRef.current = $(tableRef.current).DataTable({
-        data: families,
-        columns: [
-          { 
-            data: 'familyNumber',
-            title: 'Family Number',
-            render: (data) => data || 'N/A'
-          },
-          { 
-            data: null,
-            title: 'Family Name',
-            render: (data) => `${data.respect || ''}. ${data.familyName || ''}`
-          },
-          { 
-            data: 'familyPhone',
-            title: 'Phone',
-            render: (data) => data || 'N/A'
-          },
-          { 
-            data: 'layoutNumber',
-            title: 'Layout Number',
-            render: (data) => data || 'N/A'
-          },
-          {
-            data: null,
-            title: 'Actions',
-            orderable: false,
-            render: function(data, type, row) {
-              return `
-                <div class="action-buttons">
-                  <button class="action-btn view-btn" data-id="${row.id}" title="View">
-                    <i class="ph-eye"></i>
-                  </button>
-                  <button class="action-btn edit-btn" data-id="${row.id}" title="Edit">
-                    <i class="ph-pencil"></i>
-                  </button>
-                  <button class="action-btn delete-btn" data-id="${row.id}" title="Delete">
-                    <i class="ph-trash"></i>
-                  </button>
-                </div>
-              `;
-            }
-          }
-        ],
-        pageLength: 10,
-        destroy: true,
-        searching: true,
-        ordering: true,
-        language: {
-          emptyTable: 'No families found'
-        }
-      });
-    }
-
-    return () => {
-      if (dataTableRef.current) {
-        $(tableRef.current).off('click');
-      }
-    };
-  }, [families]);
-
-  // Event handlers for DataTable buttons
-  useEffect(() => {
-    if (!tableRef.current) return;
-
-    const handleViewClick = (e) => {
-      const btn = $(e.target).closest('.view-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const family = families.find(f => f.id === id);
-        if (family) {
-          handleViewFamily(family);
-        }
-      }
-    };
-
-    const handleEditClick = (e) => {
-      const btn = $(e.target).closest('.edit-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const family = families.find(f => f.id === id);
-        if (family) openEditModal(family);
-      }
-    };
-
-    const handleDeleteClick = (e) => {
-      const btn = $(e.target).closest('.delete-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const family = families.find(f => f.id === id);
-        if (family) openDeleteModal(family);
-      }
-    };
-
-    $(tableRef.current).on('click', '.view-btn', handleViewClick);
-    $(tableRef.current).on('click', '.edit-btn', handleEditClick);
-    $(tableRef.current).on('click', '.delete-btn', handleDeleteClick);
-
-    return () => {
-      $(tableRef.current).off('click', '.view-btn', handleViewClick);
-      $(tableRef.current).off('click', '.edit-btn', handleEditClick);
-      $(tableRef.current).off('click', '.delete-btn', handleDeleteClick);
-    };
-  }, [families]);
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   if (!church || !area) {
     return null;
@@ -403,7 +352,31 @@ const AreaDetail = () => {
 
         <main className="church-detail-main">
         <div className="church-detail-content">
-          <h1>{area.areaName}</h1>
+          <div className="area-header-row">
+            <h1>{area.areaName}</h1>
+            <h2 className="section-title">Area Information</h2>
+          </div>
+
+          <div className="stats-section">
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-value">{stats.totalFamilies}</div>
+                <div className="stat-label">Total Families</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{stats.totalMembers}</div>
+                <div className="stat-label">Total Members</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{stats.totalCommunicants}</div>
+                <div className="stat-label">Total Communicants</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{stats.totalBaptised}</div>
+                <div className="stat-label">Total Baptised</div>
+              </div>
+            </div>
+          </div>
 
           <div className="areas-section">
             <div className="section-header">
@@ -414,9 +387,91 @@ const AreaDetail = () => {
               </button>
             </div>
 
-            <div className="table-container">
-              <table ref={tableRef} className="display" style={{ width: '100%' }}></table>
+            {/* Search Bar */}
+            <div className="search-container">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search families by name, number, or phone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
+
+            {/* Family Cards */}
+            {currentFamilies.length === 0 ? (
+              <div className="empty-state">
+                <p className="empty-state-text">
+                  {searchTerm ? 'No families found matching your search.' : 'No families found. Create your first family to get started.'}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="family-cards-grid">
+                  {currentFamilies.map((family) => (
+                    <div key={family.id} className="family-card">
+                      <div className="family-card-header">
+                        <div className="family-card-title">
+                          {family.respect}. {family.familyName}
+                        </div>
+                        <div className="family-card-number">
+                          {family.familyNumber || 'N/A'}
+                        </div>
+                      </div>
+                      <div className="family-card-info">
+                        <p className="family-card-phone">{family.familyPhone || 'No phone'}</p>
+                        {family.layoutNumber && (
+                          <p className="family-card-layout">Layout: {family.layoutNumber}</p>
+                        )}
+                      </div>
+                      <div className="family-card-actions">
+                        <button 
+                          onClick={() => handleViewFamily(family)} 
+                          className="family-action-btn view-btn"
+                        >
+                          View
+                        </button>
+                        <button 
+                          onClick={() => openEditModal(family)} 
+                          className="family-action-btn edit-btn"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => openDeleteModal(family)} 
+                          className="family-action-btn delete-btn"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    <button
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </button>
+                    <div className="pagination-info">
+                      Page {currentPage} of {totalPages} ({filteredFamilies.length} families)
+                    </div>
+                    <button
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </main>

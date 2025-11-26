@@ -45,31 +45,29 @@ const Login = () => {
       <StatusBar />
       <div className="login-container">
         <div className="login-box">
-        <h1 className="login-title">Welcome Back</h1>
+        <h1 className="login-title">Ecclesia - Desktop</h1>
         <p className="login-subtitle">Sign in to continue</p>
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">Username</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder="Username"
               required
               autoFocus
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Password"
               required
             />
           </div>

@@ -86,7 +86,9 @@ const {
   verifyRecoveryPin,
   resetPassword,
   changePassword,
-  changeRecoveryPin
+  changeRecoveryPin,
+  updateProfile,
+  getProfile
 } = require('./backend/auth');
 const {
   generateInfantBaptismPDF,
@@ -174,6 +176,7 @@ function createWindow() {
       if (splashWindow) {
         splashWindow.close();
       }
+      mainWindow.setFullScreen(true);
       mainWindow.show();
       
       // Setup auto-updater (only in production)
@@ -216,6 +219,14 @@ app.whenReady().then(async () => {
 
   ipcMain.handle('auth:changePin', async (event, { username, currentPassword, newPin }) => {
     return await changeRecoveryPin(username, currentPassword, newPin);
+  });
+
+  ipcMain.handle('auth:updateProfile', async (event, { username, profileData }) => {
+    return await updateProfile(username, profileData);
+  });
+
+  ipcMain.handle('auth:getProfile', async (event, { username }) => {
+    return await getProfile(username);
   });
 
   // Church CRUD handlers

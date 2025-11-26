@@ -7,10 +7,7 @@ import TitleBar from '../components/TitleBar';
 import StatusBar from '../components/StatusBar';
 import Breadcrumb from '../components/Breadcrumb';
 import LoadingScreen from '../components/LoadingScreen';
-import { Plus, Eye, PencilSimple, Trash } from '@phosphor-icons/react';
-import $ from 'jquery';
-import 'datatables.net-dt';
-import 'datatables.net-dt/css/dataTables.dataTables.css';
+import { Plus } from '@phosphor-icons/react';
 import './ChurchDetail.css';
 
 Modal.setAppElement('#root');
@@ -21,9 +18,13 @@ const ChurchDetail = () => {
   const location = useLocation();
   const { id } = useParams();
   const church = location.state?.church;
-  const tableRef = useRef(null);
-  const dataTableRef = useRef(null);
   const [areas, setAreas] = useState([]);
+  const [stats, setStats] = useState({
+    totalFamilies: 0,
+    totalMembers: 0,
+    totalCommunicants: 0,
+    totalBaptised: 0
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentArea, setCurrentArea] = useState(null);
@@ -65,6 +66,40 @@ const ChurchDetail = () => {
       toast.error('Failed to load areas');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadStats = async () => {
+    if (!church) return;
+
+    try {
+      // Get all families for this church
+      const familiesResult = await window.electron.family.getAll();
+      const churchFamilies = familiesResult.success 
+        ? familiesResult.data.filter(f => f.churchId === church.id)
+        : [];
+
+      // Get all members for this church
+      const membersResult = await window.electron.member.getAll();
+      const churchMembers = membersResult.success
+        ? membersResult.data.filter(m => {
+            const family = churchFamilies.find(f => f.id === m.familyId);
+            return family !== undefined;
+          })
+        : [];
+
+      // Calculate statistics
+      const totalCommunicants = churchMembers.filter(m => m.communicant === 'Yes').length;
+      const totalBaptised = churchMembers.filter(m => m.baptised === 'Yes').length;
+
+      setStats({
+        totalFamilies: churchFamilies.length,
+        totalMembers: churchMembers.length,
+        totalCommunicants,
+        totalBaptised
+      });
+    } catch (error) {
+      console.error('Failed to load statistics');
     }
   };
 
@@ -194,104 +229,11 @@ const ChurchDetail = () => {
     }
   };
 
-  // Load areas on component mount
+  // Load areas and stats on component mount
   useEffect(() => {
     loadAreas();
+    loadStats();
   }, [church]);
-
-  // Initialize DataTable
-  useEffect(() => {
-    if (tableRef.current && !dataTableRef.current && areas.length >= 0) {
-      dataTableRef.current = $(tableRef.current).DataTable({
-        data: areas,
-        columns: [
-          { data: 'areaName', title: 'Area Name' },
-          { data: 'areaId', title: 'Area ID' },
-          {
-            data: null,
-            title: 'Actions',
-            orderable: false,
-            render: function(data, type, row) {
-              return `
-                <div class="action-buttons">
-                  <button class="action-btn view-btn" data-id="${row.id}" title="View">
-                    <i class="ph-eye"></i>
-                  </button>
-                  <button class="action-btn edit-btn" data-id="${row.id}" title="Edit">
-                    <i class="ph-pencil"></i>
-                  </button>
-                  <button class="action-btn delete-btn" data-id="${row.id}" title="Delete">
-                    <i class="ph-trash"></i>
-                  </button>
-                </div>
-              `;
-            }
-          }
-        ],
-        pageLength: 10,
-        destroy: true
-      });
-    }
-
-    return () => {
-      if (dataTableRef.current) {
-        $(tableRef.current).off('click');
-      }
-    };
-  }, []);
-
-  // Event handlers for DataTable buttons
-  useEffect(() => {
-    if (!tableRef.current) return;
-
-    const handleViewClick = (e) => {
-      const btn = $(e.target).closest('.view-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const area = areas.find(a => a.id === id);
-        if (area) {
-          navigate(`/area/${area.id}`, { state: { area, church } });
-        }
-      }
-    };
-
-    const handleEditClick = (e) => {
-      const btn = $(e.target).closest('.edit-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const area = areas.find(a => a.id === id);
-        if (area) openEditModal(area);
-      }
-    };
-
-    const handleDeleteClick = (e) => {
-      const btn = $(e.target).closest('.delete-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const area = areas.find(a => a.id === id);
-        if (area) openDeleteModal(area);
-      }
-    };
-
-    $(tableRef.current).on('click', '.view-btn', handleViewClick);
-    $(tableRef.current).on('click', '.edit-btn', handleEditClick);
-    $(tableRef.current).on('click', '.delete-btn', handleDeleteClick);
-
-    return () => {
-      $(tableRef.current).off('click', '.view-btn', handleViewClick);
-      $(tableRef.current).off('click', '.edit-btn', handleEditClick);
-      $(tableRef.current).off('click', '.delete-btn', handleDeleteClick);
-    };
-  }, [areas]);
-
-  // Update DataTable when areas change
-  useEffect(() => {
-    if (dataTableRef.current) {
-      dataTableRef.current.clear();
-      dataTableRef.current.rows.add(areas);
-      dataTableRef.current.draw();
-    }
-  }, [areas]);
 
   if (!church) {
     return (
@@ -349,38 +291,29 @@ const ChurchDetail = () => {
 
         <main className="church-detail-main">
           <div className="church-detail-content">
-            <h1>{church.churchName}</h1>
+            <div className="church-header-info">
+              <h1>{church.churchName}</h1>
+              <span className="pastorate-short-name">{church.pastorateShortName}</span>
+            </div>
 
-            <div className="detail-grid">
-              <div className="detail-card">
-                <h3>Church Information</h3>
-                <div className="detail-row">
-                  <span className="detail-label">Church Name:</span>
-                  <span className="detail-value">{church.churchName}</span>
+            <div className="stats-section">
+              <h2 className="section-title">Church Information</h2>
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-value">{stats.totalFamilies}</div>
+                  <div className="stat-label">Total Families</div>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Church Short Name:</span>
-                  <span className="detail-value">{church.churchShortName}</span>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.totalMembers}</div>
+                  <div className="stat-label">Total Members</div>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Church Name (Tamil):</span>
-                  <span className="detail-value">{church.churchNameTamil}</span>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.totalCommunicants}</div>
+                  <div className="stat-label">Total Communicants</div>
                 </div>
-              </div>
-
-              <div className="detail-card">
-                <h3>Pastorate Information</h3>
-                <div className="detail-row">
-                  <span className="detail-label">Pastorate Name:</span>
-                  <span className="detail-value">{church.pastorateName}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Pastorate Short Name:</span>
-                  <span className="detail-value">{church.pastorateShortName}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Pastorate Name (Tamil):</span>
-                  <span className="detail-value">{church.pastorateNameTamil}</span>
+                <div className="stat-card">
+                  <div className="stat-value">{stats.totalBaptised}</div>
+                  <div className="stat-label">Total Baptised</div>
                 </div>
               </div>
             </div>
@@ -393,9 +326,42 @@ const ChurchDetail = () => {
                   Create Area
                 </button>
               </div>
-              <div className="table-container">
-                <table ref={tableRef} className="display" style={{ width: '100%' }}></table>
-              </div>
+              {areas.length === 0 ? (
+                <div className="empty-state">
+                  <p className="empty-state-text">No areas found. Create your first area to get started.</p>
+                </div>
+              ) : (
+                <div className="area-cards-grid">
+                  {areas.map((area) => (
+                    <div key={area.id} className="area-card">
+                      <div className="area-card-content">
+                        <h3 className="area-card-title">{area.areaName}</h3>
+                        <p className="area-card-subtitle">Area ID: {area.areaId}</p>
+                      </div>
+                      <div className="area-card-actions">
+                        <button 
+                          onClick={() => navigate(`/area/${area.id}`, { state: { area, church } })} 
+                          className="area-action-btn view-btn"
+                        >
+                          View
+                        </button>
+                        <button 
+                          onClick={() => openEditModal(area)} 
+                          className="area-action-btn edit-btn"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => openDeleteModal(area)} 
+                          className="area-action-btn delete-btn"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </main>

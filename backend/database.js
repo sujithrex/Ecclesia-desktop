@@ -21,6 +21,9 @@ async function initDatabase() {
     db.data.users.push({
       id: 1,
       username: 'admin',
+      name: 'Administrator',
+      email: '',
+      phone: '',
       password: hashedPassword,
       recoveryPin: await bcrypt.hash('1221', 10)
     });
@@ -918,18 +921,44 @@ async function getNextLetterheadNumber(churchId) {
     return 'LH-001';
   }
 
-  // Extract numbers from letterhead numbers and find the maximum
-  const numbers = churchLetterheads
+  // Sort by created_at to get the most recent letterhead
+  const sortedLetterheads = churchLetterheads.sort((a, b) => {
+    const dateA = new Date(a.created_at || 0);
+    const dateB = new Date(b.created_at || 0);
+    return dateB - dateA; // Most recent first
+  });
+
+  // Get the most recent letterhead to extract its prefix
+  const lastLetterhead = sortedLetterheads[0];
+  const lastNumber = lastLetterhead.letterhead_number || 'LH-001';
+  
+  // Extract prefix and number from last letterhead
+  const match = lastNumber.match(/^(.+?)(\d+)$/);
+  let prefix = 'LH-';
+  let maxNumber = 0;
+  
+  if (match) {
+    prefix = match[1]; // Everything before the number
+    maxNumber = parseInt(match[2]); // The number part
+  }
+  
+  // Also check all letterheads with the same prefix to find max number
+  const numbersWithSamePrefix = churchLetterheads
+    .filter(letterhead => letterhead.letterhead_number?.startsWith(prefix))
     .map(letterhead => {
-      const match = letterhead.letterhead_number?.match(/(\d+)/);
-      return match ? parseInt(match[1]) : 0;
+      const numMatch = letterhead.letterhead_number?.match(/(\d+)$/);
+      return numMatch ? parseInt(numMatch[1]) : 0;
     })
     .filter(num => !isNaN(num));
-
-  const maxNumber = Math.max(...numbers, 0);
+  
+  if (numbersWithSamePrefix.length > 0) {
+    maxNumber = Math.max(...numbersWithSamePrefix);
+  }
+  
   const nextNumber = maxNumber + 1;
-
-  return `LH-${String(nextNumber).padStart(3, '0')}`;
+  const numberLength = match ? match[2].length : 3; // Preserve number length
+  
+  return `${prefix}${String(nextNumber).padStart(numberLength, '0')}`;
 }
 
 // ==================== Family Functions ====================
@@ -1047,12 +1076,12 @@ async function createFamily(familyData) {
   await db.write();
 
   // Automatically create the family head as the first member
-  const memberId = await getNextMemberId();
+  const nextMemberId = await getNextMemberId();
   const familyHeadMember = {
-    id: memberId,
+    id: db.data.members.length + 1,
     familyId: newFamily.id,
     memberNumber: '01',
-    memberId: String(memberId).padStart(4, '0'),
+    memberId: nextMemberId,
     name: familyData.familyName,
     respect: familyData.respect || 'Mr',
     relation: 'Head',
@@ -1171,20 +1200,20 @@ async function getNextMemberId() {
   await db.read();
 
   if (db.data.members.length === 0) {
-    return 'MEM001';
+    return '01';
   }
 
   const numbers = db.data.members
     .map(member => {
-      const match = member.memberId?.match(/MEM(\d+)/);
-      return match ? parseInt(match[1]) : 0;
+      const num = parseInt(member.memberId);
+      return isNaN(num) ? 0 : num;
     })
     .filter(num => !isNaN(num));
 
   const maxNumber = Math.max(...numbers, 0);
   const nextNumber = maxNumber + 1;
 
-  return `MEM${String(nextNumber).padStart(3, '0')}`;
+  return String(nextNumber).padStart(2, '0');
 }
 
 async function getMemberByFamilyAndNumber(familyId, memberNumber) {

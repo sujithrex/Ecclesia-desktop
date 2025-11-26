@@ -7,10 +7,7 @@ import TitleBar from '../components/TitleBar';
 import StatusBar from '../components/StatusBar';
 import Breadcrumb from '../components/Breadcrumb';
 import LoadingScreen from '../components/LoadingScreen';
-import { Plus, Eye, PencilSimple, Trash, PencilLine } from '@phosphor-icons/react';
-import $ from 'jquery';
-import 'datatables.net-dt';
-import 'datatables.net-dt/css/dataTables.dataTables.css';
+import { Plus, PencilLine } from '@phosphor-icons/react';
 import './FamilyDetail.css';
 
 Modal.setAppElement('#root');
@@ -26,8 +23,6 @@ const FamilyDetail = () => {
   const family = location.state?.family;
   const area = location.state?.area;
   const church = location.state?.church;
-  const tableRef = useRef(null);
-  const dataTableRef = useRef(null);
   const [members, setMembers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -416,143 +411,6 @@ const FamilyDetail = () => {
     loadMembers();
   }, []);
 
-  useEffect(() => {
-    if (members.length > 0 && tableRef.current) {
-      if (dataTableRef.current) {
-        dataTableRef.current.destroy();
-      }
-
-      dataTableRef.current = $(tableRef.current).DataTable({
-        data: members,
-        columns: [
-          {
-            data: 'memberNumber',
-            title: 'Member No.',
-            render: (data) => data || 'N/A'
-          },
-          {
-            data: null,
-            title: 'Name',
-            render: (data) => `${data.respect || ''}. ${data.name || ''}`
-          },
-          {
-            data: 'age',
-            title: 'Age',
-            render: (data) => data || 'N/A'
-          },
-          {
-            data: 'relation',
-            title: 'Relation',
-            render: (data) => data || 'N/A'
-          },
-          {
-            data: null,
-            title: 'Marital Status',
-            render: (data) => {
-              if (data.isMarried) {
-                const spouse = members.find(m => m.id === data.spouseId);
-                return spouse ? `Married to ${spouse.name}` : 'Married';
-              }
-              return 'Single';
-            }
-          },
-          {
-            data: 'occupation',
-            title: 'Occupation',
-            render: (data) => data || 'N/A'
-          },
-          {
-            data: null,
-            title: 'About',
-            render: (data) => {
-              const badges = [];
-              if (data.isBaptised) badges.push('<span class="badge badge-baptised">Baptised</span>');
-              if (data.isConfirmed) badges.push('<span class="badge badge-confirmed">Confirmed</span>');
-              return badges.length > 0 ? badges.join(' ') : 'N/A';
-            }
-          },
-          {
-            data: null,
-            title: 'Actions',
-            orderable: false,
-            render: function(data, type, row) {
-              return `
-                <div class="action-buttons">
-                  <button class="action-btn view-btn" data-id="${row.id}" title="View">
-                    <i class="ph-eye"></i>
-                  </button>
-                  <button class="action-btn edit-btn" data-id="${row.id}" title="Edit">
-                    <i class="ph-pencil"></i>
-                  </button>
-                  <button class="action-btn delete-btn" data-id="${row.id}" title="Delete">
-                    <i class="ph-trash"></i>
-                  </button>
-                </div>
-              `;
-            }
-          }
-        ],
-        pageLength: 10,
-        destroy: true,
-        searching: true,
-        ordering: true,
-        language: {
-          emptyTable: 'No members found'
-        }
-      });
-    }
-
-    return () => {
-      if (dataTableRef.current) {
-        $(tableRef.current).off('click');
-      }
-    };
-  }, [members]);
-
-  // Event handlers for DataTable buttons
-  useEffect(() => {
-    if (!tableRef.current) return;
-
-    const handleViewClick = (e) => {
-      const btn = $(e.target).closest('.view-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const member = members.find(m => m.id === id);
-        if (member) {
-          handleViewMember(member);
-        }
-      }
-    };
-
-    const handleEditClick = (e) => {
-      const btn = $(e.target).closest('.edit-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const member = members.find(m => m.id === id);
-        if (member) openEditModal(member);
-      }
-    };
-
-    const handleDeleteClick = (e) => {
-      const btn = $(e.target).closest('.delete-btn');
-      if (btn.length) {
-        const id = parseInt(btn.data('id'));
-        const member = members.find(m => m.id === id);
-        if (member) openDeleteModal(member);
-      }
-    };
-
-    $(tableRef.current).on('click', '.view-btn', handleViewClick);
-    $(tableRef.current).on('click', '.edit-btn', handleEditClick);
-    $(tableRef.current).on('click', '.delete-btn', handleDeleteClick);
-
-    return () => {
-      $(tableRef.current).off('click', '.view-btn', handleViewClick);
-      $(tableRef.current).off('click', '.edit-btn', handleEditClick);
-      $(tableRef.current).off('click', '.delete-btn', handleDeleteClick);
-    };
-  }, [members]);
-
   if (!church || !area || !family) {
     return null;
   }
@@ -579,45 +437,43 @@ const FamilyDetail = () => {
 
         <main className="church-detail-main">
         <div className="church-detail-content">
-          <h1>{family.respect}. {family.familyName}</h1>
+          <div className="family-header">
+            <h1>{family.respect}. {family.familyName}</h1>
+            <button className="family-edit-btn-top" onClick={openFamilyEditModal}>
+              <PencilLine size={16} weight="bold" />
+              Edit Family
+            </button>
+          </div>
 
-          <div className="detail-grid">
-            <div className="detail-card family-info-card-no-header">
-              <div className="family-info-grid">
-                <div className="family-info-item">
-                  <span className="detail-label">Family Number:</span>
-                  <span className="detail-value">{family.familyNumber || 'N/A'}</span>
-                </div>
-                <div className="family-info-item">
-                  <span className="detail-label">Layout Number:</span>
-                  <span className="detail-value">{family.layoutNumber || 'N/A'}</span>
-                </div>
-                <div className="family-info-item">
-                  <span className="detail-label">Phone:</span>
-                  <span className="detail-value">{family.familyPhone || 'N/A'}</span>
-                </div>
-                <div className="family-info-item">
-                  <span className="detail-label">Email:</span>
-                  <span className="detail-value">{family.familyEmail || 'N/A'}</span>
-                </div>
-                <div className="family-info-item">
-                  <span className="detail-label">Address:</span>
-                  <span className="detail-value">{family.familyAddress || 'N/A'}</span>
-                </div>
-                <div className="family-info-item">
-                  <span className="detail-label">Notes:</span>
-                  <span className="detail-value">{family.notes || 'N/A'}</span>
-                </div>
-                <div className="family-info-item">
-                  <span className="detail-label">Prayer Points:</span>
-                  <span className="detail-value">{family.prayerPoints || 'N/A'}</span>
-                </div>
-                <div className=" family-info-item-with-button">
-                  <button className="family-edit-btn" onClick={openFamilyEditModal}>
-                    <PencilLine size={16} weight="bold" />
-                    Edit Family
-                  </button>
-                </div>
+          <div className="family-info-section">
+            <div className="family-info-grid-4col">
+              <div className="family-info-item">
+                <span className="detail-label">Family Number</span>
+                <span className="detail-value">{family.familyNumber || 'N/A'}</span>
+              </div>
+              <div className="family-info-item">
+                <span className="detail-label">Layout Number</span>
+                <span className="detail-value">{family.layoutNumber || 'N/A'}</span>
+              </div>
+              <div className="family-info-item">
+                <span className="detail-label">Phone</span>
+                <span className="detail-value">{family.familyPhone || 'N/A'}</span>
+              </div>
+              <div className="family-info-item">
+                <span className="detail-label">Email</span>
+                <span className="detail-value">{family.familyEmail || 'N/A'}</span>
+              </div>
+              <div className="family-info-item family-info-item-span-2">
+                <span className="detail-label">Prayer Points</span>
+                <span className="detail-value">{family.prayerPoints || 'N/A'}</span>
+              </div>
+              <div className="family-info-item">
+                <span className="detail-label">Address</span>
+                <span className="detail-value">{family.familyAddress || 'N/A'}</span>
+              </div>
+              <div className="family-info-item">
+                <span className="detail-label">Notes</span>
+                <span className="detail-value">{family.notes || 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -631,9 +487,50 @@ const FamilyDetail = () => {
               </button>
             </div>
 
-            <div className="table-container">
-              <table ref={tableRef} className="display" style={{ width: '100%' }}></table>
-            </div>
+            {members.length === 0 ? (
+              <div className="empty-state">
+                <p className="empty-state-text">No members found. Create your first member to get started.</p>
+              </div>
+            ) : (
+              <div className="member-cards-grid">
+                {members.map((member) => (
+                  <div key={member.id} className="member-card">
+                    <div className="member-card-header">
+                      <div className="member-card-title">
+                        {member.respect}. {member.name}
+                      </div>
+                    </div>
+                    <div className="member-card-info">
+                      <p className="member-card-relation">{member.relation || 'N/A'}</p>
+                      <div className="member-card-badges">
+                        {member.isBaptised && <span className="member-badge baptised">Baptised</span>}
+                        {member.isConfirmed && <span className="member-badge confirmed">Confirmed</span>}
+                      </div>
+                    </div>
+                    <div className="member-card-actions">
+                      <button 
+                        onClick={() => handleViewMember(member)} 
+                        className="member-action-btn view-btn"
+                      >
+                        View
+                      </button>
+                      <button 
+                        onClick={() => openEditModal(member)} 
+                        className="member-action-btn edit-btn"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => openDeleteModal(member)} 
+                        className="member-action-btn delete-btn"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>

@@ -1,0 +1,32 @@
+/* Marriage Records - Reset button styling to default DataTables UI */
+.marriage-table .action-buttons {
+  all: unset;
+  display: inline;
+}
+
+.marriage-table .action-btn,
+.marriage-table .notification-btn,
+.marriage-table .certificate-btn,
+.marriage-table .edit-btn,
+.marriage-table .delete-btn {
+  all: unset;
+  cursor: pointer;
+  padding: 2px 8px;
+  margin: 0 2px;
+  display: inline;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: normal;
+  line-height: normal;
+}
+
+.marriage-table .action-btn:hover,
+.marriage-table .notification-btn:hover,
+.marriage-table .certificate-btn:hover,
+.marriage-table .edit-btn:hover,
+.marriage-table .delete-btn:hover {
+  background: #722f37 !important;
+  color: white !important;
+}

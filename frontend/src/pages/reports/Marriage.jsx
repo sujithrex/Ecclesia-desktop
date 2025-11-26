@@ -11,6 +11,7 @@ import $ from 'jquery';
 import 'datatables.net-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 import './ReportPage.css';
+import './Marriage.css';
 
 const Marriage = () => {
   const { user, logout } = useAuth();
@@ -435,7 +436,7 @@ const Marriage = () => {
 
             {/* Table Section */}
             <div className="table-section">
-              <div className="table-container">
+              <div className="table-container marriage-table">
                 <table ref={tableRef} className="display" style={{ width: '100%' }}></table>
               </div>
             </div>

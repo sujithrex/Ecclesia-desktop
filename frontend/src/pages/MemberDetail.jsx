@@ -205,142 +205,137 @@ const MemberDetail = () => {
 
         <main className="church-detail-main">
         <div className="church-detail-content">
-          <h1>{member.respect}. {member.name}</h1>
-
-          <div className="member-header-section">
-            <div className="member-avatar">
-              <User size={80} weight="light" />
+          <div className="member-page-header">
+            <div className="member-title-section">
+              <h1>{member.respect}. {member.name}</h1>
+              <div className="member-id-badge">Member ID: {member.memberId}</div>
+              <div className="member-badges">
+                {member.isAlive ? (
+                  <span className="badge badge-alive">Alive</span>
+                ) : (
+                  <span className="badge badge-deceased">Deceased</span>
+                )}
+                {member.isMarried && <span className="badge badge-married">Married</span>}
+                {member.isBaptised && <span className="badge badge-baptised">Baptised</span>}
+                {member.isConfirmed && <span className="badge badge-confirmed">Confirmed</span>}
+              </div>
             </div>
-            <div className="member-badges">
-              {member.isAlive ? (
-                <span className="badge badge-alive">Alive</span>
-              ) : (
-                <span className="badge badge-deceased">Deceased</span>
-              )}
-              {member.isMarried && <span className="badge badge-married">Married</span>}
-              {member.isBaptised && <span className="badge badge-baptised">Baptised</span>}
-              {member.isConfirmed && <span className="badge badge-confirmed">Confirmed</span>}
-            </div>
-            <div className="member-id-display">
-              <strong>Member ID:</strong> {member.memberId}
-            </div>
+            <button className="member-edit-btn-top" onClick={openEditModal}>
+              <PencilLine size={16} weight="bold" />
+              Edit Member
+            </button>
           </div>
 
-          <div className="detail-grid">
+          <div className="member-info-grid">
             {/* Personal Information */}
-            <div className="detail-card">
+            <div className="member-info-card">
               <h3>Personal Information</h3>
-              <div className="detail-row">
-                <span className="detail-label">Member Number:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Member Number</span>
                 <span className="detail-value">{member.memberNumber || 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Relation:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Relation</span>
                 <span className="detail-value">{member.relation || 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Sex:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Sex</span>
                 <span className="detail-value">{member.sex || 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Date of Birth:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Date of Birth</span>
                 <span className="detail-value">{member.dob ? new Date(member.dob).toLocaleDateString() : 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Age:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Age</span>
                 <span className="detail-value">{member.age || 'N/A'}</span>
               </div>
             </div>
 
             {/* Contact Information */}
-            <div className="detail-card">
+            <div className="member-info-card">
               <h3>Contact Information</h3>
-              <div className="detail-row">
-                <span className="detail-label">Mobile:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Mobile</span>
                 <span className="detail-value">{member.mobile || 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Aadhar Number:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Aadhar Number</span>
                 <span className="detail-value">{member.aadharNumber || 'N/A'}</span>
               </div>
             </div>
 
             {/* Professional Information */}
-            <div className="detail-card">
+            <div className="member-info-card">
               <h3>Professional Information</h3>
-              <div className="detail-row">
-                <span className="detail-label">Occupation:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Occupation</span>
                 <span className="detail-value">{member.occupation || 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Working Place:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Working Place</span>
                 <span className="detail-value">{member.workingPlace || 'N/A'}</span>
               </div>
             </div>
 
             {/* Marriage Information */}
             {member.isMarried && (
-              <div className="detail-card">
+              <div className="member-info-card">
                 <h3>Marriage Information</h3>
-                <div className="detail-row">
-                  <span className="detail-label">Spouse:</span>
+                <div className="member-info-item">
+                  <span className="detail-label">Spouse</span>
                   <span className="detail-value">{spouse ? `${spouse.respect}. ${spouse.name}` : 'N/A'}</span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Date of Marriage:</span>
+                <div className="member-info-item">
+                  <span className="detail-label">Date of Marriage</span>
                   <span className="detail-value">{member.dateOfMarriage ? new Date(member.dateOfMarriage).toLocaleDateString() : 'N/A'}</span>
                 </div>
               </div>
             )}
 
             {/* Religious Information */}
-            <div className="detail-card">
+            <div className="member-info-card">
               <h3>Religious Information</h3>
-              <div className="detail-row">
-                <span className="detail-label">Baptised:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Baptised</span>
                 <span className="detail-value">{member.isBaptised ? 'Yes' : 'No'}</span>
               </div>
               {member.isBaptised && (
-                <div className="detail-row">
-                  <span className="detail-label">Date of Baptism:</span>
+                <div className="member-info-item">
+                  <span className="detail-label">Date of Baptism</span>
                   <span className="detail-value">{member.dateOfBaptism ? new Date(member.dateOfBaptism).toLocaleDateString() : 'N/A'}</span>
                 </div>
               )}
-              <div className="detail-row">
-                <span className="detail-label">Confirmed:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Confirmed</span>
                 <span className="detail-value">{member.isConfirmed ? 'Yes' : 'No'}</span>
               </div>
               {member.isConfirmed && (
-                <div className="detail-row">
-                  <span className="detail-label">Date of Confirmation:</span>
+                <div className="member-info-item">
+                  <span className="detail-label">Date of Confirmation</span>
                   <span className="detail-value">{member.dateOfConfirmation ? new Date(member.dateOfConfirmation).toLocaleDateString() : 'N/A'}</span>
                 </div>
               )}
-              <div className="detail-row">
-                <span className="detail-label">Congregation Participation (அயலிடம்):</span>
+              <div className="member-info-item">
+                <span className="detail-label">Congregation Participation</span>
                 <span className="detail-value">{member.congregationParticipation ? 'Yes' : 'No'}</span>
               </div>
             </div>
 
             {/* Family Information */}
-            <div className="detail-card">
-              <div className="detail-row">
-                <span className="detail-label">Family Name:</span>
+            <div className="member-info-card">
+              <h3>Family Information</h3>
+              <div className="member-info-item">
+                <span className="detail-label">Family Name</span>
                 <span className="detail-value">{family?.familyName || 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Family Number:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Family Number</span>
                 <span className="detail-value">{family?.familyNumber || 'N/A'}</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Layout Number:</span>
+              <div className="member-info-item">
+                <span className="detail-label">Layout Number</span>
                 <span className="detail-value">{family?.layoutNumber || 'N/A'}</span>
-              </div>
-              <div className="detail-row" style={{ borderBottom: 'none', paddingTop: '20px' }}>
-                <button className="create-area-btn" onClick={openEditModal} style={{ width: '100%' }}>
-                  <PencilLine size={20} weight="bold" />
-                  Edit Member
-                </button>
               </div>
             </div>
           </div>

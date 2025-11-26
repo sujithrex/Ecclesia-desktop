@@ -85,10 +85,17 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('user');
   };
 
+  const updateUser = (updatedUserData) => {
+    const updatedUser = { ...user, ...updatedUserData };
+    setUser(updatedUser);
+    sessionStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   const value = {
     user,
     login,
     logout,
+    updateUser,
     isAuthenticated: !!user
   };
 

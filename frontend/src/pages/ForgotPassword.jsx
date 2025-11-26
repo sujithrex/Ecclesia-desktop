@@ -81,26 +81,24 @@ const ForgotPassword = () => {
         {step === 1 ? (
           <form onSubmit={handleVerifyPin} className="forgot-form">
             <div className="form-group">
-              <label htmlFor="username">Username</label>
               <input
                 type="text"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="Username"
                 required
                 autoFocus
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="pin">Recovery PIN</label>
               <input
                 type="password"
                 id="pin"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                placeholder="Enter your recovery PIN"
+                placeholder="Recovery PIN"
                 required
                 maxLength="4"
               />
@@ -113,26 +111,24 @@ const ForgotPassword = () => {
         ) : (
           <form onSubmit={handleResetPassword} className="forgot-form">
             <div className="form-group">
-              <label htmlFor="newPassword">New Password</label>
               <input
                 type="password"
                 id="newPassword"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password"
+                placeholder="New Password"
                 required
                 autoFocus
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
               <input
                 type="password"
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
+                placeholder="Confirm Password"
                 required
               />
             </div>

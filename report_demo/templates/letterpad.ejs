@@ -203,14 +203,14 @@ function calculateDynamicTop() {
   // Calculate lines in parsonage_address
   const parsonageLines = countActualLines(letterpad.parsonage_address || 'Christ Church Parsonage<br>14, Zion Church Street,<br>Samathanapuram<br>Tenkasi<br>Ph:75388122218');
 
-  // Line height is approximately 5.2mm per line (based on 13pt font with 1.4 line-height)
-  const lineHeight = 5.2;
+  // Line height is approximately 5.5mm per line (based on 13pt font with 1.4 line-height)
+  const lineHeight = 5.5;
 
   // Use the maximum of the two sections
   const maxLines = Math.max(revLines, parsonageLines);
 
-  // Calculate new top position (minimal padding)
-  const calculatedTop = baseTop + (maxLines * lineHeight) + 2; // 2mm padding
+  // Calculate new top position with proper gap
+  const calculatedTop = baseTop + (maxLines * lineHeight) + 8; // 8mm padding for proper gap
 
   // No minimum - let it be truly dynamic
   return calculatedTop;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -8,10 +8,15 @@ import LoadingScreen from '../components/LoadingScreen';
 import './Settings.css';
 
 const Settings = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('password');
+  const [activeTab, setActiveTab] = useState('profile');
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -98,10 +103,51 @@ const Settings = () => {
     navigate('/login');
   };
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (user) {
+        try {
+          const result = await window.electron.auth.getProfile(user.username);
+          if (result.success) {
+            setName(result.user.name || '');
+            setEmail(result.user.email || '');
+            setPhone(result.user.phone || '');
+          }
+        } catch (error) {
+          console.error('Failed to load profile');
+        }
+      }
+    };
+    
+    loadProfile();
+  }, [user]);
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+
+    setProfileLoading(true);
+
+    const result = await window.electron.auth.updateProfile(user.username, {
+      name,
+      email,
+      phone
+    });
+
+    if (result.success) {
+      toast.success('Profile updated successfully!');
+      // Update user in context and session storage
+      updateUser({ name, email, phone });
+    } else {
+      toast.error(result.message || 'Failed to update profile');
+    }
+
+    setProfileLoading(false);
+  };
+
   return (
     <>
-      {(passwordLoading || pinLoading) && (
-        <LoadingScreen message={passwordLoading ? 'Updating password...' : 'Updating PIN...'} />
+      {(profileLoading || passwordLoading || pinLoading) && (
+        <LoadingScreen message={profileLoading ? 'Updating profile...' : passwordLoading ? 'Updating password...' : 'Updating PIN...'} />
       )}
       <TitleBar />
       <StatusBar />
@@ -124,6 +170,12 @@ const Settings = () => {
         <div className="settings-card">
           <div className="settings-tabs">
             <button
+              className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              Profile
+            </button>
+            <button
               className={`tab-btn ${activeTab === 'password' ? 'active' : ''}`}
               onClick={() => setActiveTab('password')}
             >
@@ -138,6 +190,54 @@ const Settings = () => {
           </div>
 
           <div className="settings-content">
+            {activeTab === 'profile' && (
+              <div className="tab-panel">
+                <h2>Profile Information</h2>
+                <p className="tab-description">
+                  Update your personal information
+                </p>
+
+                <form onSubmit={handleUpdateProfile} className="settings-form">
+                  <div className="form-group">
+                    <label htmlFor="name">Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your name (e.g., Rev. Samuel)"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="email">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="phone">Phone Number</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+
+                  <button type="submit" className="submit-btn" disabled={profileLoading}>
+                    Update Profile
+                  </button>
+                </form>
+              </div>
+            )}
+
             {activeTab === 'password' && (
               <div className="tab-panel">
                 <h2>Change Password</h2>

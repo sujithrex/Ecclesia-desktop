@@ -44,7 +44,8 @@
 }
 
 .settings-main {
-  max-width: 800px;
+  width: 95%;
+  max-width: 95%;
   margin: 0 auto;
   padding: 40px 20px;
   margin-top: 72px;
@@ -56,6 +57,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  width: 100%;
 }
 
 .settings-tabs {
@@ -139,13 +141,15 @@
   background: #722f37;
   color: white;
   border: none;
-  padding: 14px;
+  padding: 14px 32px;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 10px;
+  min-width: 180px;
+  white-space: nowrap;
 }
 
 .submit-btn:hover:not(:disabled) {

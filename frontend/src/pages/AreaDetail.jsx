@@ -101,8 +101,8 @@ const AreaDetail = () => {
         : [];
 
       // Calculate statistics
-      const totalCommunicants = areaMembers.filter(m => m.communicant === 'Yes').length;
-      const totalBaptised = areaMembers.filter(m => m.baptised === 'Yes').length;
+      const totalCommunicants = areaMembers.filter(m => m.isConfirmed === true).length;
+      const totalBaptised = areaMembers.filter(m => m.isBaptised === true).length;
 
       setStats({
         totalFamilies: areaFamilies.length,

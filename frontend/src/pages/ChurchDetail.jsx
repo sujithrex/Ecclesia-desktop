@@ -73,24 +73,27 @@ const ChurchDetail = () => {
     if (!church) return;
 
     try {
-      // Get all families for this church
+      // Get all areas for this church
+      const areasResult = await window.electron.area.getByChurch(church.id);
+      const churchAreas = areasResult.success ? areasResult.data : [];
+      const areaIds = churchAreas.map(a => a.id);
+
+      // Get all families for this church (families belong to areas, areas belong to churches)
       const familiesResult = await window.electron.family.getAll();
       const churchFamilies = familiesResult.success 
-        ? familiesResult.data.filter(f => f.churchId === church.id)
+        ? familiesResult.data.filter(f => areaIds.includes(f.areaId))
         : [];
 
       // Get all members for this church
       const membersResult = await window.electron.member.getAll();
+      const familyIds = churchFamilies.map(f => f.id);
       const churchMembers = membersResult.success
-        ? membersResult.data.filter(m => {
-            const family = churchFamilies.find(f => f.id === m.familyId);
-            return family !== undefined;
-          })
+        ? membersResult.data.filter(m => familyIds.includes(m.familyId))
         : [];
 
       // Calculate statistics
-      const totalCommunicants = churchMembers.filter(m => m.communicant === 'Yes').length;
-      const totalBaptised = churchMembers.filter(m => m.baptised === 'Yes').length;
+      const totalCommunicants = churchMembers.filter(m => m.isConfirmed === true).length;
+      const totalBaptised = churchMembers.filter(m => m.isBaptised === true).length;
 
       setStats({
         totalFamilies: churchFamilies.length,
@@ -232,8 +235,12 @@ const ChurchDetail = () => {
   // Load areas and stats on component mount
   useEffect(() => {
     loadAreas();
-    loadStats();
   }, [church]);
+
+  // Reload stats when areas change
+  useEffect(() => {
+    loadStats();
+  }, [church, areas]);
 
   if (!church) {
     return (

@@ -180,7 +180,7 @@ const CreateMarriageRecord = () => {
         </header>
 
         <main className="report-main">
-          <div className="report-content">
+          <div className="report-content wide-form">
             <h1>{isEditMode ? 'Edit Marriage Record' : 'Create Marriage Record'}</h1>
 
             <form onSubmit={handleSubmit} className="marriage-form">

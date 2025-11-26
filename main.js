@@ -163,7 +163,7 @@ function createWindow() {
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools(); // Open dev tools in development
+    // mainWindow.webContents.openDevTools(); // Open dev tools in development
   } else {
     const indexPath = getResourcePath('frontend/dist/index.html');
     console.log('Loading index from:', indexPath);

@@ -10,7 +10,7 @@
 }
 
 .report-header {
-  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
   color: white;
   padding: 16px 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -60,7 +60,7 @@
 
 .logout-btn {
   background: white;
-  color: #722f37;
+  color: #B5316A;
 }
 
 .logout-btn:hover {
@@ -85,7 +85,7 @@
 }
 
 .report-content h1 {
-  color: #722f37;
+  color: #B5316A;
   font-size: 28px;
   font-weight: 700;
   margin: 0 0 10px 0;
@@ -139,13 +139,13 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .filter-btn,
 .pdf-btn {
   padding: 10px 30px;
-  background: #722f37;
+  background: #B5316A;
   color: white;
   border: none;
   border-radius: 6px;
@@ -157,7 +157,7 @@
 
 .filter-btn:hover,
 .pdf-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
 }
 
 .pdf-btn:disabled {
@@ -201,7 +201,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: #722f37;
+  background: #B5316A;
   color: white;
   border: none;
   border-radius: 6px;
@@ -212,7 +212,7 @@
 }
 
 .create-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
 }
 
 /* Marriage Form Styles */
@@ -229,7 +229,7 @@
 }
 
 .form-section h3 {
-  color: #722f37;
+  color: #B5316A;
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 20px 0;
@@ -249,7 +249,7 @@
 
 .form-group textarea:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .form-actions {
@@ -284,23 +284,23 @@
 
 .form-actions .cancel-btn {
   background: white !important;
-  color: #722f37 !important;
-  border: 2px solid #722f37 !important;
+  color: #B5316A !important;
+  border: 2px solid #B5316A !important;
 }
 
 .form-actions .cancel-btn:hover {
-  background: #722f37 !important;
+  background: #B5316A !important;
   color: white !important;
 }
 
 .form-actions .submit-btn {
   min-width: 180px;
-  background: #722f37 !important;
+  background: #B5316A !important;
   color: white !important;
 }
 
 .form-actions .submit-btn:hover {
-  background: #5a2429 !important;
+  background: #8F2654 !important;
 }
 
 /* Delete Confirmation Modal */
@@ -324,7 +324,7 @@
 }
 
 .record-details strong {
-  color: #722f37;
+  color: #B5316A;
   font-size: 18px;
 }
 

@@ -43,11 +43,11 @@ function App() {
             },
             success: {
               iconTheme: {
-                primary: '#722f37',
+                primary: '#B5316A',
                 secondary: '#fff',
               },
               style: {
-                border: '2px solid #722f37',
+                border: '2px solid #B5316A',
               },
             },
             error: {

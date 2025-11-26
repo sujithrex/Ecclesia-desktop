@@ -34,7 +34,7 @@
 
 .form-group textarea:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
   box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
 }
 
@@ -48,7 +48,7 @@
 
 .form-group select:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
   box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
 }
 
@@ -69,7 +69,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
   box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
 }
 
@@ -95,7 +95,7 @@
 
 .family-card:hover {
   box-shadow: 0 4px 12px rgba(114, 47, 55, 0.15);
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .family-card-header {
@@ -106,7 +106,7 @@
 }
 
 .family-card-title {
-  color: #722f37;
+  color: #B5316A;
   font-size: 16px;
   font-weight: 600;
   line-height: 1.3;
@@ -114,7 +114,7 @@
 }
 
 .family-card-number {
-  background: #722f37;
+  background: #B5316A;
   color: white;
   padding: 4px 10px;
   border-radius: 4px;
@@ -160,19 +160,19 @@
 
 .family-action-btn.view-btn {
   color: white;
-  background: #722f37;
-  border-color: #722f37;
+  background: #B5316A;
+  border-color: #B5316A;
 }
 
 .family-action-btn.view-btn:hover {
-  background: #5a2429;
-  border-color: #5a2429;
+  background: #8F2654;
+  border-color: #8F2654;
 }
 
 .family-action-btn.edit-btn {
-  color: #722f37;
+  color: #B5316A;
   background: white;
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .family-action-btn.edit-btn:hover {
@@ -181,13 +181,13 @@
 
 .family-action-btn.delete-btn {
   color: white;
-  background: #722f37;
-  border-color: #722f37;
+  background: #B5316A;
+  border-color: #B5316A;
 }
 
 .family-action-btn.delete-btn:hover {
-  background: #5a2429;
-  border-color: #5a2429;
+  background: #8F2654;
+  border-color: #8F2654;
 }
 
 /* Pagination */
@@ -201,9 +201,9 @@
 
 .pagination-btn {
   padding: 10px 20px;
-  border: 1px solid #722f37;
+  border: 1px solid #B5316A;
   background: white;
-  color: #722f37;
+  color: #B5316A;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
@@ -212,7 +212,7 @@
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: #722f37;
+  background: #B5316A;
   color: white;
 }
 
@@ -248,19 +248,19 @@
 
 .action-btn.view-btn {
   color: white;
-  background: #722f37;
-  border-color: #722f37;
+  background: #B5316A;
+  border-color: #B5316A;
 }
 
 .action-btn.view-btn:hover {
-  background: #5a2429;
-  border-color: #5a2429;
+  background: #8F2654;
+  border-color: #8F2654;
 }
 
 .action-btn.edit-btn {
-  color: #722f37;
+  color: #B5316A;
   background: white;
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .action-btn.edit-btn:hover {
@@ -269,13 +269,13 @@
 
 .action-btn.delete-btn {
   color: white;
-  background: #722f37;
-  border-color: #722f37;
+  background: #B5316A;
+  border-color: #B5316A;
 }
 
 .action-btn.delete-btn:hover {
-  background: #5a2429;
-  border-color: #5a2429;
+  background: #8F2654;
+  border-color: #8F2654;
 }
 
 
@@ -290,7 +290,7 @@ table.dataTable {
 }
 
 table.dataTable thead {
-  background: #722f37;
+  background: #B5316A;
 }
 
 table.dataTable thead th {
@@ -348,7 +348,7 @@ table.dataTable tbody td {
 .dataTables_wrapper .dataTables_length select:focus,
 .dataTables_wrapper .dataTables_filter input:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
   box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
 }
 
@@ -370,13 +370,13 @@ table.dataTable tbody td {
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
   background: #f9fafb;
-  border-color: #722f37;
-  color: #722f37 !important;
+  border-color: #B5316A;
+  color: #B5316A !important;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-  background: #722f37 !important;
-  border-color: #722f37 !important;
+  background: #B5316A !important;
+  border-color: #B5316A !important;
   color: white !important;
 }
 
@@ -471,11 +471,11 @@ table.dataTable thead .sorting_desc:after {
 
 .stat-card:hover {
   box-shadow: 0 4px 12px rgba(114, 47, 55, 0.15);
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .stat-value {
-  color: #722f37;
+  color: #B5316A;
   font-size: 36px;
   font-weight: 700;
   margin-bottom: 8px;

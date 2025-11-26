@@ -10,7 +10,7 @@
 }
 
 .settings-header {
-  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
   color: white;
   padding: 20px 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -80,12 +80,12 @@
 
 .tab-btn:hover {
   background: #f9f9f9;
-  color: #722f37;
+  color: #B5316A;
 }
 
 .tab-btn.active {
-  color: #722f37;
-  border-bottom-color: #722f37;
+  color: #B5316A;
+  border-bottom-color: #B5316A;
   background: #fff;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .tab-panel h2 {
-  color: #722f37;
+  color: #B5316A;
   font-size: 24px;
   margin: 0 0 8px 0;
 }
@@ -133,12 +133,12 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
   box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
 }
 
 .submit-btn {
-  background: #722f37;
+  background: #B5316A;
   color: white;
   border: none;
   padding: 14px 32px;
@@ -153,7 +153,7 @@
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #5a2429;
+  background: #8F2654;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(114, 47, 55, 0.3);
 }

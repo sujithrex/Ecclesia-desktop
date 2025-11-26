@@ -5,9 +5,9 @@
 }
 
 :root {
-  --wine-primary: #722f37;
-  --wine-dark: #5a2429;
-  --wine-darker: #4a1f26;
+  --wine-primary: #B5316A;
+  --wine-dark: #8F2654;
+  --wine-darker: #7A1F47;
   --wine-light: rgba(114, 47, 55, 0.1);
 
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

@@ -13,7 +13,7 @@
 }
 
 .section-header h2 {
-  color: #722f37;
+  color: #B5316A;
   font-size: 22px;
   font-weight: 600;
   margin: 0;
@@ -24,7 +24,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: #722f37;
+  background: #B5316A;
   color: white;
   border: none;
   border-radius: 6px;
@@ -35,7 +35,7 @@
 }
 
 .refresh-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(114, 47, 55, 0.2);
 }
@@ -110,7 +110,7 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
   box-shadow: 0 0 0 2px rgba(114, 47, 55, 0.1);
   background: white !important;
   background-color: white !important;
@@ -150,23 +150,23 @@
 }
 
 .save-btn {
-  background: #722f37;
+  background: #B5316A;
   color: white;
 }
 
 .save-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(114, 47, 55, 0.2);
 }
 
 .view-pdf-btn {
-  background: #722f37;
+  background: #B5316A;
   color: white;
 }
 
 .view-pdf-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(114, 47, 55, 0.2);
 }
@@ -230,8 +230,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
-  border-bottom: 2px solid #722f37;
-  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+  border-bottom: 2px solid #B5316A;
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
   color: white;
   border-radius: 8px 8px 0 0;
 }
@@ -279,9 +279,9 @@
 
 .cancel-btn {
   padding: 12px 30px;
-  border: 1px solid #722f37;
+  border: 1px solid #B5316A;
   background: white;
-  color: #722f37;
+  color: #B5316A;
   border-radius: 6px;
   font-size: 15px;
   font-weight: 600;
@@ -290,7 +290,7 @@
 }
 
 .cancel-btn:hover {
-  background: #722f37;
+  background: #B5316A;
   color: white;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(114, 47, 55, 0.2);
@@ -315,7 +315,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #722f37;
+  border-top-color: #B5316A;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

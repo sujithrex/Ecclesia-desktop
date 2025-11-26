@@ -10,7 +10,7 @@
 }
 
 .church-detail-header {
-  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
   color: white;
   padding: 16px 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -60,7 +60,7 @@
 
 .logout-btn {
   background: white;
-  color: #722f37;
+  color: #B5316A;
 }
 
 .logout-btn:hover {
@@ -89,7 +89,7 @@
 }
 
 .church-detail-content h1 {
-  color: #722f37;
+  color: #B5316A;
   font-size: 32px;
   font-weight: 700;
   margin: 0;
@@ -124,11 +124,11 @@
 
 .stat-card:hover {
   box-shadow: 0 4px 12px rgba(114, 47, 55, 0.15);
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .stat-value {
-  color: #722f37;
+  color: #B5316A;
   font-size: 36px;
   font-weight: 700;
   margin-bottom: 8px;
@@ -143,7 +143,7 @@
 .back-link-btn {
   margin-top: 20px;
   padding: 10px 20px;
-  background: #722f37;
+  background: #B5316A;
   color: white;
   border: none;
   border-radius: 6px;
@@ -154,7 +154,7 @@
 }
 
 .back-link-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
 }
 
 /* Areas Section */
@@ -170,14 +170,14 @@
 }
 
 .section-title {
-  color: #722f37;
+  color: #B5316A;
   font-size: 22px;
   font-weight: 700;
   margin: 0;
 }
 
 .create-area-btn {
-  background: #722f37;
+  background: #B5316A;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -192,7 +192,7 @@
 }
 
 .create-area-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
 }
 
 /* Area Cards Grid */
@@ -216,7 +216,7 @@
 
 .area-card:hover {
   box-shadow: 0 4px 12px rgba(114, 47, 55, 0.15);
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .area-card-content {
@@ -224,7 +224,7 @@
 }
 
 .area-card-title {
-  color: #722f37;
+  color: #B5316A;
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 8px 0;
@@ -258,19 +258,19 @@
 
 .area-action-btn.view-btn {
   color: white;
-  background: #722f37;
-  border-color: #722f37;
+  background: #B5316A;
+  border-color: #B5316A;
 }
 
 .area-action-btn.view-btn:hover {
-  background: #5a2429;
-  border-color: #5a2429;
+  background: #8F2654;
+  border-color: #8F2654;
 }
 
 .area-action-btn.edit-btn {
-  color: #722f37;
+  color: #B5316A;
   background: white;
-  border-color: #722f37;
+  border-color: #B5316A;
 }
 
 .area-action-btn.edit-btn:hover {
@@ -279,13 +279,13 @@
 
 .area-action-btn.delete-btn {
   color: white;
-  background: #722f37;
-  border-color: #722f37;
+  background: #B5316A;
+  border-color: #B5316A;
 }
 
 .area-action-btn.delete-btn:hover {
-  background: #5a2429;
-  border-color: #5a2429;
+  background: #8F2654;
+  border-color: #8F2654;
 }
 
 /* Empty State */
@@ -334,7 +334,7 @@
   align-items: center;
   padding: 24px 30px;
   border-bottom: 1px solid #e5e7eb;
-  background: linear-gradient(135deg, #722f37 0%, #5a2429 100%);
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
   border-radius: 12px 12px 0 0;
 }
 
@@ -391,7 +391,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #722f37;
+  border-color: #B5316A;
   box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);
 }
 
@@ -427,12 +427,12 @@
 }
 
 .submit-btn {
-  background: #722f37;
+  background: #B5316A;
   color: white;
 }
 
 .submit-btn:hover {
-  background: #5a2429;
+  background: #8F2654;
 }
 
 /* Delete Modal Styles */

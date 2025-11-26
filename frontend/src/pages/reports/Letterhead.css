@@ -42,10 +42,10 @@
 .letterhead-details-section h3 {
   font-size: 14px;
   font-weight: 600;
-  color: #722f37;
+  color: #B5316A;
   margin-bottom: 10px;
   padding-bottom: 5px;
-  border-bottom: 2px solid #722f37;
+  border-bottom: 2px solid #B5316A;
 }
 
 /* Form field labels */
@@ -63,10 +63,10 @@
 .main-content-section h3 {
   font-size: 14px;
   font-weight: 600;
-  color: #722f37;
+  color: #B5316A;
   margin-bottom: 10px;
   padding-bottom: 5px;
-  border-bottom: 2px solid #722f37;
+  border-bottom: 2px solid #B5316A;
 }
 
 /* DataTable Styling - Reset to defaults for hyperlink style */
@@ -80,7 +80,7 @@
 .letterhead-table .delete-btn {
   all: unset;
   cursor: pointer;
-  color: #722f37;
+  color: #B5316A;
   text-decoration: none;
   padding: 0 8px;
   font-size: 13px;
@@ -95,6 +95,6 @@
 .letterhead-table .edit-btn:hover,
 .letterhead-table .delete-btn:hover {
   text-decoration: underline;
-  background: #722f37 !important;
+  background: #B5316A !important;
   color: white !important;
 }

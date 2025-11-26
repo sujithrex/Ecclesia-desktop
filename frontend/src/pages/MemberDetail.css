@@ -20,7 +20,7 @@
 }
 
 .member-id-badge {
-  background: #722f37;
+  background: #B5316A;
   color: white;
   padding: 6px 16px;
   border-radius: 6px;
@@ -70,7 +70,7 @@
 }
 
 .member-edit-btn-top {
-  background: #722f37;
+  background: #B5316A;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -85,7 +85,7 @@
 }
 
 .member-edit-btn-top:hover {
-  background: #5a2429;
+  background: #8F2654;
 }
 
 /* Member Info Grid - 3 columns */
@@ -104,12 +104,12 @@
 }
 
 .member-info-card h3 {
-  color: #722f37;
+  color: #B5316A;
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 16px 0;
   padding-bottom: 12px;
-  border-bottom: 2px solid #722f37;
+  border-bottom: 2px solid #B5316A;
 }
 
 .member-info-item {

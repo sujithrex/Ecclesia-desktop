@@ -352,7 +352,7 @@ const Dashboard = () => {
               toast('Reports Backup feature will be implemented soon!', {
                 duration: 4000,
                 style: {
-                  background: '#722f37',
+                  background: '#B5316A',
                   color: '#fff',
                 }
               });
@@ -368,7 +368,7 @@ const Dashboard = () => {
               toast('Reports Restore feature will be implemented soon!', {
                 duration: 4000,
                 style: {
-                  background: '#722f37',
+                  background: '#B5316A',
                   color: '#fff',
                 }
               });

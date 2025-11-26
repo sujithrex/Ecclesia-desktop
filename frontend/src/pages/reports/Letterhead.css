@@ -80,21 +80,30 @@
 .letterhead-table .delete-btn {
   all: unset;
   cursor: pointer;
+  padding: 4px 12px;
+  margin: 0 4px;
+  display: inline-block;
+  background: none;
+  border: none;
   color: #B5316A;
-  text-decoration: none;
-  padding: 0 8px;
   font-size: 13px;
-  border-right: 1px solid #ddd;
+  font-weight: 500;
+  line-height: normal;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
-.letterhead-table .delete-btn {
-  border-right: none;
-}
-
-.letterhead-table .view-btn:hover,
-.letterhead-table .edit-btn:hover,
-.letterhead-table .delete-btn:hover {
-  text-decoration: underline;
+.letterhead-table .view-btn:hover {
   background: #B5316A !important;
+  color: white !important;
+}
+
+.letterhead-table .edit-btn:hover {
+  background: #B5316A !important;
+  color: white !important;
+}
+
+.letterhead-table .delete-btn:hover {
+  background: #dc3545 !important;
   color: white !important;
 }

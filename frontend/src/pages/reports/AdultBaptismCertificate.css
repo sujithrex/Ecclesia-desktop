@@ -51,20 +51,31 @@
 .adult-baptism-table .delete-btn {
   all: unset;
   cursor: pointer;
-  padding: 2px 8px;
-  margin: 0 2px;
-  display: inline;
+  padding: 4px 12px;
+  margin: 0 4px;
+  display: inline-block;
   background: none;
   border: none;
-  color: inherit;
-  font-size: inherit;
-  font-weight: normal;
+  color: #B5316A;
+  font-size: 13px;
+  font-weight: 500;
   line-height: normal;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
-.adult-baptism-table .view-btn:hover,
-.adult-baptism-table .edit-btn:hover,
+.adult-baptism-table .view-btn:hover {
+  background: #B5316A;
+  color: white !important;
+}
+
+.adult-baptism-table .edit-btn:hover {
+  background: #B5316A;
+  color: white !important;
+}
+
 .adult-baptism-table .delete-btn:hover {
+  background: #dc3545;
   color: white !important;
 }
 

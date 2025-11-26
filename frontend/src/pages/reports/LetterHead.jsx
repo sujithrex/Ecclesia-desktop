@@ -347,7 +347,11 @@ const LetterHead = () => {
         order: [[1, 'desc']],
         pageLength: 10,
         columnDefs: [
-          { orderable: false, targets: 4 }
+          { width: '10%', targets: 0 }, // No
+          { width: '10%', targets: 1 }, // Date
+          { width: '25%', targets: 2 }, // Name (only)
+          { width: '20%', targets: 3 }, // Pastorate
+          { width: '35%', targets: 4, orderable: false } // Actions
         ],
         language: {
           emptyTable: 'No letterheads found'
@@ -375,10 +379,24 @@ const LetterHead = () => {
         dataTableRef.current.clear();
 
         letterheads.forEach(letterhead => {
+          // Extract only the name (first line) from rev_name, strip HTML
+          const revNameText = letterhead.rev_name?.replace(/<[^>]*>/g, '').trim() || '';
+          const nameOnly = revNameText.split('\n')[0].trim(); // Get first line only
+          
+          // Format date as dd-mm-yyyy
+          let formattedDate = '';
+          if (letterhead.letter_date) {
+            const date = new Date(letterhead.letter_date);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            formattedDate = `${day}-${month}-${year}`;
+          }
+          
           dataTableRef.current.row.add([
             letterhead.letterhead_number,
-            letterhead.letter_date,
-            letterhead.rev_name?.replace(/<[^>]*>/g, '').substring(0, 50) || '',
+            formattedDate,
+            nameOnly,
             letterhead.pastorate_name || '',
             `<div class="action-buttons">
               <button class="view-btn" data-id="${letterhead.id}">PDF</button>
@@ -507,9 +525,9 @@ const LetterHead = () => {
                 <table ref={tableRef} className="display" style={{ width: '100%' }}>
                   <thead>
                     <tr>
-                      <th>Letterhead No.</th>
+                      <th>No</th>
                       <th>Date</th>
-                      <th>Rev Name</th>
+                      <th>Name</th>
                       <th>Pastorate</th>
                       <th>Actions</th>
                     </tr>

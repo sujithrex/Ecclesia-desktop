@@ -24,6 +24,13 @@ const CongregationRestore = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [step, setStep] = useState(1); // Step 1: Select file, Step 2: Preview & Restore
+  
+  // Full DB Restore states
+  const [fullDbFile, setFullDbFile] = useState(null);
+  const [fullDbPreview, setFullDbPreview] = useState(null);
+  const [showRestartModal, setShowRestartModal] = useState(false);
+  const [showFullDbConfirm, setShowFullDbConfirm] = useState(false);
+  const [fullDbConfirmText, setFullDbConfirmText] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -180,6 +187,102 @@ const CongregationRestore = () => {
   const cancelDeleteConfirm = () => {
     setShowDeleteConfirm(false);
     setDeleteConfirmText('');
+  };
+
+  // Full Database Restore handlers
+  const handleFullDbFileSelect = async () => {
+    try {
+      const result = await window.electron.backup.selectFullDatabaseRestoreFile();
+      
+      if (!result.success || !result.filePath) {
+        if (result.message && result.message !== 'File selection canceled') {
+          toast.error(result.message);
+        }
+        return;
+      }
+
+      setFullDbFile({ name: result.fileName, path: result.filePath });
+      toast.success('File selected! Click Preview to validate.');
+      
+    } catch (error) {
+      console.error('File select error:', error);
+      toast.error('Failed to select file: ' + error.message);
+      setFullDbFile(null);
+    }
+  };
+
+  const handleFullDbPreview = async () => {
+    if (!fullDbFile) {
+      toast.error('Please select a file first');
+      return;
+    }
+
+    try {
+      setLoadingMessage('Validating database backup...');
+      setIsLoading(true);
+
+      const result = await window.electron.backup.previewFullDatabaseRestore({
+        filePath: fullDbFile.path
+      });
+
+      if (result.success) {
+        setFullDbPreview(result.stats);
+        toast.success('Backup file validated successfully!');
+      } else {
+        toast.error(result.message || 'Failed to validate backup file');
+        setFullDbPreview(null);
+      }
+    } catch (error) {
+      console.error('Preview error:', error);
+      toast.error('Failed to preview backup: ' + error.message);
+      setFullDbPreview(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFullDbRestore = () => {
+    if (!fullDbFile) {
+      toast.error('Please select a file first');
+      return;
+    }
+
+    // Show confirmation modal
+    setShowFullDbConfirm(true);
+  };
+
+  const executeFullDbRestore = async () => {
+    try {
+      setLoadingMessage('Restoring full database...');
+      setIsLoading(true);
+      setShowFullDbConfirm(false);
+
+      const result = await window.electron.backup.restoreFullDatabase({
+        filePath: fullDbFile.path
+      });
+
+      if (result.success) {
+        toast.success('Database restored successfully!');
+        setShowRestartModal(true);
+      } else {
+        toast.error(result.message || 'Failed to restore database');
+      }
+    } catch (error) {
+      console.error('Restore error:', error);
+      toast.error('Failed to restore database: ' + error.message);
+    } finally {
+      setIsLoading(false);
+      setFullDbConfirmText('');
+    }
+  };
+
+  const cancelFullDbConfirm = () => {
+    setShowFullDbConfirm(false);
+    setFullDbConfirmText('');
+  };
+
+  const handleRestart = async () => {
+    await window.electron.app.restart();
   };
 
   return (
@@ -369,6 +472,114 @@ const CongregationRestore = () => {
                 </button>
               </div>
             )}
+
+            {/* Full Database Restore Section */}
+            <div style={{ marginTop: '40px', paddingTop: '40px', borderTop: '2px solid #e0e0e0' }}>
+        <h1>2. Full Database Restore (JSON)</h1>
+        <p className="report-description">
+          Restore the entire database from a JSON backup file. This will replace ALL current data.
+        </p>
+
+        <div className="filter-section">
+          <div className="form-row">
+            <div className="form-group">
+              <label>JSON Backup File <span className="required">*</span></label>
+              <button
+                onClick={handleFullDbFileSelect}
+                className="file-select-btn"
+              >
+                {fullDbFile ? 'Change File' : 'Select JSON File'}
+              </button>
+              {fullDbFile && (
+                <p className="file-selected">✓ Selected: {fullDbFile.name}</p>
+              )}
+            </div>
+
+            {fullDbFile && !fullDbPreview && (
+              <div className="form-group">
+                <label>&nbsp;</label>
+                <button
+                  onClick={handleFullDbPreview}
+                  className="next-btn"
+                >
+                  Preview Backup
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Full DB Preview */}
+        {fullDbPreview && (
+          <div className="preview-section">
+            <h2>Backup Contents</h2>
+            
+            <div className="preview-stats">
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.users}</div>
+                <div className="stat-label">Users</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.churches}</div>
+                <div className="stat-label">Churches</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.areas}</div>
+                <div className="stat-label">Areas</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.families}</div>
+                <div className="stat-label">Families</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.members}</div>
+                <div className="stat-label">Members</div>
+              </div>
+            </div>
+
+            <div className="preview-stats" style={{ marginTop: '20px' }}>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.infantBaptismCertificates}</div>
+                <div className="stat-label">Infant Baptisms</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.adultBaptismCertificates}</div>
+                <div className="stat-label">Adult Baptisms</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.marriageRecords}</div>
+                <div className="stat-label">Marriages</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.burialRegisters}</div>
+                <div className="stat-label">Burials</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{fullDbPreview.letterheads}</div>
+                <div className="stat-label">Letterheads</div>
+              </div>
+            </div>
+
+            <div className="action-buttons" style={{ marginTop: '30px' }}>
+              <button
+                onClick={() => {
+                  setFullDbPreview(null);
+                  setFullDbFile(null);
+                }}
+                className="back-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFullDbRestore}
+                className="pdf-btn"
+              >
+                Restore Full Database
+              </button>
+            </div>
+          </div>
+        )}
+            </div>
           </div>
         </main>
       </div>
@@ -404,6 +615,70 @@ const CongregationRestore = () => {
                 disabled={deleteConfirmText !== 'DELETE'}
               >
                 Delete and Replace
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Database Restore Confirmation Modal */}
+      {showFullDbConfirm && (
+        <div className="modal-overlay">
+          <div className="delete-confirm-modal">
+            <h2>⚠️ Dangerous Operation</h2>
+            <p className="warning-text">
+              You are about to REPLACE YOUR ENTIRE DATABASE with the backup file.
+            </p>
+            <p className="warning-subtext">
+              All current data (users, churches, members, certificates, etc.) will be replaced!
+            </p>
+            <p className="warning-subtext" style={{ marginTop: '10px' }}>
+              This action cannot be undone!
+            </p>
+            <div className="form-group">
+              <label>Type <strong>RESTORE</strong> to confirm:</label>
+              <input
+                type="text"
+                value={fullDbConfirmText}
+                onChange={(e) => setFullDbConfirmText(e.target.value)}
+                placeholder="RESTORE"
+                autoFocus
+              />
+            </div>
+            <div className="modal-actions">
+              <button onClick={cancelFullDbConfirm} className="cancel-btn">
+                Cancel
+              </button>
+              <button
+                onClick={executeFullDbRestore}
+                className="delete-confirm-btn"
+                disabled={fullDbConfirmText !== 'RESTORE'}
+              >
+                Restore Database
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Restart Required Modal */}
+      {showRestartModal && (
+        <div className="modal-overlay">
+          <div className="delete-confirm-modal">
+            <h2>✅ Restore Complete!</h2>
+            <p className="warning-text" style={{ color: '#B5316A' }}>
+              The database has been restored successfully.
+            </p>
+            <p className="warning-subtext">
+              The application needs to restart to apply the changes.
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={handleRestart}
+                className="pdf-btn"
+                style={{ width: '100%' }}
+              >
+                Restart Application
               </button>
             </div>
           </div>

@@ -657,9 +657,207 @@ function parseBool(value) {
   return str === 'true' || str === '1' || str === 'yes';
 }
 
+/**
+ * Create Full Database Backup
+ * Exports the entire auth.json database
+ */
+async function createFullDatabaseBackup() {
+  try {
+    const { app } = require('electron');
+    const userDataPath = app.getPath('userData');
+    const dbPath = path.join(userDataPath, 'auth.json');
+
+    // Check if database exists
+    try {
+      await fs.access(dbPath);
+    } catch (error) {
+      return { success: false, message: 'Database file not found' };
+    }
+
+    // Read the database file
+    const dbContent = await fs.readFile(dbPath, 'utf-8');
+
+    // Show save dialog
+    const { filePath, canceled } = await dialog.showSaveDialog({
+      title: 'Save Full Database Backup',
+      defaultPath: `ecclesia-full-backup-${new Date().toISOString().split('T')[0]}.json`,
+      filters: [
+        { name: 'JSON Files', extensions: ['json'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+
+    if (canceled || !filePath) {
+      return { success: false, message: 'Backup canceled' };
+    }
+
+    // Write backup file
+    await fs.writeFile(filePath, dbContent, 'utf-8');
+
+    return {
+      success: true,
+      message: 'Full database backup created successfully',
+      filePath: filePath
+    };
+  } catch (error) {
+    console.error('Full database backup error:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to create full database backup'
+    };
+  }
+}
+
+/**
+ * Select Full Database Backup File for Restore
+ */
+async function selectFullDatabaseRestoreFile() {
+  try {
+    const { filePaths, canceled } = await dialog.showOpenDialog({
+      title: 'Select Full Database Backup File',
+      filters: [
+        { name: 'JSON Files', extensions: ['json'] },
+        { name: 'All Files', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    });
+
+    if (canceled || !filePaths || filePaths.length === 0) {
+      return { success: false, message: 'File selection canceled' };
+    }
+
+    const filePath = filePaths[0];
+    const fileName = path.basename(filePath);
+
+    return {
+      success: true,
+      filePath: filePath,
+      fileName: fileName
+    };
+  } catch (error) {
+    console.error('File selection error:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to select file'
+    };
+  }
+}
+
+/**
+ * Preview Full Database Restore
+ * Validates the JSON structure and shows statistics
+ */
+async function previewFullDatabaseRestore(filePath) {
+  try {
+    // Read the backup file
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    
+    // Parse JSON
+    let backupData;
+    try {
+      backupData = JSON.parse(fileContent);
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Invalid JSON file format'
+      };
+    }
+
+    // Validate structure
+    const requiredKeys = ['users', 'churches', 'areas', 'families', 'members'];
+    const missingKeys = requiredKeys.filter(key => !backupData.hasOwnProperty(key));
+    
+    if (missingKeys.length > 0) {
+      return {
+        success: false,
+        message: `Invalid database backup. Missing keys: ${missingKeys.join(', ')}`
+      };
+    }
+
+    // Calculate statistics
+    const stats = {
+      users: Array.isArray(backupData.users) ? backupData.users.length : 0,
+      churches: Array.isArray(backupData.churches) ? backupData.churches.length : 0,
+      areas: Array.isArray(backupData.areas) ? backupData.areas.length : 0,
+      families: Array.isArray(backupData.families) ? backupData.families.length : 0,
+      members: Array.isArray(backupData.members) ? backupData.members.length : 0,
+      infantBaptismCertificates: Array.isArray(backupData.infantBaptismCertificates) ? backupData.infantBaptismCertificates.length : 0,
+      adultBaptismCertificates: Array.isArray(backupData.adultBaptismCertificates) ? backupData.adultBaptismCertificates.length : 0,
+      marriageRecords: Array.isArray(backupData.marriageRecords) ? backupData.marriageRecords.length : 0,
+      burialRegisters: Array.isArray(backupData.burialRegisters) ? backupData.burialRegisters.length : 0,
+      letterheads: Array.isArray(backupData.letterheads) ? backupData.letterheads.length : 0
+    };
+
+    return {
+      success: true,
+      stats: stats
+    };
+  } catch (error) {
+    console.error('Preview error:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to preview backup file'
+    };
+  }
+}
+
+/**
+ * Restore Full Database
+ * Replaces the entire auth.json with the backup
+ */
+async function restoreFullDatabase(filePath) {
+  try {
+    const { app } = require('electron');
+    const userDataPath = app.getPath('userData');
+    const dbPath = path.join(userDataPath, 'auth.json');
+
+    // Read the backup file
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    
+    // Validate JSON
+    let backupData;
+    try {
+      backupData = JSON.parse(fileContent);
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Invalid JSON file format'
+      };
+    }
+
+    // Create backup of current database before replacing
+    const backupPath = path.join(userDataPath, `auth-backup-${Date.now()}.json`);
+    try {
+      const currentDb = await fs.readFile(dbPath, 'utf-8');
+      await fs.writeFile(backupPath, currentDb, 'utf-8');
+    } catch (error) {
+      console.warn('Could not create safety backup:', error);
+    }
+
+    // Replace the database file
+    await fs.writeFile(dbPath, fileContent, 'utf-8');
+
+    return {
+      success: true,
+      message: 'Database restored successfully. Please restart the application.',
+      backupPath: backupPath
+    };
+  } catch (error) {
+    console.error('Restore error:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to restore database'
+    };
+  }
+}
+
 module.exports = {
   createCongregationBackup,
   selectRestoreFile,
   previewCongregationRestore,
-  restoreCongregationBackup
+  restoreCongregationBackup,
+  createFullDatabaseBackup,
+  selectFullDatabaseRestoreFile,
+  previewFullDatabaseRestore,
+  restoreFullDatabase
 };

@@ -105,7 +105,16 @@ contextBridge.exposeInMainWorld('electron', {
     createCongregationBackup: (params) => ipcRenderer.invoke('backup:createCongregationBackup', params),
     selectRestoreFile: () => ipcRenderer.invoke('backup:selectRestoreFile'),
     previewCongregationRestore: (params) => ipcRenderer.invoke('backup:previewCongregationRestore', params),
-    restoreCongregationBackup: (params) => ipcRenderer.invoke('backup:restoreCongregationBackup', params)
+    restoreCongregationBackup: (params) => ipcRenderer.invoke('backup:restoreCongregationBackup', params),
+    createFullDatabase: () => ipcRenderer.invoke('backup:createFullDatabase'),
+    selectFullDatabaseRestoreFile: () => ipcRenderer.invoke('backup:selectFullDatabaseRestoreFile'),
+    previewFullDatabaseRestore: (params) => ipcRenderer.invoke('backup:previewFullDatabaseRestore', params),
+    restoreFullDatabase: (params) => ipcRenderer.invoke('backup:restoreFullDatabase', params)
+  },
+  app: {
+    checkForUpdates: () => ipcRenderer.invoke('app:checkForUpdates'),
+    getVersion: () => ipcRenderer.invoke('app:getVersion'),
+    restart: () => ipcRenderer.invoke('app:restart')
   },
   marriage: {
     getAll: () => ipcRenderer.invoke('marriage:getAll'),
@@ -133,10 +142,6 @@ contextBridge.exposeInMainWorld('electron', {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close')
-  },
-  app: {
-    checkForUpdates: () => ipcRenderer.invoke('app:checkForUpdates'),
-    getVersion: () => ipcRenderer.invoke('app:getVersion')
   }
 });
 

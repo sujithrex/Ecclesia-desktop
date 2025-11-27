@@ -107,7 +107,11 @@ const {
   createCongregationBackup,
   selectRestoreFile,
   previewCongregationRestore,
-  restoreCongregationBackup
+  restoreCongregationBackup,
+  createFullDatabaseBackup,
+  selectFullDatabaseRestoreFile,
+  previewFullDatabaseRestore,
+  restoreFullDatabase
 } = require('./backend/csvGenerator');
 const {
   setupAutoUpdater,
@@ -1270,6 +1274,53 @@ app.whenReady().then(async () => {
       console.error('Congregation restore error:', error);
       return { success: false, message: error.message || 'Failed to restore data' };
     }
+  });
+
+  // Full Database Backup handlers
+  ipcMain.handle('backup:createFullDatabase', async () => {
+    try {
+      const result = await createFullDatabaseBackup();
+      return result;
+    } catch (error) {
+      console.error('Full database backup error:', error);
+      return { success: false, message: error.message || 'Failed to create full database backup' };
+    }
+  });
+
+  ipcMain.handle('backup:selectFullDatabaseRestoreFile', async () => {
+    try {
+      const result = await selectFullDatabaseRestoreFile();
+      return result;
+    } catch (error) {
+      console.error('File selection error:', error);
+      return { success: false, message: error.message || 'Failed to select file' };
+    }
+  });
+
+  ipcMain.handle('backup:previewFullDatabaseRestore', async (event, { filePath }) => {
+    try {
+      const result = await previewFullDatabaseRestore(filePath);
+      return result;
+    } catch (error) {
+      console.error('Preview error:', error);
+      return { success: false, message: error.message || 'Failed to preview backup' };
+    }
+  });
+
+  ipcMain.handle('backup:restoreFullDatabase', async (event, { filePath }) => {
+    try {
+      const result = await restoreFullDatabase(filePath);
+      return result;
+    } catch (error) {
+      console.error('Full database restore error:', error);
+      return { success: false, message: error.message || 'Failed to restore database' };
+    }
+  });
+
+  // App restart handler
+  ipcMain.handle('app:restart', () => {
+    app.relaunch();
+    app.exit(0);
   });
 
   // Update handler

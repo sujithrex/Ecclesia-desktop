@@ -280,8 +280,8 @@ async function generateMarriageBansPDF(bansData, churchData = null, additionalDa
 
   try {
     // Paths - use correct assets folder
-    const csiLogoPath = path.join(__dirname, '../frontend/src/assets/Church_of_South_India.png');
-    const dioceseLogoPath = path.join(__dirname, '../frontend/src/assets/CSI_Tirunelveli_Diocese_Logo.png');
+    const csiLogoPath = path.join(__dirname, 'assets/images/Church_of_South_India.png');
+    const dioceseLogoPath = path.join(__dirname, 'assets/images/CSI_Tirunelveli_Diocese_Logo.png');
 
     // Create PDFs directory in userData
     const userDataPath = app.getPath('userData');
@@ -628,8 +628,8 @@ async function generateMarriageCertificatePDF(recordData, churchData = null, add
 
   try {
     // Paths - use correct assets folder
-    const csiLogoPath = path.join(__dirname, '../frontend/src/assets/Church_of_South_India.png');
-    const dioceseLogoPath = path.join(__dirname, '../frontend/src/assets/CSI_Tirunelveli_Diocese_Logo.png');
+    const csiLogoPath = path.join(__dirname, 'assets/images/Church_of_South_India.png');
+    const dioceseLogoPath = path.join(__dirname, 'assets/images/CSI_Tirunelveli_Diocese_Logo.png');
 
     // Create PDFs directory in userData
     const userDataPath = app.getPath('userData');
@@ -940,8 +940,8 @@ async function generateLetterheadPDF(letterheadData, churchData = null) {
     // Paths
     const templatePath = path.join(__dirname, 'templates/letterpad.ejs');
     const fontPath = path.join(__dirname, 'assets/fonts/Vijaya.ttf');
-    const csiLogoPath = path.join(__dirname, '../frontend/src/assets/Church_of_South_India.png');
-    const dioceseLogoPath = path.join(__dirname, '../frontend/src/assets/CSI_Tirunelveli_Diocese_Logo.png');
+    const csiLogoPath = path.join(__dirname, 'assets/images/Church_of_South_India.png');
+    const dioceseLogoPath = path.join(__dirname, 'assets/images/CSI_Tirunelveli_Diocese_Logo.png');
 
     // Create PDFs directory in userData
     const userDataPath = app.getPath('userData');
@@ -2499,4 +2499,5 @@ function generatePageHTML(memberRows, horizontalLines, fullChurchName, year, isF
     </div>
   `;
 }
+
 

@@ -15,7 +15,7 @@ async function generateInfantBaptismPDF(certificateData, churchData = null) {
   
   try {
     // Paths
-    const templatePath = path.join(__dirname, '../report_demo/templates/infant_baptism_certificate.ejs');
+    const templatePath = path.join(__dirname, 'templates/infant_baptism_certificate.ejs');
     const fontPath = path.join(__dirname, 'assets/fonts/Vijaya.ttf');
     const imagePath = path.join(__dirname, 'assets/images/baptsm_infant.png');
     
@@ -105,7 +105,7 @@ async function generateAdultBaptismPDF(certificateData, churchData = null) {
 
   try {
     // Paths
-    const templatePath = path.join(__dirname, '../report_demo/templates/adult_baptism_certificate.ejs');
+    const templatePath = path.join(__dirname, 'templates/adult_baptism_certificate.ejs');
     const fontPath = path.join(__dirname, 'assets/fonts/Vijaya.ttf');
     const imagePath = path.join(__dirname, 'assets/images/baptsm_adult.png');
 
@@ -192,7 +192,7 @@ async function generateBurialRegisterPDF(registerData, churchData = null) {
 
   try {
     // Paths
-    const templatePath = path.join(__dirname, '../report_demo/templates/burial_register.ejs');
+    const templatePath = path.join(__dirname, 'templates/burial_register.ejs');
     const fontPath = path.join(__dirname, 'assets/fonts/Vijaya.ttf');
     const imagePath = path.join(__dirname, 'assets/images/burial_reg.png');
 
@@ -938,8 +938,8 @@ async function generateLetterheadPDF(letterheadData, churchData = null) {
 
   try {
     // Paths
-    const templatePath = path.join(__dirname, '../report_demo/templates/letterpad.ejs');
-    const fontPath = path.join(__dirname, '../report_demo/assets/fonts/Vijaya.ttf');
+    const templatePath = path.join(__dirname, 'templates/letterpad.ejs');
+    const fontPath = path.join(__dirname, 'assets/fonts/Vijaya.ttf');
     const csiLogoPath = path.join(__dirname, '../frontend/src/assets/Church_of_South_India.png');
     const dioceseLogoPath = path.join(__dirname, '../frontend/src/assets/CSI_Tirunelveli_Diocese_Logo.png');
 
@@ -1051,7 +1051,7 @@ async function generateBirthdayListPDF(params) {
     const { churchData, birthdayData, dateRange } = params;
 
     // Paths
-    const templatePath = path.join(__dirname, '../report_demo/templates/birthdaylist.ejs');
+    const templatePath = path.join(__dirname, 'templates/birthdaylist.ejs');
     const fontPath = path.join(__dirname, 'assets/fonts/Vijaya.ttf');
 
     // Create PDFs directory in userData
@@ -1143,7 +1143,7 @@ async function generateWeddingListPDF(params) {
     const { churchData, weddingData, dateRange } = params;
 
     // Paths
-    const templatePath = path.join(__dirname, '../report_demo/templates/weddinglist.ejs');
+    const templatePath = path.join(__dirname, 'templates/weddinglist.ejs');
     const fontPath = path.join(__dirname, 'assets/fonts/Vijaya.ttf');
 
     // Create PDFs directory in userData
@@ -2499,3 +2499,4 @@ function generatePageHTML(memberRows, horizontalLines, fullChurchName, year, isF
     </div>
   `;
 }
+

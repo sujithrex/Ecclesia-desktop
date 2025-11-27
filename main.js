@@ -100,6 +100,7 @@ const {
   generateBirthdayListPDF,
   generateWeddingListPDF,
   generateSabaiJabithaPDF,
+  generateMarriageSchedule4PDF,
   openPDF
 } = require('./backend/pdfGenerator');
 const {
@@ -794,6 +795,27 @@ app.whenReady().then(async () => {
     } catch (error) {
       console.error('Marriage PDF generation error:', error);
       return { success: false, message: error.message || 'Failed to generate PDF' };
+    }
+  });
+
+  ipcMain.handle('marriage:generateSchedule4', async (event, { recordId, additionalData }) => {
+    try {
+      // Get record data
+      const record = await getMarriageRecordById(recordId);
+      if (!record) {
+        return { success: false, message: 'Record not found' };
+      }
+
+      // Generate Schedule 4 PDF
+      const pdfPath = await generateMarriageSchedule4PDF(record, additionalData);
+
+      // Open PDF
+      await openPDF(pdfPath);
+
+      return { success: true, data: { pdfPath } };
+    } catch (error) {
+      console.error('Schedule 4 generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate Schedule 4' };
     }
   });
 

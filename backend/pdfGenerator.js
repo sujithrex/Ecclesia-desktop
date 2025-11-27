@@ -1204,6 +1204,756 @@ async function openPDF(pdfPath) {
   await shell.openPath(pdfPath);
 }
 
+/**
+ * Generate Marriage Schedule 4 PDF
+ * @param {Object} recordData - Marriage record data from database
+ * @param {Object} additionalData - Additional data from modal (surnames, residences, month, church)
+ * @returns {Promise<string>} - Path to generated PDF
+ */
+async function generateMarriageSchedule4PDF(recordData, additionalData = {}) {
+  let browser = null;
+
+  try {
+    // Paths
+    const imagePath = path.join(__dirname, 'assets/images/shedule4.png');
+
+    // Create PDFs directory in userData
+    const userDataPath = app.getPath('userData');
+    const pdfsDir = path.join(userDataPath, 'pdfs', 'marriage_schedule4');
+    await fs.mkdir(pdfsDir, { recursive: true });
+
+    // Generate PDF filename
+    const timestamp = new Date().getTime();
+    const pdfFilename = `marriage_schedule4_${recordData.serialNumber}_${timestamp}.pdf`;
+    const pdfPath = path.join(pdfsDir, pdfFilename);
+
+    // Read and convert background image to base64
+    const imageBuffer = await fs.readFile(imagePath);
+    const imageBase64 = `data:image/png;base64,${imageBuffer.toString('base64')}`;
+
+    // Helper functions
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
+
+    const getDayName = (dateStr) => {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return days[date.getDay()];
+    };
+
+    const getMonthName = (dateStr) => {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      return months[date.getMonth()];
+    };
+
+    const calculateAge = (dob) => {
+      if (!dob) return '';
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    };
+
+    // Extract date components
+    const marriageDate = new Date(recordData.marriageDate);
+    const day = marriageDate.getDate();
+    const dayName = getDayName(recordData.marriageDate).toUpperCase();
+    const month = marriageDate.getMonth() + 1;
+    const monthName = getMonthName(recordData.marriageDate).toUpperCase();
+    const year = marriageDate.getFullYear();
+
+    // Calculate ages
+    const groomAge = calculateAge(recordData.groomDOB);
+    const groomDOBFormatted = formatDate(recordData.groomDOB);
+    const brideAge = calculateAge(recordData.brideDOB);
+    const brideDOBFormatted = formatDate(recordData.brideDOB);
+
+    // Status mapping
+    const groomStatus = recordData.isGroomBachelor === 'Yes' ? 'BACHELOR' : 'WIDOWER';
+    const brideStatus = recordData.isBrideSpinster === 'Yes' ? 'SPINSTER' : 'WIDOW';
+
+    // Additional data from modal - Convert to UPPERCASE
+    const groomSurname = (additionalData.groomSurname || '-').toUpperCase();
+    const brideSurname = (additionalData.brideSurname || '-').toUpperCase();
+    const groomResidence = (additionalData.groomResidence || '').toUpperCase();
+    const brideResidence = (additionalData.brideResidence || '').toUpperCase();
+    const monthYearText = additionalData.monthYear || `${monthName} ${year}`;
+    const churchName = additionalData.churchName || recordData.weddingPlace || '';
+
+    // Format bans dates
+    const firstBansDate = formatDate(recordData.firstBansDate);
+    const secondBansDate = formatDate(recordData.secondBansDate);
+    const thirdBansDate = formatDate(recordData.thirdBansDate);
+    
+    // Convert names and professions to UPPERCASE
+    const groomNameUpper = (recordData.groomName || '').toUpperCase();
+    const brideNameUpper = (recordData.brideName || '').toUpperCase();
+    const groomProfessionUpper = (recordData.groomProfession || '').toUpperCase();
+    const brideProfessionUpper = (recordData.brideProfession || '').toUpperCase();
+    const groomFatherNameUpper = (recordData.groomFatherName || '').toUpperCase();
+    const brideFatherNameUpper = (recordData.brideFatherName || '').toUpperCase();
+    const solemnizedByUpper = (recordData.solemnizedBy || '').toUpperCase();
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          width: 297.00mm;
+          height: 210.00mm;
+          position: relative;
+          overflow: hidden;
+          font-family: 'Times New Roman', serif;
+        }
+        .text-frame {
+          position: absolute;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .text-content {
+          width: 100%;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        .image-frame {
+          position: absolute;
+        }
+      </style>
+    </head>
+    <body>
+      <!-- Background Image -->
+      <div class="image-frame" style="
+        left: 0.00mm;
+        top: 0.00mm;
+        width: 297.00mm;
+        height: 210.00mm;
+        overflow: hidden;
+      ">
+        <img src="${imageBase64}" style="width: 100%; height: 100%; object-fit: cover;" />
+      </div>
+
+      <!-- Serial Number (12) -->
+      <div class="text-frame" style="
+        left: 18.00mm;
+        top: 93.12mm;
+        margin-left: -34.88mm;
+        margin-top: -8.00mm;
+        width: 69.75mm;
+        height: 16.00mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${recordData.serialNumber || ''}</div>
+      </div>
+
+      <!-- Date (22 Monday) -->
+      <div class="text-frame" style="
+        left: 33.88mm;
+        top: 93.12mm;
+        margin-left: -34.88mm;
+        margin-top: -6.88mm;
+        width: 69.75mm;
+        height: 13.75mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${day} (${dayName})</div>
+      </div>
+
+      <!-- Month (05 May) -->
+      <div class="text-frame" style="
+        left: 50.35mm;
+        top: 93.13mm;
+        margin-left: -34.88mm;
+        margin-top: -9.05mm;
+        width: 69.75mm;
+        height: 18.10mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${String(month).padStart(2, '0')} (${monthName})</div>
+      </div>
+
+      <!-- Year (2025) -->
+      <div class="text-frame" style="
+        left: 68.45mm;
+        top: 93.13mm;
+        margin-left: -34.88mm;
+        margin-top: -9.05mm;
+        width: 69.75mm;
+        height: 18.10mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${year}</div>
+      </div>
+
+      <!-- Groom Name -->
+      <div class="text-frame" style="
+        left: 86.87mm;
+        top: 93.13mm;
+        margin-left: -34.88mm;
+        margin-top: -8.88mm;
+        width: 69.75mm;
+        height: 17.75mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${groomNameUpper}</div>
+      </div>
+
+      <!-- Groom Surname (Previous Status) -->
+      <div class="text-frame" style="
+        left: 118.87mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -6.88mm;
+        width: 69.75mm;
+        height: 13.75mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${groomSurname}</div>
+      </div>
+
+      <!-- Groom Age (29 13-10-1997) -->
+      <div class="text-frame" style="
+        left: 142.65mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -5.85mm;
+        width: 69.75mm;
+        height: 11.70mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${groomAge} (${groomDOBFormatted})</div>
+      </div>
+
+      <!-- Groom Status (BACHELOR) -->
+      <div class="text-frame" style="
+        left: 168.08mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -6.88mm;
+        width: 69.75mm;
+        height: 13.75mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${groomStatus}</div>
+      </div>
+
+      <!-- Groom Profession -->
+      <div class="text-frame" style="
+        left: 196.43mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -6.88mm;
+        width: 69.75mm;
+        height: 13.75mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${groomProfessionUpper}</div>
+      </div>
+
+      <!-- Groom Residence -->
+      <div class="text-frame" style="
+        left: 227.98mm;
+        top: 92.27mm;
+        margin-left: -34.88mm;
+        margin-top: -10.43mm;
+        width: 69.75mm;
+        height: 20.85mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${groomResidence}</div>
+      </div>
+
+      <!-- Groom Father Name -->
+      <div class="text-frame" style="
+        left: 263.20mm;
+        top: 92.27mm;
+        margin-left: -34.88mm;
+        margin-top: -8.00mm;
+        width: 69.75mm;
+        height: 16.00mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${groomFatherNameUpper}</div>
+      </div>
+
+      <!-- Bride Name -->
+      <div class="text-frame" style="
+        left: 105.00mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -7.00mm;
+        width: 69.75mm;
+        height: 14.00mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${brideNameUpper}</div>
+      </div>
+
+      <!-- Bride Surname (Previous Status) -->
+      <div class="text-frame" style="
+        left: 131.27mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -5.53mm;
+        width: 69.75mm;
+        height: 11.05mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${brideSurname}</div>
+      </div>
+
+      <!-- Bride Age (22 22-09-2022) -->
+      <div class="text-frame" style="
+        left: 154.87mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -4.67mm;
+        width: 69.75mm;
+        height: 9.35mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${brideAge} (${brideDOBFormatted})</div>
+      </div>
+
+      <!-- Bride Status (SPINSTER) -->
+      <div class="text-frame" style="
+        left: 182.80mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -6.40mm;
+        width: 69.75mm;
+        height: 12.80mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${brideStatus}</div>
+      </div>
+
+      <!-- Bride Profession -->
+      <div class="text-frame" style="
+        left: 211.15mm;
+        top: 93.48mm;
+        margin-left: -34.88mm;
+        margin-top: -6.40mm;
+        width: 69.75mm;
+        height: 12.80mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${brideProfessionUpper}</div>
+      </div>
+
+      <!-- Bride Residence -->
+      <div class="text-frame" style="
+        left: 247.20mm;
+        top: 92.27mm;
+        margin-left: -34.88mm;
+        margin-top: -8.00mm;
+        width: 69.75mm;
+        height: 16.00mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${brideResidence}</div>
+      </div>
+
+      <!-- Bride Father Name -->
+      <div class="text-frame" style="
+        left: 280.00mm;
+        top: 92.27mm;
+        margin-left: -34.88mm;
+        margin-top: -7.00mm;
+        width: 69.75mm;
+        height: 14.00mm;
+        transform: rotate(-90.0deg);
+        transform-origin: center center;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: center;
+        ">${brideFatherNameUpper}</div>
+      </div>
+
+      <!-- Church & Month Info (NOT UPPERCASE) -->
+      <div class="text-frame" style="
+        left: 96.00mm;
+        top: 31.95mm;
+        width: 191.00mm;
+        height: 8.38mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: left;
+        ">${churchName} during the month ending of ${monthYearText}</div>
+      </div>
+
+      <!-- First Bans Date -->
+      <div class="text-frame" style="
+        left: 244.10mm;
+        top: 10.00mm;
+        width: 38.90mm;
+        height: 5.30mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: left;
+        ">${firstBansDate}</div>
+      </div>
+
+      <!-- Second Bans Date -->
+      <div class="text-frame" style="
+        left: 244.10mm;
+        top: 17.10mm;
+        width: 38.90mm;
+        height: 5.30mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: left;
+        ">${secondBansDate}</div>
+      </div>
+
+      <!-- Third Bans Date -->
+      <div class="text-frame" style="
+        left: 244.10mm;
+        top: 24.20mm;
+        width: 38.90mm;
+        height: 5.30mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: left;
+        ">${thirdBansDate}</div>
+      </div>
+
+      <!-- Presbyter Signature -->
+      <div class="text-frame" style="
+        left: 68.45mm;
+        top: 144.00mm;
+        width: 93.87mm;
+        height: 7.40mm;
+      ">
+        <div class="text-content" style="
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          font-size: 12.0pt;
+          font-family: 'Times New Roman', serif;
+          color: #000000;
+          text-align: left;
+        ">${solemnizedByUpper}</div>
+      </div>
+    </body>
+    </html>
+    `;
+
+    // Launch Puppeteer
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+      ]
+    });
+
+    const page = await browser.newPage();
+
+    // Set content
+    await page.setContent(html, {
+      waitUntil: 'networkidle0'
+    });
+
+    // Generate PDF with landscape A4 format (297mm x 210mm)
+    await page.pdf({
+      path: pdfPath,
+      width: '297.00mm',
+      height: '210.00mm',
+      printBackground: true,
+      preferCSSPageSize: true,
+      margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' }
+    });
+
+    await browser.close();
+    browser = null;
+
+    console.log('Marriage Schedule 4 PDF generated successfully:', pdfPath);
+    return pdfPath;
+
+  } catch (error) {
+    console.error('Error generating Marriage Schedule 4 PDF:', error);
+    if (browser) {
+      await browser.close();
+    }
+    throw new Error(`Marriage Schedule 4 PDF generation failed: ${error.message}`);
+  }
+}
+
 module.exports = {
   generateInfantBaptismPDF,
   generateAdultBaptismPDF,
@@ -1214,6 +1964,7 @@ module.exports = {
   generateBirthdayListPDF,
   generateWeddingListPDF,
   generateSabaiJabithaPDF,
+  generateMarriageSchedule4PDF,
   openPDF
 };
 

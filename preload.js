@@ -116,6 +116,7 @@ contextBridge.exposeInMainWorld('electron', {
     delete: (id) => ipcRenderer.invoke('marriage:delete', { id }),
     getNextNumber: (churchId) => ipcRenderer.invoke('marriage:getNextNumber', { churchId }),
     generateCertificate: (recordId, additionalData) => ipcRenderer.invoke('marriage:generateCertificate', { recordId, additionalData }),
+    generateSchedule4: (recordId, additionalData) => ipcRenderer.invoke('marriage:generateSchedule4', { recordId, additionalData }),
     generatePDF: (params) => ipcRenderer.invoke('marriage:generatePDF', params)
   },
   marriageBans: {

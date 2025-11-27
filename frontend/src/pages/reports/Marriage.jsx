@@ -25,6 +25,7 @@ const Marriage = () => {
   const [isBansModalOpen, setIsBansModalOpen] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSchedule4ModalOpen, setIsSchedule4ModalOpen] = useState(false);
   const [selectedMarriage, setSelectedMarriage] = useState(null);
   const [marriageToDelete, setMarriageToDelete] = useState(null);
   const [bansFormData, setBansFormData] = useState({
@@ -34,6 +35,14 @@ const Marriage = () => {
   const [certificateFormData, setCertificateFormData] = useState({
     place: '',
     date: ''
+  });
+  const [schedule4FormData, setSchedule4FormData] = useState({
+    groomSurname: '',
+    brideSurname: '',
+    groomResidence: '',
+    brideResidence: '',
+    monthYear: '',
+    churchName: ''
   });
 
   const handleLogout = () => {
@@ -132,6 +141,9 @@ const Marriage = () => {
                 <button class="action-btn certificate-btn" data-id="${row.id}" title="Generate Marriage Certificate">
                   Certificate
                 </button>
+                <button class="action-btn schedule4-btn" data-id="${row.id}" title="Generate Schedule 4">
+                  Schedule 4
+                </button>
                 <button class="action-btn edit-btn" data-id="${row.id}" title="Edit Marriage Record">
                   Edit
                 </button>
@@ -208,8 +220,20 @@ const Marriage = () => {
       }
     };
 
+    const handleSchedule4Click = (e) => {
+      const btn = $(e.target).closest('.schedule4-btn');
+      if (btn.length) {
+        const id = btn.data('id');
+        const record = marriageData.find(r => r.id === id);
+        if (record) {
+          openSchedule4Modal(record);
+        }
+      }
+    };
+
     $(tableRef.current).on('click', '.notification-btn', handleNotificationClick);
     $(tableRef.current).on('click', '.certificate-btn', handleCertificateClick);
+    $(tableRef.current).on('click', '.schedule4-btn', handleSchedule4Click);
     $(tableRef.current).on('click', '.edit-btn', handleEditClick);
     $(tableRef.current).on('click', '.delete-btn', handleDeleteClick);
 
@@ -217,6 +241,7 @@ const Marriage = () => {
       if (tableRef.current) {
         $(tableRef.current).off('click', '.notification-btn', handleNotificationClick);
         $(tableRef.current).off('click', '.certificate-btn', handleCertificateClick);
+        $(tableRef.current).off('click', '.schedule4-btn', handleSchedule4Click);
         $(tableRef.current).off('click', '.edit-btn', handleEditClick);
         $(tableRef.current).off('click', '.delete-btn', handleDeleteClick);
       }
@@ -400,6 +425,76 @@ const Marriage = () => {
         } catch (error) {
           toast.error('Failed to generate Marriage Bans PDF');
           console.error('Marriage Bans generation error:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      // Schedule 4 functionality
+      const openSchedule4Modal = async (marriageRecord) => {
+        setSelectedMarriage(marriageRecord);
+        
+        // Get full record to extract marriage date and wedding place
+        try {
+          const recordResult = await window.electron.marriage.getById(marriageRecord.id);
+          if (recordResult.success) {
+            const fullRecord = recordResult.data;
+            const marriageDate = new Date(fullRecord.marriageDate);
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthYear = `${monthNames[marriageDate.getMonth()]} ${marriageDate.getFullYear()}`;
+            
+            setSchedule4FormData({
+              groomSurname: '',
+              brideSurname: '',
+              groomResidence: '',
+              brideResidence: '',
+              monthYear: monthYear,
+              churchName: fullRecord.weddingPlace || ''
+            });
+          }
+        } catch (error) {
+          console.error('Error loading marriage record:', error);
+        }
+        
+        setIsSchedule4ModalOpen(true);
+      };
+
+      const closeSchedule4Modal = () => {
+        setIsSchedule4ModalOpen(false);
+        setSelectedMarriage(null);
+        setSchedule4FormData({
+          groomSurname: '',
+          brideSurname: '',
+          groomResidence: '',
+          brideResidence: '',
+          monthYear: '',
+          churchName: ''
+        });
+      };
+
+      const handleSchedule4InputChange = (e) => {
+        const { name, value } = e.target;
+        setSchedule4FormData(prev => ({ ...prev, [name]: value }));
+      };
+
+      const handleGenerateSchedule4 = async () => {
+        if (!selectedMarriage) return;
+
+        try {
+          setLoadingMessage('Generating Schedule 4 PDF...');
+          setIsLoading(true);
+
+          const pdfResult = await window.electron.marriage.generateSchedule4(selectedMarriage.id, schedule4FormData);
+
+          if (pdfResult.success) {
+            toast.success('Schedule 4 PDF generated and opened successfully!');
+            closeSchedule4Modal();
+          } else {
+            toast.error(pdfResult.message || 'Failed to generate Schedule 4');
+          }
+        } catch (error) {
+          toast.error('Failed to generate Schedule 4 PDF');
+          console.error('Schedule 4 generation error:', error);
         } finally {
           setIsLoading(false);
         }
@@ -606,6 +701,110 @@ const Marriage = () => {
             className="delete-confirm-btn"
           >
             Delete Record
+          </button>
+        </div>
+      </Modal>
+
+      {/* Schedule 4 Modal */}
+      <Modal
+        isOpen={isSchedule4ModalOpen}
+        onRequestClose={closeSchedule4Modal}
+        className="modal-content schedule4-modal"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h2>Generate Schedule 4</h2>
+          <button onClick={closeSchedule4Modal} className="modal-close-btn">×</button>
+        </div>
+
+        <div className="modal-body">
+          {selectedMarriage && (
+            <>
+              <div className="form-group">
+                <label>Marriage Record:</label>
+                <div className="readonly-field">
+                  {selectedMarriage.coupleNames} - {new Date(selectedMarriage.marriageDate).toLocaleDateString()}
+                </div>
+              </div>
+
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Groom Surname (Optional)</label>
+                  <input
+                    type="text"
+                    name="groomSurname"
+                    value={schedule4FormData.groomSurname}
+                    onChange={handleSchedule4InputChange}
+                    placeholder="Enter groom surname or '-'"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Bride Surname (Optional)</label>
+                  <input
+                    type="text"
+                    name="brideSurname"
+                    value={schedule4FormData.brideSurname}
+                    onChange={handleSchedule4InputChange}
+                    placeholder="Enter bride surname or '-'"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Groom Residence (Optional)</label>
+                  <input
+                    type="text"
+                    name="groomResidence"
+                    value={schedule4FormData.groomResidence}
+                    onChange={handleSchedule4InputChange}
+                    placeholder="e.g., TENKASI"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Bride Residence (Optional)</label>
+                  <input
+                    type="text"
+                    name="brideResidence"
+                    value={schedule4FormData.brideResidence}
+                    onChange={handleSchedule4InputChange}
+                    placeholder="e.g., NALLUR"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Month/Year (Optional)</label>
+                  <input
+                    type="text"
+                    name="monthYear"
+                    value={schedule4FormData.monthYear}
+                    onChange={handleSchedule4InputChange}
+                    placeholder="e.g., May 2025"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Church Name (Optional)</label>
+                  <input
+                    type="text"
+                    name="churchName"
+                    value={schedule4FormData.churchName}
+                    onChange={handleSchedule4InputChange}
+                    placeholder="Enter church name"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={closeSchedule4Modal} className="cancel-btn">
+            Cancel
+          </button>
+          <button onClick={handleGenerateSchedule4} className="save-btn">
+            Generate PDF
           </button>
         </div>
       </Modal>

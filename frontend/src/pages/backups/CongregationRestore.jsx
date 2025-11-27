@@ -163,10 +163,10 @@ const CongregationRestore = () => {
       if (result.success) {
         toast.success(
           `Restore completed!\n` +
-          `✓ ${result.stats.imported} imported\n` +
-          `⟳ ${result.stats.updated} updated\n` +
-          `⊘ ${result.stats.skipped} skipped\n` +
-          `✗ ${result.stats.failed} failed`,
+          `${result.stats.imported} imported\n` +
+          `${result.stats.updated} updated\n` +
+          `${result.stats.skipped} skipped\n` +
+          `${result.stats.failed} failed`,
           { duration: 6000 }
         );
         
@@ -358,7 +358,7 @@ const CongregationRestore = () => {
                     {selectedFile ? 'Change File' : 'Select CSV File'}
                   </button>
                   {selectedFile && (
-                    <p className="file-selected">✓ Selected: {selectedFile.name}</p>
+                    <p className="file-selected">Selected: {selectedFile.name}</p>
                   )}
                 </div>
 
@@ -491,7 +491,7 @@ const CongregationRestore = () => {
                 {fullDbFile ? 'Change File' : 'Select JSON File'}
               </button>
               {fullDbFile && (
-                <p className="file-selected">✓ Selected: {fullDbFile.name}</p>
+                <p className="file-selected">Selected: {fullDbFile.name}</p>
               )}
             </div>
 
@@ -588,7 +588,7 @@ const CongregationRestore = () => {
       {showDeleteConfirm && (
         <div className="modal-overlay">
           <div className="delete-confirm-modal">
-            <h2>⚠️ Dangerous Operation</h2>
+            <h2>Dangerous Operation</h2>
             <p className="warning-text">
               You are about to DELETE ALL existing congregation data for <strong>{selectedChurch?.churchName}</strong> and replace it with the CSV data.
             </p>
@@ -625,7 +625,7 @@ const CongregationRestore = () => {
       {showFullDbConfirm && (
         <div className="modal-overlay">
           <div className="delete-confirm-modal">
-            <h2>⚠️ Dangerous Operation</h2>
+            <h2>Dangerous Operation</h2>
             <p className="warning-text">
               You are about to REPLACE YOUR ENTIRE DATABASE with the backup file.
             </p>
@@ -665,7 +665,7 @@ const CongregationRestore = () => {
       {showRestartModal && (
         <div className="modal-overlay">
           <div className="delete-confirm-modal">
-            <h2>✅ Restore Complete!</h2>
+            <h2>Restore Complete!</h2>
             <p className="warning-text" style={{ color: '#B5316A' }}>
               The database has been restored successfully.
             </p>

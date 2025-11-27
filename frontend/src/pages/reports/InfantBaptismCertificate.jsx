@@ -25,6 +25,8 @@ const InfantBaptismCertificate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [certificateToDelete, setCertificateToDelete] = useState(null);
   const [editingCertificate, setEditingCertificate] = useState(null);
   const [formData, setFormData] = useState({
     certificate_number: '',
@@ -381,8 +383,10 @@ const InfantBaptismCertificate = () => {
       const btn = $(e.target).closest('.delete-btn');
       if (btn.length) {
         const id = parseInt(btn.data('id'));
-        if (window.confirm('Are you sure you want to delete this certificate?')) {
-          handleDeleteCertificate(id);
+        const cert = certificates.find(c => c.id === id);
+        if (cert) {
+          setCertificateToDelete(cert);
+          setIsDeleteModalOpen(true);
         }
       }
     };
@@ -907,6 +911,50 @@ const InfantBaptismCertificate = () => {
           </button>
           <button onClick={handleUpdateCertificate} className="save-btn">
             Update Certificate
+          </button>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={() => setIsDeleteModalOpen(false)}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h2>Confirm Delete</h2>
+          <button onClick={() => setIsDeleteModalOpen(false)} className="modal-close-btn">×</button>
+        </div>
+
+        <div className="modal-body">
+          {certificateToDelete && (
+            <div className="delete-confirmation">
+              <p>Are you sure you want to delete this certificate?</p>
+              <div className="record-details">
+                <strong>Certificate #{certificateToDelete.certificate_number}</strong><br/>
+                {certificateToDelete.christian_name}
+              </div>
+              <p className="warning-text">This action cannot be undone.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={() => setIsDeleteModalOpen(false)} className="cancel-btn">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (certificateToDelete) {
+                handleDeleteCertificate(certificateToDelete.id);
+                setIsDeleteModalOpen(false);
+              }
+            }}
+            className="delete-confirm-btn"
+          >
+            Delete Certificate
           </button>
         </div>
       </Modal>

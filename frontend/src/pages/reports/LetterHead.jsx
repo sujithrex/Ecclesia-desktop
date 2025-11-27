@@ -26,6 +26,8 @@ const LetterHead = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [letterheadToDelete, setLetterheadToDelete] = useState(null);
   const [editingLetterhead, setEditingLetterhead] = useState(null);
   const [formData, setFormData] = useState({
     letterhead_number: '',
@@ -218,8 +220,6 @@ const LetterHead = () => {
   };
 
   const handleDeleteLetterhead = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this letterhead?')) return;
-
     try {
       setLoadingMessage('Deleting letterhead...');
       setIsLoading(true);
@@ -465,7 +465,11 @@ const LetterHead = () => {
         e.stopPropagation();
         
         const id = parseInt(btn.data('id'));
-        await handleDeleteLetterhead(id);
+        const letterhead = letterheads.find(l => l.id === id);
+        if (letterhead) {
+          setLetterheadToDelete(letterhead);
+          setIsDeleteModalOpen(true);
+        }
       }
     };
 
@@ -804,6 +808,50 @@ const LetterHead = () => {
           </button>
           <button onClick={handleUpdateLetterhead} className="save-btn">
             Update Letterhead
+          </button>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={() => setIsDeleteModalOpen(false)}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h2>Confirm Delete</h2>
+          <button onClick={() => setIsDeleteModalOpen(false)} className="modal-close-btn">×</button>
+        </div>
+
+        <div className="modal-body">
+          {letterheadToDelete && (
+            <div className="delete-confirmation">
+              <p>Are you sure you want to delete this letterhead?</p>
+              <div className="record-details">
+                <strong>Letterhead #{letterheadToDelete.letterhead_number}</strong><br/>
+                {new Date(letterheadToDelete.letter_date).toLocaleDateString()}
+              </div>
+              <p className="warning-text">This action cannot be undone.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={() => setIsDeleteModalOpen(false)} className="cancel-btn">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (letterheadToDelete) {
+                handleDeleteLetterhead(letterheadToDelete.id);
+                setIsDeleteModalOpen(false);
+              }
+            }}
+            className="delete-confirm-btn"
+          >
+            Delete Letterhead
           </button>
         </div>
       </Modal>

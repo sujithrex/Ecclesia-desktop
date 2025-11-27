@@ -25,6 +25,8 @@ const BurialCertificate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [registerToDelete, setRegisterToDelete] = useState(null);
   const [editingRegister, setEditingRegister] = useState(null);
   const [formData, setFormData] = useState({
     certificate_number: '',
@@ -374,8 +376,10 @@ const BurialCertificate = () => {
       const btn = $(e.target).closest('.delete-btn');
       if (btn.length) {
         const id = parseInt(btn.data('id'));
-        if (window.confirm('Are you sure you want to delete this register?')) {
-          handleDeleteRegister(id);
+        const reg = registers.find(r => r.id === id);
+        if (reg) {
+          setRegisterToDelete(reg);
+          setIsDeleteModalOpen(true);
         }
       }
     };
@@ -855,6 +859,50 @@ const BurialCertificate = () => {
           </button>
           <button onClick={handleUpdateRegister} className="save-btn">
             Update Register
+          </button>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={() => setIsDeleteModalOpen(false)}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+        ariaHideApp={false}
+      >
+        <div className="modal-header">
+          <h2>Confirm Delete</h2>
+          <button onClick={() => setIsDeleteModalOpen(false)} className="modal-close-btn">×</button>
+        </div>
+
+        <div className="modal-body">
+          {registerToDelete && (
+            <div className="delete-confirmation">
+              <p>Are you sure you want to delete this register?</p>
+              <div className="record-details">
+                <strong>Register #{registerToDelete.certificate_number}</strong><br/>
+                {registerToDelete.deceased_name}
+              </div>
+              <p className="warning-text">This action cannot be undone.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={() => setIsDeleteModalOpen(false)} className="cancel-btn">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (registerToDelete) {
+                handleDeleteRegister(registerToDelete.id);
+                setIsDeleteModalOpen(false);
+              }
+            }}
+            className="delete-confirm-btn"
+          >
+            Delete Register
           </button>
         </div>
       </Modal>

@@ -1,0 +1,190 @@
+.sync-container {
+  position: fixed;
+  top: 32px;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sync-header {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  padding: 16px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.sync-header .header-content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sync-header .header-content > :first-child {
+  flex: 0 0 auto;
+  margin-right: auto;
+}
+
+.sync-header .header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.sync-header .back-btn,
+.sync-header .logout-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sync-header .back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sync-header .back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.sync-header .logout-btn {
+  background: white;
+  color: #B5316A;
+}
+
+.sync-header .logout-btn:hover {
+  background: #f0f0f0;
+}
+
+.sync-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  overflow: hidden;
+}
+
+.sync-content {
+  width: 95%;
+  max-width: 95%;
+  margin: 0 auto;
+}
+
+.sync-card {
+  background: white;
+  border-radius: 16px;
+  padding: 50px 60px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+
+
+.sync-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.sync-description {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #5a6c7d;
+  margin-bottom: 32px;
+  max-width: 600px;
+  text-align: center;
+}
+
+.google-connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #5a6c7d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+.google-connect-btn:hover {
+  border-color: #4285F4;
+  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.2);
+  transform: translateY(-2px);
+}
+
+.google-connect-btn:active {
+  transform: translateY(0);
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
+.sync-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #5a6c7d;
+  text-align: left;
+}
+
+.feature-item svg {
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sync-card {
+    padding: 40px 30px;
+  }
+
+  .sync-title {
+    font-size: 24px;
+  }
+
+  .sync-description {
+    font-size: 14px;
+  }
+
+  .google-connect-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+}

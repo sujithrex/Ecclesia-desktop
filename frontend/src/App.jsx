@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import Sync from './pages/Sync';
 import ChurchDetail from './pages/ChurchDetail';
 import AreaDetail from './pages/AreaDetail';
 import FamilyDetail from './pages/FamilyDetail';
@@ -77,6 +78,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sync"
+            element={
+              <ProtectedRoute>
+                <Sync />
               </ProtectedRoute>
             }
           />

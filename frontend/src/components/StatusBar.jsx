@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './StatusBar.css';
 
 const StatusBar = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [version, setVersion] = useState('');
 
@@ -53,6 +55,9 @@ const StatusBar = () => {
       </div>
       <div className="status-bar-center">
         <span className="status-datetime">{formatDateTime(currentTime)}</span>
+        <button className="status-sync-btn" onClick={() => navigate('/sync')} title="Sync with Google">
+          Sync
+        </button>
       </div>
       <div className="status-bar-right">
         {version && (

@@ -261,7 +261,7 @@ const Dashboard = () => {
         </div>
 
         <div className="reports-section">
-          <h2 className="section-title">Reports</h2>
+          <h2 className="section-title">Standalone Reports</h2>
           <div className="dashboard-grid">
             <div className="dashboard-card" onClick={() => navigate('/reports/adult-baptism-certificate')}>
               <div className="card-icon">

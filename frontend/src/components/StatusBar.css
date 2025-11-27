@@ -28,6 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 16px;
 }
 
 .status-bar-right {
@@ -50,5 +51,27 @@
 .status-datetime {
   font-weight: 400;
   letter-spacing: 0.3px;
+}
+
+.status-sync-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 2px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-sync-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.status-sync-btn:active {
+  transform: translateY(0);
 }
 

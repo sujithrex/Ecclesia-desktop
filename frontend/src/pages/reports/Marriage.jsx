@@ -331,6 +331,9 @@ const Marriage = () => {
       const handleGenerateMarriageCertificate = async () => {
         if (!selectedMarriage) return;
 
+        // Close modal first, then show loading screen
+        closeMarriageCertificateModal();
+
         try {
           setLoadingMessage('Generating Marriage Certificate PDF...');
           setIsLoading(true);
@@ -343,7 +346,6 @@ const Marriage = () => {
 
           if (pdfResult.success) {
             toast.success('Marriage Certificate PDF generated and opened successfully!');
-            closeMarriageCertificateModal();
           } else {
             toast.error(pdfResult.message || 'Failed to generate certificate');
           }
@@ -358,6 +360,9 @@ const Marriage = () => {
       const handleGenerateMarriageBans = async () => {
         if (!selectedMarriage) return;
     
+        // Close modal first, then show loading screen
+        closeMarriageBansModal();
+
         try {
           setLoadingMessage('Generating Marriage Bans PDF...');
           setIsLoading(true);
@@ -418,7 +423,6 @@ const Marriage = () => {
     
           if (pdfResult.success) {
             toast.success('Marriage Bans PDF generated and opened successfully!');
-            closeMarriageBansModal();
           } else {
             toast.error(pdfResult.message || 'Failed to generate PDF');
           }

@@ -64,19 +64,12 @@ Ecclesia Desktop is a comprehensive church management system designed specifical
 
 ### Windows
 
-**For 64-bit Windows (Recommended)**
-1. Download `Ecclesia-Desktop-Setup-1.0.5.exe` (x64) from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
+1. Download `Ecclesia-Desktop-Setup-1.0.5.exe` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
 2. Run the installer
 3. Follow the installation wizard
 4. Launch Ecclesia Desktop from your Start Menu
 
-**For 32-bit Windows**
-1. Download `Ecclesia-Desktop-Setup-1.0.5-ia32.exe` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
-2. Run the installer
-3. Follow the installation wizard
-4. Launch Ecclesia Desktop from your Start Menu
-
-> **Note**: Not sure which version? Right-click "This PC" → Properties. If it says "64-bit", use the 64-bit version.
+> **Note**: Windows 10 64-bit or later is required.
 
 ### macOS
 1. Download `Ecclesia-Desktop-1.0.5-darwin-x64.zip` from the [latest release](https://github.com/sujithrex/Ecclesia-desktop/releases/latest)
@@ -100,13 +93,11 @@ sudo rpm -i ecclesia-desktop-1.0.5-1.x86_64.rpm
 
 ## 💻 System Requirements
 
-- **Windows**: Windows 10 or later (both 32-bit and 64-bit supported)
-- **macOS**: macOS 10.13 (High Sierra) or later (64-bit only)
-- **Linux**: Ubuntu 18.04+, Fedora 32+, or equivalent (64-bit only)
+- **Windows**: Windows 10 64-bit or later
+- **macOS**: macOS 10.13 (High Sierra) or later
+- **Linux**: Ubuntu 18.04+, Fedora 32+, or equivalent
 - **RAM**: 4GB minimum, 8GB recommended
 - **Storage**: 500MB free space
-
-> **Note**: Windows 7/8 are not officially supported by Electron 39, but may work on Windows 10/11 32-bit systems.
 
 ## 🛠️ Development
 
@@ -158,13 +149,26 @@ npm run make
 
 ## 📝 Usage
 
-1. **First Launch**: Create your admin account with a secure password and recovery PIN
-2. **Add Church**: Set up your church details including name, address, and contact information
-3. **Create Areas**: Organize your congregation by geographical areas
-4. **Add Families**: Register families within each area
-5. **Add Members**: Add individual members to families with complete details
-6. **Generate Certificates**: Create and print baptism, marriage, and other certificates
-7. **Reports**: Generate birthday lists, wedding anniversary lists, and other reports
+### Default Login Credentials
+
+On first launch, use these default credentials:
+
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Recovery PIN**: `1221`
+
+> ⚠️ **Important**: Change these default credentials immediately after first login for security!
+
+### Getting Started
+
+1. **First Launch**: Login with default credentials (see above)
+2. **Change Password**: Go to Settings → Profile and update your password and recovery PIN
+3. **Add Church**: Set up your church details including name, address, and contact information
+4. **Create Areas**: Organize your congregation by geographical areas
+5. **Add Families**: Register families within each area
+6. **Add Members**: Add individual members to families with complete details
+7. **Generate Certificates**: Create and print baptism, marriage, and other certificates
+8. **Reports**: Generate birthday lists, wedding anniversary lists, and other reports
 
 ## 🤝 Contributing
 

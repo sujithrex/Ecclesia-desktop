@@ -137,6 +137,7 @@ function createSplashScreen() {
     frame: false,
     alwaysOnTop: true,
     resizable: false,
+    icon: path.join(__dirname, 'icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true

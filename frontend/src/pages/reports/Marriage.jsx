@@ -480,6 +480,9 @@ const Marriage = () => {
       const handleGenerateSchedule4 = async () => {
         if (!selectedMarriage) return;
 
+        // Close modal first, then show loading screen
+        closeSchedule4Modal();
+
         try {
           setLoadingMessage('Generating Schedule 4 PDF...');
           setIsLoading(true);
@@ -488,7 +491,6 @@ const Marriage = () => {
 
           if (pdfResult.success) {
             toast.success('Schedule 4 PDF generated and opened successfully!');
-            closeSchedule4Modal();
           } else {
             toast.error(pdfResult.message || 'Failed to generate Schedule 4');
           }

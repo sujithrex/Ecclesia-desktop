@@ -126,13 +126,16 @@
     <div class="loader">
       <div class="loader-bar"></div>
     </div>
-    <div class="app-version" id="version">v1.0.0</div>
+    <div class="app-version" id="version">v1.0.5</div>
   </div>
   <script>
     // Get version from Electron
     if (window.electron?.app?.getVersion) {
       window.electron.app.getVersion().then(v => {
         document.getElementById('version').textContent = 'v' + v;
+      }).catch(() => {
+        // Fallback to hardcoded version if API fails
+        document.getElementById('version').textContent = 'v1.0.5';
       });
     }
   </script>

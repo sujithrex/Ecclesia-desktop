@@ -11,9 +11,41 @@ async function initDatabase() {
   const dbPath = path.join(userDataPath, 'auth.json');
 
   const adapter = new JSONFile(dbPath);
-  db = new Low(adapter, { users: [], settings: {}, churches: [], infantBaptismCertificates: [], adultBaptismCertificates: [], burialRegisters: [], marriageRecords: [], marriageBans: [], letterheads: [], areas: [], families: [], members: [], rememberTokens: [], googleCredentials: null });
+  db = new Low(adapter, { 
+    metadata: { 
+      windowsVersion: 0, 
+      androidVersion: 0, 
+      lastSyncedBy: null, 
+      lastSyncedAt: null 
+    },
+    users: [], 
+    settings: {}, 
+    churches: [], 
+    infantBaptismCertificates: [], 
+    adultBaptismCertificates: [], 
+    burialRegisters: [], 
+    marriageRecords: [], 
+    marriageBans: [], 
+    letterheads: [], 
+    areas: [], 
+    families: [], 
+    members: [], 
+    rememberTokens: [], 
+    googleCredentials: null 
+  });
 
   await db.read();
+
+  // Initialize metadata if not exists
+  if (!db.data.metadata) {
+    db.data.metadata = {
+      windowsVersion: 0,
+      androidVersion: 0,
+      lastSyncedBy: null,
+      lastSyncedAt: null
+    };
+    await db.write();
+  }
 
   // Initialize default user if not exists
   if (db.data.users.length === 0) {
@@ -762,6 +794,84 @@ async function deleteArea(id) {
   return false;
 }
 
+// ==================== Version Management Functions ====================
+
+async function getMetadata() {
+  const database = await getDatabase();
+  return database.data.metadata || {
+    windowsVersion: 0,
+    androidVersion: 0,
+    lastSyncedBy: null,
+    lastSyncedAt: null
+  };
+}
+
+async function updateMetadata(updates) {
+  const database = await getDatabase();
+  database.data.metadata = {
+    ...database.data.metadata,
+    ...updates
+  };
+  await database.write();
+  return database.data.metadata;
+}
+
+async function incrementWindowsVersion() {
+  const database = await getDatabase();
+  database.data.metadata.windowsVersion += 1;
+  database.data.metadata.lastSyncedBy = 'windows';
+  database.data.metadata.lastSyncedAt = new Date().toISOString();
+  await database.write();
+  return database.data.metadata;
+}
+
+async function incrementAndroidVersion() {
+  const database = await getDatabase();
+  database.data.metadata.androidVersion += 1;
+  database.data.metadata.lastSyncedBy = 'android';
+  database.data.metadata.lastSyncedAt = new Date().toISOString();
+  await database.write();
+  return database.data.metadata;
+}
+
+async function getVersionString() {
+  const metadata = await getMetadata();
+  return `ecclesia_win_V${metadata.windowsVersion}_android_V${metadata.androidVersion}.json`;
+}
+
+async function getAllDatabaseData() {
+  const database = await getDatabase();
+  return database.data;
+}
+
+async function mergeDatabaseData(cloudData, selectedItems) {
+  const database = await getDatabase();
+  
+  // Merge only selected items
+  for (const key in selectedItems) {
+    if (selectedItems[key] && cloudData[key]) {
+      if (Array.isArray(cloudData[key])) {
+        // For arrays, merge by ID
+        const localMap = new Map(database.data[key].map(item => [item.id, item]));
+        
+        cloudData[key].forEach(cloudItem => {
+          if (selectedItems[key][cloudItem.id]) {
+            localMap.set(cloudItem.id, cloudItem);
+          }
+        });
+        
+        database.data[key] = Array.from(localMap.values());
+      } else {
+        // For objects, direct merge
+        database.data[key] = { ...database.data[key], ...cloudData[key] };
+      }
+    }
+  }
+  
+  await database.write();
+  return database.data;
+}
+
 module.exports = {
   initDatabase,
   getDatabase,
@@ -850,7 +960,14 @@ module.exports = {
   cleanupExpiredTokens,
   saveGoogleCredentials,
   getGoogleCredentials,
-  deleteGoogleCredentials
+  deleteGoogleCredentials,
+  getMetadata,
+  updateMetadata,
+  incrementWindowsVersion,
+  incrementAndroidVersion,
+  getVersionString,
+  getAllDatabaseData,
+  mergeDatabaseData
 };
 
 // ==================== Letterhead Functions ====================

@@ -147,6 +147,9 @@ contextBridge.exposeInMainWorld('electron', {
     authenticate: () => ipcRenderer.invoke('google:authenticate'),
     checkAuth: () => ipcRenderer.invoke('google:checkAuth'),
     uploadDatabase: () => ipcRenderer.invoke('google:uploadDatabase'),
+    getVersions: () => ipcRenderer.invoke('google:getVersions'),
+    compareVersions: () => ipcRenderer.invoke('google:compareVersions'),
+    syncDown: (params) => ipcRenderer.invoke('google:syncDown', params),
     disconnect: () => ipcRenderer.invoke('google:disconnect')
   },
   shell: {

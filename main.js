@@ -80,10 +80,18 @@ const {
   getWeddingReportData,
   saveGoogleCredentials,
   getGoogleCredentials,
-  deleteGoogleCredentials
+  deleteGoogleCredentials,
+  getMetadata,
+  updateMetadata,
+  incrementWindowsVersion,
+  incrementAndroidVersion,
+  getVersionString,
+  getAllDatabaseData,
+  mergeDatabaseData
 } = require('./backend/database');
 
 const googleDriveSync = require('./backend/googleDriveSync');
+const comparisonEngine = require('./backend/comparisonEngine');
 
 const {
   login,
@@ -1429,11 +1437,126 @@ ipcMain.handle('google:uploadDatabase', async () => {
       return { success: false, message: 'Not authenticated with Google' };
     }
     
+    // Increment Windows version
+    await incrementWindowsVersion();
+    const versionString = await getVersionString();
+    
     googleDriveSync.setCredentials(credentials);
-    const result = await googleDriveSync.uploadDatabase();
-    return { success: true, ...result };
+    const result = await googleDriveSync.uploadDatabase(versionString);
+    return { success: true, ...result, version: versionString };
   } catch (error) {
     console.error('Upload database error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('google:getVersions', async () => {
+  try {
+    const credentials = await getGoogleCredentials();
+    if (!credentials) {
+      return { success: false, message: 'Not authenticated with Google' };
+    }
+    
+    googleDriveSync.setCredentials(credentials);
+    
+    // Get local version
+    const localMetadata = await getMetadata();
+    const localVersion = await getVersionString();
+    
+    // Get cloud version
+    const latestFile = await googleDriveSync.getLatestVersion();
+    
+    return {
+      success: true,
+      local: {
+        version: localVersion,
+        metadata: localMetadata
+      },
+      cloud: latestFile ? {
+        version: latestFile.name,
+        fileId: latestFile.id,
+        createdTime: latestFile.createdTime,
+        size: latestFile.size
+      } : null
+    };
+  } catch (error) {
+    console.error('Get versions error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('google:compareVersions', async () => {
+  try {
+    const credentials = await getGoogleCredentials();
+    if (!credentials) {
+      return { success: false, message: 'Not authenticated with Google' };
+    }
+    
+    googleDriveSync.setCredentials(credentials);
+    
+    // Get local data
+    const localData = await getAllDatabaseData();
+    
+    // Get cloud data
+    const latestFile = await googleDriveSync.getLatestVersion();
+    if (!latestFile) {
+      return { success: false, message: 'No cloud backup found' };
+    }
+    
+    const cloudResult = await googleDriveSync.downloadDatabase(latestFile.id);
+    if (!cloudResult.success) {
+      return { success: false, message: 'Failed to download cloud data' };
+    }
+    
+    // Compare data
+    const comparison = comparisonEngine.compareData(localData, cloudResult.data);
+    
+    return {
+      success: true,
+      comparison,
+      cloudFile: {
+        id: latestFile.id,
+        name: latestFile.name,
+        createdTime: latestFile.createdTime
+      }
+    };
+  } catch (error) {
+    console.error('Compare versions error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('google:syncDown', async (event, { selectedItems }) => {
+  try {
+    const credentials = await getGoogleCredentials();
+    if (!credentials) {
+      return { success: false, message: 'Not authenticated with Google' };
+    }
+    
+    googleDriveSync.setCredentials(credentials);
+    
+    // Get cloud data
+    const latestFile = await googleDriveSync.getLatestVersion();
+    if (!latestFile) {
+      return { success: false, message: 'No cloud backup found' };
+    }
+    
+    const cloudResult = await googleDriveSync.downloadDatabase(latestFile.id);
+    if (!cloudResult.success) {
+      return { success: false, message: 'Failed to download cloud data' };
+    }
+    
+    // Merge selected data
+    await mergeDatabaseData(cloudResult.data, selectedItems);
+    
+    // Update metadata from cloud
+    if (cloudResult.data.metadata) {
+      await updateMetadata(cloudResult.data.metadata);
+    }
+    
+    return { success: true, message: 'Data synced successfully' };
+  } catch (error) {
+    console.error('Sync down error:', error);
     return { success: false, message: error.message };
   }
 });

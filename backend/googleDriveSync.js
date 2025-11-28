@@ -161,8 +161,8 @@ class GoogleDriveSync {
     this.drive = google.drive({ version: 'v3', auth: this.oauth2Client });
   }
 
-  // Upload database to Google Drive
-  async uploadDatabase() {
+  // Upload database to Google Drive with versioned filename
+  async uploadDatabase(versionString) {
     if (!this.drive) {
       throw new Error('Not authenticated with Google Drive');
     }
@@ -175,7 +175,7 @@ class GoogleDriveSync {
       throw new Error('Database file not found');
     }
 
-    const fileName = `ecclesia-backup-${Date.now()}.json`;
+    const fileName = versionString || `ecclesia-backup-${Date.now()}.json`;
     const fileMetadata = {
       name: fileName,
       mimeType: 'application/json'
@@ -268,7 +268,7 @@ class GoogleDriveSync {
     }
   }
 
-  // Download database from Google Drive
+  // Download database from Google Drive (returns data without saving)
   async downloadDatabase(fileId) {
     if (!this.drive) {
       throw new Error('Not authenticated with Google Drive');
@@ -280,26 +280,81 @@ class GoogleDriveSync {
         { responseType: 'stream' }
       );
 
-      const userDataPath = app.getPath('userData');
-      const dbPath = path.join(userDataPath, 'auth.json');
-      const tempPath = path.join(userDataPath, 'auth.json.temp');
-
-      const dest = fs.createWriteStream(tempPath);
-
       return new Promise((resolve, reject) => {
+        let data = '';
         response.data
+          .on('data', (chunk) => {
+            data += chunk;
+          })
           .on('end', () => {
-            // Replace old database with new one
-            fs.renameSync(tempPath, dbPath);
-            resolve({ success: true });
+            try {
+              const jsonData = JSON.parse(data);
+              resolve({ success: true, data: jsonData });
+            } catch (err) {
+              reject(new Error('Invalid JSON data'));
+            }
           })
           .on('error', (err) => {
             reject(err);
-          })
-          .pipe(dest);
+          });
       });
     } catch (error) {
       console.error('Error downloading from Google Drive:', error);
+      throw error;
+    }
+  }
+
+  // Get latest version file from Drive
+  async getLatestVersion() {
+    if (!this.drive) {
+      throw new Error('Not authenticated with Google Drive');
+    }
+
+    try {
+      const folderName = 'Ecclesia Backups';
+      const folderId = await this.findOrCreateFolder(folderName);
+
+      const response = await this.drive.files.list({
+        q: `'${folderId}' in parents and trashed=false and name contains 'ecclesia_win_V'`,
+        fields: 'files(id, name, createdTime, size)',
+        orderBy: 'createdTime desc',
+        pageSize: 1
+      });
+
+      if (response.data.files.length > 0) {
+        return response.data.files[0];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting latest version:', error);
+      throw error;
+    }
+  }
+
+  // Get file by name
+  async getFileByName(fileName) {
+    if (!this.drive) {
+      throw new Error('Not authenticated with Google Drive');
+    }
+
+    try {
+      const folderName = 'Ecclesia Backups';
+      const folderId = await this.findOrCreateFolder(folderName);
+
+      const response = await this.drive.files.list({
+        q: `'${folderId}' in parents and trashed=false and name='${fileName}'`,
+        fields: 'files(id, name, createdTime, size)',
+        pageSize: 1
+      });
+
+      if (response.data.files.length > 0) {
+        return response.data.files[0];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting file by name:', error);
       throw error;
     }
   }

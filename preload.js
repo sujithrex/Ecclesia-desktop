@@ -142,6 +142,15 @@ contextBridge.exposeInMainWorld('electron', {
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close')
+  },
+  google: {
+    authenticate: () => ipcRenderer.invoke('google:authenticate'),
+    checkAuth: () => ipcRenderer.invoke('google:checkAuth'),
+    uploadDatabase: () => ipcRenderer.invoke('google:uploadDatabase'),
+    disconnect: () => ipcRenderer.invoke('google:disconnect')
+  },
+  shell: {
+    openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url)
   }
 });
 

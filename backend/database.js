@@ -11,7 +11,7 @@ async function initDatabase() {
   const dbPath = path.join(userDataPath, 'auth.json');
 
   const adapter = new JSONFile(dbPath);
-  db = new Low(adapter, { users: [], settings: {}, churches: [], infantBaptismCertificates: [], adultBaptismCertificates: [], burialRegisters: [], marriageRecords: [], marriageBans: [], letterheads: [], areas: [], families: [], members: [], rememberTokens: [] });
+  db = new Low(adapter, { users: [], settings: {}, churches: [], infantBaptismCertificates: [], adultBaptismCertificates: [], burialRegisters: [], marriageRecords: [], marriageBans: [], letterheads: [], areas: [], families: [], members: [], rememberTokens: [], googleCredentials: null });
 
   await db.read();
 
@@ -847,7 +847,10 @@ module.exports = {
   validateRememberToken,
   deleteRememberToken,
   deleteUserRememberTokens,
-  cleanupExpiredTokens
+  cleanupExpiredTokens,
+  saveGoogleCredentials,
+  getGoogleCredentials,
+  deleteGoogleCredentials
 };
 
 // ==================== Letterhead Functions ====================
@@ -1737,4 +1740,28 @@ async function cleanupExpiredTokens() {
     return true;
   }
   return false;
+}
+
+// ==================== Google Drive Sync Functions ====================
+
+async function saveGoogleCredentials(credentials) {
+  await db.read();
+  db.data.googleCredentials = {
+    ...credentials,
+    updatedAt: new Date().toISOString()
+  };
+  await db.write();
+  return true;
+}
+
+async function getGoogleCredentials() {
+  await db.read();
+  return db.data.googleCredentials || null;
+}
+
+async function deleteGoogleCredentials() {
+  await db.read();
+  db.data.googleCredentials = null;
+  await db.write();
+  return true;
 }

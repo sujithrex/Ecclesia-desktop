@@ -5,9 +5,9 @@ const { app } = require('electron');
 
 // OAuth2 credentials
 const OAUTH_CREDENTIALS = {
-  client_id: '242468545408-63fvv2li44lq8cfjofbrlklmkkvgrln5.apps.googleusercontent.com',
-  client_secret: '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',
-  redirect_uris: ['http://localhost']
+  client_id: '242468545408-fd5oci81fpjggeg45ctbmb0clvd0tk9h.apps.googleusercontent.com',
+  client_secret: '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',
+  redirect_uris: ['http://localhost:3000/oauth/callback']
 };
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
@@ -33,6 +33,108 @@ class GoogleDriveSync {
     });
 
     return authUrl;
+  }
+
+  // Start local server to capture OAuth callback
+  startOAuthServer() {
+    return new Promise((resolve, reject) => {
+      const http = require('http');
+      
+      const server = http.createServer((req, res) => {
+        const url = new URL(req.url, 'http://localhost:3000');
+        
+        if (url.pathname === '/oauth/callback') {
+          const code = url.searchParams.get('code');
+          
+          if (code) {
+            // Send success page
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>Authentication Successful</title>
+                <style>
+                  body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+                  }
+                  .container {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                    text-align: center;
+                    max-width: 400px;
+                  }
+                  h1 {
+                    color: #2c3e50;
+                    margin-bottom: 16px;
+                  }
+                  p {
+                    color: #5a6c7d;
+                    line-height: 1.6;
+                  }
+                  .success-icon {
+                    width: 64px;
+                    height: 64px;
+                    margin: 0 auto 20px;
+                    background: #34A853;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  }
+                  .checkmark {
+                    width: 32px;
+                    height: 32px;
+                    border: 3px solid white;
+                    border-top: none;
+                    border-right: none;
+                    transform: rotate(-45deg);
+                    margin-top: -8px;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="success-icon">
+                    <div class="checkmark"></div>
+                  </div>
+                  <h1>Authentication Successful!</h1>
+                  <p>You have successfully connected to Google Drive. You can close this window and return to Ecclesia Desktop.</p>
+                </div>
+              </body>
+              </html>
+            `);
+            
+            // Close server and resolve with code
+            server.close();
+            resolve(code);
+          } else {
+            res.writeHead(400, { 'Content-Type': 'text/plain' });
+            res.end('Error: No authorization code received');
+            server.close();
+            reject(new Error('No authorization code received'));
+          }
+        }
+      });
+
+      server.listen(3000, () => {
+        console.log('OAuth callback server listening on port 3000');
+      });
+
+      // Timeout after 5 minutes
+      setTimeout(() => {
+        server.close();
+        reject(new Error('OAuth timeout'));
+      }, 5 * 60 * 1000);
+    });
   }
 
   // Exchange authorization code for tokens

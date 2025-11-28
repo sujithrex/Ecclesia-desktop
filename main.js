@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const {
   initDatabase,
@@ -77,8 +77,14 @@ const {
   getBirthdaysByDateRange,
   getBirthdayReportData,
   getWeddingsByDateRange,
-  getWeddingReportData
+  getWeddingReportData,
+  saveGoogleCredentials,
+  getGoogleCredentials,
+  deleteGoogleCredentials
 } = require('./backend/database');
+
+const googleDriveSync = require('./backend/googleDriveSync');
+
 const {
   login,
   loginWithToken,
@@ -1375,3 +1381,81 @@ app.on('window-all-closed', () => {
   }
 });
 
+
+// ==================== Google Drive Sync Handlers ====================
+
+ipcMain.handle('google:authenticate', async () => {
+  try {
+    // Start OAuth server to capture callback
+    const serverPromise = googleDriveSync.startOAuthServer();
+    
+    // Get auth URL and open in browser
+    const authUrl = googleDriveSync.getAuthUrl();
+    await shell.openExternal(authUrl);
+    
+    // Wait for OAuth callback
+    const code = await serverPromise;
+    
+    // Exchange code for tokens
+    const tokens = await googleDriveSync.getTokens(code);
+    await saveGoogleCredentials(tokens);
+    googleDriveSync.setCredentials(tokens);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Google authentication error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('google:checkAuth', async () => {
+  try {
+    const credentials = await getGoogleCredentials();
+    if (credentials) {
+      googleDriveSync.setCredentials(credentials);
+      return { success: true, isAuthenticated: true };
+    }
+    return { success: true, isAuthenticated: false };
+  } catch (error) {
+    console.error('Check auth error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('google:uploadDatabase', async () => {
+  try {
+    const credentials = await getGoogleCredentials();
+    if (!credentials) {
+      return { success: false, message: 'Not authenticated with Google' };
+    }
+    
+    googleDriveSync.setCredentials(credentials);
+    const result = await googleDriveSync.uploadDatabase();
+    return { success: true, ...result };
+  } catch (error) {
+    console.error('Upload database error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('google:disconnect', async () => {
+  try {
+    await deleteGoogleCredentials();
+    return { success: true };
+  } catch (error) {
+    console.error('Disconnect error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+
+// Shell handler
+ipcMain.handle('shell:openExternal', async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    return { success: true };
+  } catch (error) {
+    console.error('Open external error:', error);
+    return { success: false, message: error.message };
+  }
+});

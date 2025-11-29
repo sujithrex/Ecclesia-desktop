@@ -91,6 +91,7 @@ const {
 } = require('./backend/database');
 
 const googleDriveSync = require('./backend/googleDriveSync');
+const autoSync = require('./backend/autoSync');
 const comparisonEngine = require('./backend/comparisonEngine');
 
 const {
@@ -203,6 +204,9 @@ function createWindow() {
       if (!isDev) {
         setupAutoUpdater(mainWindow);
       }
+      
+      // Initialize auto-sync after Google Drive is authenticated
+      // (will be started when user connects to Drive)
     }, 500); // Small delay for smooth transition
   });
 }
@@ -1383,10 +1387,66 @@ app.whenReady().then(async () => {
   });
 });
 
+// Auto-sync IPC handlers
+ipcMain.handle('sync:manual', async () => {
+  try {
+    const success = await autoSync.manualSync();
+    return { success };
+  } catch (error) {
+    console.error('Manual sync error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('sync:getStatus', async () => {
+  try {
+    const status = autoSync.getSyncStatus();
+    return { success: true, ...status };
+  } catch (error) {
+    console.error('Get sync status error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('sync:enable', async () => {
+  try {
+    const credentials = await getGoogleCredentials();
+    if (!credentials) {
+      return { success: false, message: 'Not authenticated with Google Drive' };
+    }
+    
+    googleDriveSync.setCredentials(credentials);
+    autoSync.initialize(mainWindow);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Enable sync error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('sync:disable', async () => {
+  try {
+    autoSync.stop();
+    return { success: true };
+  } catch (error) {
+    console.error('Disable sync error:', error);
+    return { success: false, message: error.message };
+  }
+});
+
 app.on('window-all-closed', () => {
+  // Stop auto-sync before quitting
+  autoSync.stop();
+  
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('before-quit', () => {
+  // Ensure auto-sync is stopped
+  autoSync.stop();
 });
 
 
@@ -1409,6 +1469,9 @@ ipcMain.handle('google:authenticate', async () => {
     await saveGoogleCredentials(tokens);
     googleDriveSync.setCredentials(tokens);
     
+    // Initialize auto-sync after successful authentication
+    autoSync.initialize(mainWindow);
+    
     return { success: true };
   } catch (error) {
     console.error('Google authentication error:', error);
@@ -1421,6 +1484,10 @@ ipcMain.handle('google:checkAuth', async () => {
     const credentials = await getGoogleCredentials();
     if (credentials) {
       googleDriveSync.setCredentials(credentials);
+      
+      // Initialize auto-sync if authenticated
+      autoSync.initialize(mainWindow);
+      
       return { success: true, isAuthenticated: true };
     }
     return { success: true, isAuthenticated: false };

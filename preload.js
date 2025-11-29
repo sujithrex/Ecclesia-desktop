@@ -152,6 +152,15 @@ contextBridge.exposeInMainWorld('electron', {
     syncDown: (params) => ipcRenderer.invoke('google:syncDown', params),
     disconnect: () => ipcRenderer.invoke('google:disconnect')
   },
+  sync: {
+    manual: () => ipcRenderer.invoke('sync:manual'),
+    getStatus: () => ipcRenderer.invoke('sync:getStatus'),
+    enable: () => ipcRenderer.invoke('sync:enable'),
+    disable: () => ipcRenderer.invoke('sync:disable'),
+    onStateChange: (callback) => {
+      ipcRenderer.on('sync-state-changed', (event, data) => callback(data));
+    }
+  },
   shell: {
     openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url)
   }

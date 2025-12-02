@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { app } = require('electron');
 const googleDriveSync = require('./googleDriveSync');
-const { getMetadata } = require('./database');
+const { getMetadata, incrementWindowsVersion } = require('./database');
 
 class AutoSyncService {
   constructor() {
@@ -220,6 +220,9 @@ class AutoSyncService {
   async syncUp() {
     try {
       this.updateState('syncing_up');
+      
+      // Increment Windows version before upload
+      await incrementWindowsVersion();
       
       const metadata = await getMetadata();
       const versionString = `ecclesia_win_V${metadata.windowsVersion}_android_V${metadata.androidVersion}.json`;

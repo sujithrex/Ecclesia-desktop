@@ -260,6 +260,49 @@ const Dashboard = () => {
           )}
         </div>
 
+        {/* Accounts Section - Pastorates */}
+        <div className="accounts-section">
+          <h2 className="section-title">Accounts</h2>
+          {churches.length === 0 ? (
+            <div className="empty-state">
+              <p className="empty-state-text">No pastorates found. Create a church to get started.</p>
+            </div>
+          ) : (
+            <div className="dashboard-grid">
+              {(() => {
+                // Group churches by pastorate
+                const pastorateMap = new Map();
+                churches.forEach(church => {
+                  const pastorateName = church.pastorateName || 'Unknown Pastorate';
+                  if (!pastorateMap.has(pastorateName)) {
+                    pastorateMap.set(pastorateName, {
+                      pastorateName: pastorateName,
+                      pastorateShortName: church.pastorateShortName || pastorateName,
+                      pastorateNameTamil: church.pastorateNameTamil || '',
+                      churches: []
+                    });
+                  }
+                  pastorateMap.get(pastorateName).churches.push(church);
+                });
+
+                return Array.from(pastorateMap.values()).map((pastorate, index) => (
+                  <div 
+                    key={index} 
+                    className="dashboard-card"
+                    onClick={() => navigate('/pastorate', { state: { pastorate } })}
+                  >
+                    <div className="card-icon">
+                      <Users size={40} weight="duotone" />
+                    </div>
+                    <h3>{pastorate.pastorateShortName}</h3>
+                    <p>{pastorate.churches.length} {pastorate.churches.length === 1 ? 'Church' : 'Churches'}</p>
+                  </div>
+                ));
+              })()}
+            </div>
+          )}
+        </div>
+
         <div className="reports-section">
           <h2 className="section-title">Standalone Reports</h2>
           <div className="dashboard-grid">

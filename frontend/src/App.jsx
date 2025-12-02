@@ -5,6 +5,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
+import PastorateDetail from './pages/PastorateDetail';
+import YearBooks from './pages/YearBooks';
+import MonthBooks from './pages/MonthBooks';
 import Settings from './pages/Settings';
 import Sync from './pages/Sync';
 import ChurchDetail from './pages/ChurchDetail';
@@ -22,6 +25,13 @@ import BirthdayList from './pages/reports/BirthdayList';
 import LetterHead from './pages/reports/LetterHead';
 import CongregationBackup from './pages/backups/CongregationBackup';
 import CongregationRestore from './pages/backups/CongregationRestore';
+import ReceiptNote from './pages/books/ReceiptNote';
+import OffertoryNote from './pages/books/OffertoryNote';
+import HarvestFestivalNote from './pages/books/HarvestFestivalNote';
+import SangamNote from './pages/books/SangamNote';
+import PCCashBook from './pages/books/PCCashBook';
+import IndentSlip from './pages/books/IndentSlip';
+import RoughCashBook from './pages/books/RoughCashBook';
 import './App.css';
 
 function App() {
@@ -70,6 +80,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pastorate"
+            element={
+              <ProtectedRoute>
+                <PastorateDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/year-books"
+            element={
+              <ProtectedRoute>
+                <YearBooks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/month-books"
+            element={
+              <ProtectedRoute>
+                <MonthBooks />
               </ProtectedRoute>
             }
           />
@@ -214,6 +248,62 @@ function App() {
             element={
               <ProtectedRoute>
                 <CongregationRestore />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/receipt-note"
+            element={
+              <ProtectedRoute>
+                <ReceiptNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/offertory-note"
+            element={
+              <ProtectedRoute>
+                <OffertoryNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/harvest-festival-note"
+            element={
+              <ProtectedRoute>
+                <HarvestFestivalNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/sangam-note"
+            element={
+              <ProtectedRoute>
+                <SangamNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/pc-cash-book"
+            element={
+              <ProtectedRoute>
+                <PCCashBook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/indent-slip"
+            element={
+              <ProtectedRoute>
+                <IndentSlip />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/rough-cash-book"
+            element={
+              <ProtectedRoute>
+                <RoughCashBook />
               </ProtectedRoute>
             }
           />

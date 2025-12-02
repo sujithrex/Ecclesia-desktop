@@ -1,0 +1,73 @@
+.book-page-container {
+  position: fixed;
+  top: 32px;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  background: #f5f5f5;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.book-page-header {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 32px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.book-page-main {
+  width: 95%;
+  max-width: 95%;
+  margin: 0 auto;
+  padding: 40px 20px;
+  margin-top: 72px;
+  padding-bottom: 80px;
+}
+
+.book-page-content {
+  max-width: 100%;
+}
+
+.book-title {
+  color: #B5316A;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  text-align: left;
+}
+
+.back-btn,
+.logout-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn {
+  background: white;
+  color: #B5316A;
+}
+
+.logout-btn:hover {
+  background: #f0f0f0;
+}

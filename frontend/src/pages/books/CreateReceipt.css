@@ -1,0 +1,245 @@
+.create-receipt-container {
+  position: fixed;
+  top: 32px;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  background: #f5f5f5;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.create-receipt-header {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 32px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.create-receipt-main {
+  width: 95%;
+  max-width: 95%;
+  margin: 0 auto;
+  padding: 40px 20px;
+  margin-top: 72px;
+  padding-bottom: 80px;
+}
+
+.create-receipt-content {
+  max-width: 100%;
+}
+
+.page-title {
+  color: #B5316A;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 30px 0;
+  text-align: left;
+}
+
+/* Last Receipt Number Section */
+.last-receipt-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.last-receipt-section label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.last-receipt-input {
+  width: 120px;
+  padding: 10px 14px;
+  border: 2px solid #B5316A;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: #B5316A;
+  transition: all 0.2s ease;
+}
+
+.last-receipt-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(181, 49, 106, 0.1);
+}
+
+/* Receipt Canvas */
+.receipt-canvas {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.canvas-title {
+  color: #B5316A;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+}
+
+.receipt-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.receipt-table thead {
+  background: #f9fafb;
+}
+
+.receipt-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.receipt-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.receipt-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.receipt-input:focus {
+  outline: none;
+  border-color: #B5316A;
+  box-shadow: 0 0 0 3px rgba(181, 49, 106, 0.1);
+}
+
+.receipt-input.readonly {
+  background: #f3f4f6;
+  cursor: not-allowed;
+  font-weight: 600;
+  color: #B5316A;
+}
+
+.receipt-input::placeholder {
+  color: #9ca3af;
+}
+
+.remove-row-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.remove-row-btn:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.canvas-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.add-row-btn {
+  background: white;
+  color: #B5316A;
+  border: 2px solid #B5316A;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.add-row-btn:hover {
+  background: #f9fafb;
+}
+
+/* Save Section */
+.save-section {
+  display: flex;
+  justify-content: center;
+}
+
+.save-btn {
+  background: #B5316A;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(181, 49, 106, 0.3);
+}
+
+.save-btn:hover {
+  background: #8F2654;
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.4);
+}
+
+.back-btn,
+.logout-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn {
+  background: white;
+  color: #B5316A;
+}
+
+.logout-btn:hover {
+  background: #f0f0f0;
+}

@@ -26,6 +26,7 @@ import LetterHead from './pages/reports/LetterHead';
 import CongregationBackup from './pages/backups/CongregationBackup';
 import CongregationRestore from './pages/backups/CongregationRestore';
 import ReceiptNote from './pages/books/ReceiptNote';
+import CreateReceipt from './pages/books/CreateReceipt';
 import OffertoryNote from './pages/books/OffertoryNote';
 import HarvestFestivalNote from './pages/books/HarvestFestivalNote';
 import SangamNote from './pages/books/SangamNote';
@@ -256,6 +257,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ReceiptNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/receipt-note/create"
+            element={
+              <ProtectedRoute>
+                <CreateReceipt />
               </ProtectedRoute>
             }
           />

@@ -207,6 +207,11 @@
   outline: none;
 }
 
+.book-modal.large-modal {
+  max-width: 75%;
+  width: 75%;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -269,6 +274,13 @@
   margin-bottom: 20px;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .form-group label {
   color: #374151;
   font-size: 14px;
@@ -276,7 +288,8 @@
   margin-bottom: 8px;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 10px 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -284,7 +297,8 @@
   transition: all 0.2s ease;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: #B5316A;
   box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.1);

@@ -165,32 +165,124 @@ const ReceiptNote = () => {
     }
   };
 
-  // Load categories on mount
+  // Load categories and receipts on mount
   useEffect(() => {
     if (pastorate) {
       loadCategories();
+      loadReceipts();
     }
-  }, [pastorate]);
+  }, [pastorate, year, month]);
 
-  const handleCreateReceipt = () => {
-    // Navigate to receipt creation page (to be created later)
-    navigate('/books/receipt-note/create', { state: { pastorate, year } });
+  const loadReceipts = () => {
+    if (!pastorate || !year || !month) return;
+    
+    try {
+      const storedReceipts = localStorage.getItem(`receipts_${pastorate.pastorateName}_${year.year}_${month}`);
+      if (storedReceipts) {
+        const parsedReceipts = JSON.parse(storedReceipts);
+        console.log('Loaded receipts:', parsedReceipts);
+        setReceipts(parsedReceipts);
+      } else {
+        console.log('No receipts found in storage');
+        setReceipts([]);
+      }
+    } catch (error) {
+      console.error('Failed to load receipts:', error);
+      setReceipts([]);
+    }
   };
 
+  const handleCreateReceipt = () => {
+    // Navigate to receipt creation page
+    navigate('/books/receipt-note/create', { state: { pastorate, year, month } });
+  };
+
+  const [isEditReceiptModalOpen, setIsEditReceiptModalOpen] = useState(false);
+  const [currentReceipt, setCurrentReceipt] = useState(null);
+  const [receiptFormData, setReceiptFormData] = useState({
+    receiptNo: '',
+    date: '',
+    name: '',
+    category: '',
+    amount: ''
+  });
+
   const handleEditReceipt = (receipt) => {
-    // Navigate to receipt edit page (to be created later)
-    navigate('/books/receipt-note/edit', { state: { pastorate, year, receipt } });
+    setCurrentReceipt(receipt);
+    setReceiptFormData({
+      receiptNo: receipt.receiptNo,
+      date: receipt.date || new Date().toISOString().split('T')[0],
+      name: receipt.name,
+      category: receipt.category,
+      amount: receipt.amount
+    });
+    setIsEditReceiptModalOpen(true);
+  };
+
+  const closeEditReceiptModal = () => {
+    setIsEditReceiptModalOpen(false);
+    setCurrentReceipt(null);
+  };
+
+  const handleReceiptFormChange = (e) => {
+    const { name, value } = e.target;
+    setReceiptFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleReceiptSubmit = (e) => {
+    e.preventDefault();
+    
+    try {
+      setIsLoading(true);
+      
+      const updatedReceipt = {
+        ...currentReceipt,
+        ...receiptFormData,
+        amount: parseFloat(receiptFormData.amount),
+        updatedAt: new Date().toISOString()
+      };
+
+      const updatedReceipts = receipts.map(r => 
+        r.id === currentReceipt.id ? updatedReceipt : r
+      );
+      
+      setReceipts(updatedReceipts);
+      localStorage.setItem(
+        `receipts_${pastorate.pastorateName}_${year?.year}_${month}`,
+        JSON.stringify(updatedReceipts)
+      );
+      
+      toast.success('Receipt updated successfully!');
+      closeEditReceiptModal();
+    } catch (error) {
+      toast.error('Failed to update receipt');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDeleteReceipt = (receipt) => {
-    // For now, just remove from state
-    setReceipts(prev => prev.filter(r => r.id !== receipt.id));
+    const updatedReceipts = receipts.filter(r => r.id !== receipt.id);
+    setReceipts(updatedReceipts);
+    localStorage.setItem(
+      `receipts_${pastorate.pastorateName}_${year?.year}_${month}`,
+      JSON.stringify(updatedReceipts)
+    );
     toast.success('Receipt deleted successfully!');
   };
 
   // Initialize DataTables
   useEffect(() => {
-    if (receiptsTableRef.current && !receiptsDataTableRef.current) {
+    // Destroy existing table if it exists
+    if (receiptsDataTableRef.current) {
+      receiptsDataTableRef.current.destroy();
+      receiptsDataTableRef.current = null;
+    }
+
+    if (receiptsTableRef.current) {
       receiptsDataTableRef.current = $(receiptsTableRef.current).DataTable({
         data: receipts,
         columns: [
@@ -223,33 +315,33 @@ const ReceiptNote = () => {
         order: [[0, 'desc']],
         language: {
           emptyTable: 'No receipts found'
-        }
+        },
+        destroy: true
       });
 
       // Handle button clicks
       $(receiptsTableRef.current).on('click', '.edit', function() {
-        const id = parseInt($(this).data('id'));
-        const receipt = receipts.find(r => r.id === id);
+        const id = $(this).data('id');
+        const receipt = receipts.find(r => r.id == id);
         if (receipt) handleEditReceipt(receipt);
       });
 
       $(receiptsTableRef.current).on('click', '.delete', function() {
-        const id = parseInt($(this).data('id'));
-        const receipt = receipts.find(r => r.id === id);
+        const id = $(this).data('id');
+        const receipt = receipts.find(r => r.id == id);
         if (receipt) handleDeleteReceipt(receipt);
       });
     }
-
-    return () => {
-      if (receiptsDataTableRef.current) {
-        receiptsDataTableRef.current.destroy();
-        receiptsDataTableRef.current = null;
-      }
-    };
-  }, []);
+  }, [receipts]);
 
   useEffect(() => {
-    if (categoriesTableRef.current && !categoriesDataTableRef.current) {
+    // Destroy existing table if it exists
+    if (categoriesDataTableRef.current) {
+      categoriesDataTableRef.current.destroy();
+      categoriesDataTableRef.current = null;
+    }
+
+    if (categoriesTableRef.current) {
       categoriesDataTableRef.current = $(categoriesTableRef.current).DataTable({
         data: categories,
         columns: [
@@ -276,45 +368,22 @@ const ReceiptNote = () => {
         order: [[0, 'asc']],
         language: {
           emptyTable: 'No categories found'
-        }
+        },
+        destroy: true
       });
 
       // Handle button clicks
       $(categoriesTableRef.current).on('click', '.edit', function() {
-        const id = parseInt($(this).data('id'));
-        const category = categories.find(c => c.id === id);
+        const id = $(this).data('id');
+        const category = categories.find(c => c.id == id);
         if (category) openEditCategoryModal(category);
       });
 
       $(categoriesTableRef.current).on('click', '.delete', function() {
-        const id = parseInt($(this).data('id'));
-        const category = categories.find(c => c.id === id);
+        const id = $(this).data('id');
+        const category = categories.find(c => c.id == id);
         if (category) openDeleteModal(category);
       });
-    }
-
-    return () => {
-      if (categoriesDataTableRef.current) {
-        categoriesDataTableRef.current.destroy();
-        categoriesDataTableRef.current = null;
-      }
-    };
-  }, []);
-
-  // Update DataTables when data changes
-  useEffect(() => {
-    if (receiptsDataTableRef.current) {
-      receiptsDataTableRef.current.clear();
-      receiptsDataTableRef.current.rows.add(receipts);
-      receiptsDataTableRef.current.draw();
-    }
-  }, [receipts]);
-
-  useEffect(() => {
-    if (categoriesDataTableRef.current) {
-      categoriesDataTableRef.current.clear();
-      categoriesDataTableRef.current.rows.add(categories);
-      categoriesDataTableRef.current.draw();
     }
   }, [categories]);
 
@@ -483,6 +552,103 @@ const ReceiptNote = () => {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* Edit Receipt Modal */}
+      <Modal
+        isOpen={isEditReceiptModalOpen}
+        onRequestClose={closeEditReceiptModal}
+        className="book-modal large-modal"
+        overlayClassName="book-modal-overlay"
+        contentLabel="Edit Receipt"
+      >
+        <div className="modal-header themed-header">
+          <h2>Edit Receipt</h2>
+          <button onClick={closeEditReceiptModal} className="modal-close-btn">&times;</button>
+        </div>
+        <form onSubmit={handleReceiptSubmit} className="modal-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="receiptNo">Receipt Number <span className="required">*</span></label>
+              <input
+                type="text"
+                id="receiptNo"
+                name="receiptNo"
+                value={receiptFormData.receiptNo}
+                readOnly
+                disabled
+                className="disabled-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="date">Date <span className="required">*</span></label>
+              <input
+                type="date"
+                id="date"
+                name="date"
+                value={receiptFormData.date}
+                onChange={handleReceiptFormChange}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="name">Name <span className="required">*</span></label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={receiptFormData.name}
+              onChange={handleReceiptFormChange}
+              placeholder="Enter name"
+              required
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="category">Category <span className="required">*</span></label>
+              <select
+                id="category"
+                name="category"
+                value={receiptFormData.category}
+                onChange={handleReceiptFormChange}
+                required
+              >
+                <option value="">Select Category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amount">Amount <span className="required">*</span></label>
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                value={receiptFormData.amount}
+                onChange={handleReceiptFormChange}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="button" onClick={closeEditReceiptModal} className="cancel-btn">
+              Cancel
+            </button>
+            <button type="submit" className="submit-btn">
+              Update
+            </button>
+          </div>
+        </form>
       </Modal>
     </>
   );

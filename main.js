@@ -87,7 +87,14 @@ const {
   incrementAndroidVersion,
   getVersionString,
   getAllDatabaseData,
-  mergeDatabaseData
+  mergeDatabaseData,
+  getAllReceipts,
+  getReceiptById,
+  getReceiptsByPastorateYearMonth,
+  createReceipt,
+  updateReceipt,
+  deleteReceipt,
+  getNextReceiptNumber
 } = require('./backend/database');
 
 const googleDriveSync = require('./backend/googleDriveSync');
@@ -1332,6 +1339,79 @@ app.whenReady().then(async () => {
     } catch (error) {
       console.error('Full database restore error:', error);
       return { success: false, message: error.message || 'Failed to restore database' };
+    }
+  });
+
+  // Receipt handlers
+  ipcMain.handle('receipt:getAll', async () => {
+    try {
+      const receipts = await getAllReceipts();
+      return { success: true, data: receipts };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch receipts' };
+    }
+  });
+
+  ipcMain.handle('receipt:getById', async (event, { id }) => {
+    try {
+      const receipt = await getReceiptById(id);
+      if (receipt) {
+        return { success: true, data: receipt };
+      }
+      return { success: false, message: 'Receipt not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch receipt' };
+    }
+  });
+
+  ipcMain.handle('receipt:getByPastorateYearMonth', async (event, { pastorateName, year, month }) => {
+    try {
+      const receipts = await getReceiptsByPastorateYearMonth(pastorateName, year, month);
+      return { success: true, data: receipts };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch receipts' };
+    }
+  });
+
+  ipcMain.handle('receipt:create', async (event, receiptData) => {
+    try {
+      const newReceipt = await createReceipt(receiptData);
+      return { success: true, data: newReceipt };
+    } catch (error) {
+      return { success: false, message: 'Failed to create receipt' };
+    }
+  });
+
+  ipcMain.handle('receipt:update', async (event, { id, updates }) => {
+    try {
+      const updatedReceipt = await updateReceipt(id, updates);
+      if (updatedReceipt) {
+        return { success: true, data: updatedReceipt };
+      }
+      return { success: false, message: 'Receipt not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update receipt' };
+    }
+  });
+
+  ipcMain.handle('receipt:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteReceipt(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Receipt not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete receipt' };
+    }
+  });
+
+  ipcMain.handle('receipt:getNextNumber', async (event, { pastorateName, year, month }) => {
+    try {
+      const nextNumber = await getNextReceiptNumber(pastorateName, year, month);
+      return { success: true, data: nextNumber };
+    } catch (error) {
+      return { success: false, message: 'Failed to get next receipt number' };
     }
   });
 

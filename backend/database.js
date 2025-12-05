@@ -31,7 +31,8 @@ async function initDatabase() {
     families: [], 
     members: [], 
     rememberTokens: [], 
-    googleCredentials: null 
+    googleCredentials: null,
+    receipts: []
   });
 
   await db.read();
@@ -967,7 +968,14 @@ module.exports = {
   incrementAndroidVersion,
   getVersionString,
   getAllDatabaseData,
-  mergeDatabaseData
+  mergeDatabaseData,
+  getAllReceipts,
+  getReceiptById,
+  getReceiptsByPastorateYearMonth,
+  createReceipt,
+  updateReceipt,
+  deleteReceipt,
+  getNextReceiptNumber
 };
 
 // ==================== Letterhead Functions ====================
@@ -1881,4 +1889,113 @@ async function deleteGoogleCredentials() {
   db.data.googleCredentials = null;
   await db.write();
   return true;
+}
+
+// ==================== Receipt Functions ====================
+
+async function getAllReceipts() {
+  const database = await getDatabase();
+  return database.data.receipts || [];
+}
+
+async function getReceiptById(id) {
+  const database = await getDatabase();
+  return database.data.receipts?.find(r => r.id === id);
+}
+
+async function getReceiptsByPastorateYearMonth(pastorateName, year, month) {
+  const database = await getDatabase();
+  return database.data.receipts?.filter(r => 
+    r.pastorateName === pastorateName && 
+    r.year === year && 
+    r.month === month
+  ) || [];
+}
+
+async function createReceipt(receiptData) {
+  const database = await getDatabase();
+  
+  if (!database.data.receipts) {
+    database.data.receipts = [];
+  }
+
+  const newReceipt = {
+    id: Date.now() + Math.random(),
+    ...receiptData,
+    editHistory: [], // Initialize empty edit history
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  database.data.receipts.push(newReceipt);
+  await database.write();
+
+  return newReceipt;
+}
+
+async function updateReceipt(id, updates) {
+  const database = await getDatabase();
+  const receiptIndex = database.data.receipts?.findIndex(r => r.id === id);
+
+  if (receiptIndex === -1 || receiptIndex === undefined) {
+    return null;
+  }
+
+  const oldReceipt = database.data.receipts[receiptIndex];
+  const timestamp = new Date().toISOString();
+  
+  // Track changes for edit history
+  const changes = [];
+  const fieldsToTrack = ['receiptNo', 'date', 'name', 'category', 'amount'];
+  
+  fieldsToTrack.forEach(field => {
+    if (updates[field] !== undefined && oldReceipt[field] !== updates[field]) {
+      changes.push({
+        field: field,
+        oldValue: oldReceipt[field],
+        newValue: updates[field],
+        timestamp: timestamp
+      });
+    }
+  });
+
+  // Update receipt
+  database.data.receipts[receiptIndex] = {
+    ...oldReceipt,
+    ...updates,
+    editHistory: [...(oldReceipt.editHistory || []), ...changes],
+    updatedAt: timestamp
+  };
+
+  await database.write();
+  return database.data.receipts[receiptIndex];
+}
+
+async function deleteReceipt(id) {
+  const database = await getDatabase();
+  const initialLength = database.data.receipts?.length || 0;
+  
+  if (!database.data.receipts) {
+    return false;
+  }
+
+  database.data.receipts = database.data.receipts.filter(r => r.id !== id);
+
+  if (database.data.receipts.length < initialLength) {
+    await database.write();
+    return true;
+  }
+  return false;
+}
+
+async function getNextReceiptNumber(pastorateName, year, month) {
+  const database = await getDatabase();
+  const receipts = await getReceiptsByPastorateYearMonth(pastorateName, year, month);
+
+  if (receipts.length === 0) {
+    return 1;
+  }
+
+  const maxReceiptNo = Math.max(...receipts.map(r => parseInt(r.receiptNo) || 0));
+  return maxReceiptNo + 1;
 }

@@ -173,17 +173,20 @@ const ReceiptNote = () => {
     }
   }, [pastorate, year, month]);
 
-  const loadReceipts = () => {
+  const loadReceipts = async () => {
     if (!pastorate || !year || !month) return;
     
     try {
-      const storedReceipts = localStorage.getItem(`receipts_${pastorate.pastorateName}_${year.year}_${month}`);
-      if (storedReceipts) {
-        const parsedReceipts = JSON.parse(storedReceipts);
-        console.log('Loaded receipts:', parsedReceipts);
-        setReceipts(parsedReceipts);
+      const result = await window.electron.receipt.getByPastorateYearMonth(
+        pastorate.pastorateName,
+        year.year,
+        month
+      );
+      if (result.success && result.data) {
+        console.log('Loaded receipts:', result.data);
+        setReceipts(result.data);
       } else {
-        console.log('No receipts found in storage');
+        console.log('No receipts found');
         setReceipts([]);
       }
     } catch (error) {
@@ -206,6 +209,8 @@ const ReceiptNote = () => {
     category: '',
     amount: ''
   });
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyReceipt, setHistoryReceipt] = useState(null);
 
   const handleEditReceipt = (receipt) => {
     setCurrentReceipt(receipt);
@@ -224,6 +229,27 @@ const ReceiptNote = () => {
     setCurrentReceipt(null);
   };
 
+  const handleViewHistory = (receipt) => {
+    setHistoryReceipt(receipt);
+    setIsHistoryModalOpen(true);
+  };
+
+  const closeHistoryModal = () => {
+    setIsHistoryModalOpen(false);
+    setHistoryReceipt(null);
+  };
+
+  const formatHistoryDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const handleReceiptFormChange = (e) => {
     const { name, value } = e.target;
     setReceiptFormData(prev => ({
@@ -232,46 +258,60 @@ const ReceiptNote = () => {
     }));
   };
 
-  const handleReceiptSubmit = (e) => {
+  const handleReceiptSubmit = async (e) => {
     e.preventDefault();
     
     try {
       setIsLoading(true);
       
-      const updatedReceipt = {
-        ...currentReceipt,
+      const updates = {
         ...receiptFormData,
-        amount: parseFloat(receiptFormData.amount),
-        updatedAt: new Date().toISOString()
+        amount: parseFloat(receiptFormData.amount)
       };
 
-      const updatedReceipts = receipts.map(r => 
-        r.id === currentReceipt.id ? updatedReceipt : r
-      );
+      const result = await window.electron.receipt.update(currentReceipt.id, updates);
       
-      setReceipts(updatedReceipts);
-      localStorage.setItem(
-        `receipts_${pastorate.pastorateName}_${year?.year}_${month}`,
-        JSON.stringify(updatedReceipts)
-      );
-      
-      toast.success('Receipt updated successfully!');
-      closeEditReceiptModal();
+      if (result.success) {
+        // Reload receipts to get updated data with history
+        await loadReceipts();
+        toast.success('Receipt updated successfully!');
+        closeEditReceiptModal();
+      } else {
+        toast.error('Failed to update receipt');
+      }
     } catch (error) {
       toast.error('Failed to update receipt');
+      console.error('Update error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteReceipt = (receipt) => {
-    const updatedReceipts = receipts.filter(r => r.id !== receipt.id);
-    setReceipts(updatedReceipts);
-    localStorage.setItem(
-      `receipts_${pastorate.pastorateName}_${year?.year}_${month}`,
-      JSON.stringify(updatedReceipts)
-    );
-    toast.success('Receipt deleted successfully!');
+  const handleDeleteReceipt = async (receipt) => {
+    try {
+      const result = await window.electron.receipt.delete(receipt.id);
+      if (result.success) {
+        await loadReceipts();
+        toast.success('Receipt deleted successfully!');
+      } else {
+        toast.error('Failed to delete receipt');
+      }
+    } catch (error) {
+      toast.error('Failed to delete receipt');
+      console.error('Delete error:', error);
+    }
+  };
+
+  const formatHistoryTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   };
 
   // Initialize DataTables
@@ -303,6 +343,9 @@ const ReceiptNote = () => {
                   <button class="icon-btn edit" data-id="${row.id}" title="Edit">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg>
                   </button>
+                  <button class="icon-btn history" data-id="${row.id}" title="View History">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49.62C55.24,86.8,61,77.92,67.6,70.66a80,80,0,1,1-1.67,114.78,8,8,0,0,0-11.11,11.52A96,96,0,1,0,128,32Z"></path></svg>
+                  </button>
                   <button class="icon-btn delete" data-id="${row.id}" title="Delete">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
                   </button>
@@ -324,6 +367,12 @@ const ReceiptNote = () => {
         const id = $(this).data('id');
         const receipt = receipts.find(r => r.id == id);
         if (receipt) handleEditReceipt(receipt);
+      });
+
+      $(receiptsTableRef.current).on('click', '.history', function() {
+        const id = $(this).data('id');
+        const receipt = receipts.find(r => r.id == id);
+        if (receipt) handleViewHistory(receipt);
       });
 
       $(receiptsTableRef.current).on('click', '.delete', function() {
@@ -649,6 +698,56 @@ const ReceiptNote = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* History Modal */}
+      <Modal
+        isOpen={isHistoryModalOpen}
+        onRequestClose={closeHistoryModal}
+        className="book-modal history-modal"
+        overlayClassName="book-modal-overlay"
+        contentLabel="Edit History"
+        style={{
+          content: {
+            width: '70%',
+            maxWidth: '900px'
+          }
+        }}
+      >
+        <div className="modal-header themed-header">
+          <h2>Edit History - Receipt #{historyReceipt?.receiptNo}</h2>
+          <button onClick={closeHistoryModal} className="modal-close-btn">&times;</button>
+        </div>
+        <div className="history-modal-content">
+          {historyReceipt?.editHistory && historyReceipt.editHistory.length > 0 ? (
+            <div className="history-list">
+              {[...historyReceipt.editHistory].reverse().map((change, index) => (
+                <div key={index} className="history-item">
+                  <div className="history-field">
+                    <strong>{change.field}:</strong>
+                  </div>
+                  <div className="history-change">
+                    <span className="old-value">{change.oldValue}</span>
+                    <span className="arrow">→</span>
+                    <span className="new-value">{change.newValue}</span>
+                  </div>
+                  <div className="history-timestamp">
+                    {formatHistoryDate(change.timestamp)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-history">
+              <p>No edit history available for this receipt.</p>
+            </div>
+          )}
+          <div className="form-actions">
+            <button type="button" onClick={closeHistoryModal} className="cancel-btn">
+              Close
+            </button>
+          </div>
+        </div>
       </Modal>
     </>
   );

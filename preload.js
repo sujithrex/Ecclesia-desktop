@@ -163,6 +163,17 @@ contextBridge.exposeInMainWorld('electron', {
   },
   shell: {
     openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url)
+  },
+  receipt: {
+    getAll: () => ipcRenderer.invoke('receipt:getAll'),
+    getById: (id) => ipcRenderer.invoke('receipt:getById', { id }),
+    getByPastorateYearMonth: (pastorateName, year, month) => 
+      ipcRenderer.invoke('receipt:getByPastorateYearMonth', { pastorateName, year, month }),
+    create: (receiptData) => ipcRenderer.invoke('receipt:create', receiptData),
+    update: (id, updates) => ipcRenderer.invoke('receipt:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('receipt:delete', { id }),
+    getNextNumber: (pastorateName, year, month) => 
+      ipcRenderer.invoke('receipt:getNextNumber', { pastorateName, year, month })
   }
 });
 

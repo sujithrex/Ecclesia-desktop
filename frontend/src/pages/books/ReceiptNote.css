@@ -384,3 +384,112 @@
 .delete-confirm-btn:hover {
   background: #b91c1c;
 }
+
+/* History Button */
+.icon-btn.history {
+  color: #3b82f6;
+}
+
+.icon-btn.history:hover {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+/* History Modal */
+.history-modal .modal-content {
+  width: 70%;
+  max-width: 900px;
+}
+
+.history-modal-content {
+  padding: 20px;
+}
+
+.history-list {
+  max-height: 500px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.history-item {
+  background: #f8f9fa;
+  border-left: 4px solid #3b82f6;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.history-item:hover {
+  background: #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-field {
+  font-size: 14px;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.history-field strong {
+  color: #212529;
+  font-weight: 600;
+}
+
+.history-change {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.old-value {
+  color: #dc3545;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.arrow {
+  color: #6c757d;
+  font-weight: bold;
+}
+
+.new-value {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.history-timestamp {
+  font-size: 12px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-history {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.no-history p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Responsive adjustments for history modal */
+@media (max-width: 768px) {
+  .history-modal .modal-content {
+    width: 95%;
+  }
+
+  .history-change {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+  }
+}

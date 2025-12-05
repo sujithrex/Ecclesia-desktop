@@ -100,16 +100,20 @@ const CreateReceipt = () => {
         setMembers([]);
       }
 
-      // Load last receipt number
-      const storedReceipts = localStorage.getItem(`receipts_${pastorate.pastorateName}_${year?.year}_${month}`);
-      if (storedReceipts) {
-        const receipts = JSON.parse(storedReceipts);
-        if (receipts.length > 0) {
-          const maxReceiptNo = Math.max(...receipts.map(r => parseInt(r.receiptNo)));
-          const nextNo = (maxReceiptNo + 1).toString().padStart(4, '0');
+      // Load last receipt number from database
+      try {
+        const result = await window.electron.receipt.getNextNumber(
+          pastorate.pastorateName,
+          year?.year,
+          month
+        );
+        if (result.success) {
+          const nextNo = result.data.toString().padStart(4, '0');
           setLastReceiptNumber(nextNo);
           updateReceiptNumbers(nextNo);
         }
+      } catch (error) {
+        console.error('Failed to load receipt number:', error);
       }
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -173,7 +177,7 @@ const CreateReceipt = () => {
     setReceiptRows(prev => prev.filter(row => row.id !== id));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validate
     const validRows = receiptRows.filter(row => 
       row.name && row.category && row.amount
@@ -187,32 +191,32 @@ const CreateReceipt = () => {
     try {
       setIsLoading(true);
 
-      // Save receipts
-      const existingReceipts = localStorage.getItem(`receipts_${pastorate.pastorateName}_${year?.year}_${month}`);
-      const receipts = existingReceipts ? JSON.parse(existingReceipts) : [];
-      
-      const newReceipts = validRows.map(row => ({
-        id: Date.now() + Math.random(),
-        receiptNo: parseInt(row.receiptNo),
-        date: row.date,
-        name: row.name.split(' - ')[0], // Extract just the name
-        area: row.name.split(' - ')[1] || '', // Extract area
-        memberId: row.memberId,
-        category: row.category,
-        amount: parseFloat(row.amount),
-        createdAt: new Date().toISOString()
-      }));
+      // Save receipts to database
+      for (const row of validRows) {
+        const receiptData = {
+          pastorateName: pastorate.pastorateName,
+          year: year?.year,
+          month: month,
+          receiptNo: parseInt(row.receiptNo),
+          date: row.date,
+          name: row.name.split(' - ')[0], // Extract just the name
+          area: row.name.split(' - ')[1] || '', // Extract area
+          memberId: row.memberId,
+          category: row.category,
+          amount: parseFloat(row.amount)
+        };
 
-      const updatedReceipts = [...receipts, ...newReceipts];
-      localStorage.setItem(
-        `receipts_${pastorate.pastorateName}_${year?.year}_${month}`,
-        JSON.stringify(updatedReceipts)
-      );
+        const result = await window.electron.receipt.create(receiptData);
+        if (!result.success) {
+          throw new Error('Failed to create receipt');
+        }
+      }
 
       toast.success(`${validRows.length} receipt(s) created successfully!`);
       navigate('/books/receipt-note', { state: { pastorate, year, month } });
     } catch (error) {
       toast.error('Failed to save receipts');
+      console.error('Save error:', error);
     } finally {
       setIsLoading(false);
     }

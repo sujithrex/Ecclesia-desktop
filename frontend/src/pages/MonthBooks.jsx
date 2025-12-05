@@ -80,12 +80,12 @@ const MonthBooks = () => {
                   <p>Manage receipt notes</p>
                 </div>
 
-                <div className="book-card" onClick={() => navigate('/books/offertory-note', { state: { pastorate, year, month } })}>
+                <div className="book-card" onClick={() => navigate('/books/church-offertory', { state: { pastorate, year, month } })}>
                   <div className="card-icon">
                     <Coins size={40} weight="duotone" />
                   </div>
-                  <h3>Offertory Note</h3>
-                  <p>Manage offertory notes</p>
+                  <h3>Church Offertory</h3>
+                  <p>Manage church offertories</p>
                 </div>
 
                 <div className="book-card" onClick={() => navigate('/books/harvest-festival-note', { state: { pastorate, year, month } })}>

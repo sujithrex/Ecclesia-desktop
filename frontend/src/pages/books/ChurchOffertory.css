@@ -1,0 +1,242 @@
+/* Reuse styles from ReceiptNote.css */
+@import './ReceiptNote.css';
+
+/* Override stat icons with theme color */
+.book-page-content .stats-section .stat-icon {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+}
+
+.book-page-content .stats-section .stat-card:hover {
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.15);
+  border-color: #B5316A;
+}
+
+.book-page-content .stats-section .stat-value {
+  color: #B5316A;
+}
+
+/* Action buttons theme color */
+.action-btn.primary {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.3);
+}
+
+.action-btn {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+}
+
+.action-btn:hover {
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.3);
+}
+
+/* Modal submit buttons */
+.submit-btn {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+}
+
+.submit-btn:hover {
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.3);
+}
+
+/* Content Section Layout */
+.content-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Churches Container */
+.churches-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #B5316A;
+  margin: 0;
+}
+
+/* Offertory Church Cards Grid - 2 per row */
+.offertory-church-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.offertory-church-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.offertory-church-card:hover {
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.12);
+  border-color: #B5316A;
+}
+
+.offertory-church-card-header {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #B5316A;
+}
+
+.offertory-church-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #B5316A;
+  margin: 0;
+}
+
+.offertory-church-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.offertory-church-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.offertory-stat-label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.offertory-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.offertory-stat-value.amount {
+  color: #B5316A;
+  font-size: 18px;
+}
+
+.offertory-church-card-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.offertory-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.offertory-action-btn.edit {
+  background: #B5316A;
+  color: white;
+}
+
+.offertory-action-btn.edit:hover {
+  background: #8F2654;
+}
+
+.offertory-action-btn.history {
+  background: #B5316A;
+  color: white;
+}
+
+.offertory-action-btn.history:hover {
+  background: #8F2654;
+}
+
+.offertory-action-btn.add {
+  background: #B5316A;
+  color: white;
+  width: 100%;
+}
+
+.offertory-action-btn.add:hover {
+  background: #8F2654;
+}
+
+/* No Data Message */
+.no-data {
+  text-align: center;
+  padding: 80px 40px;
+  color: #6b7280;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border-radius: 16px;
+  border: 2px dashed #d1d5db;
+  grid-column: 1 / -1;
+}
+
+.no-data p {
+  font-size: 18px;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Categories Container */
+.categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .content-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .church-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .church-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+}

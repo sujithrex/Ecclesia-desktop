@@ -32,7 +32,8 @@ async function initDatabase() {
     members: [], 
     rememberTokens: [], 
     googleCredentials: null,
-    receipts: []
+    receipts: [],
+    churchOffertories: []
   });
 
   await db.read();
@@ -975,7 +976,13 @@ module.exports = {
   createReceipt,
   updateReceipt,
   deleteReceipt,
-  getNextReceiptNumber
+  getNextReceiptNumber,
+  getAllChurchOffertories,
+  getChurchOffertoryById,
+  getChurchOffertoriesByPastorateYearMonth,
+  createChurchOffertory,
+  updateChurchOffertory,
+  deleteChurchOffertory
 };
 
 // ==================== Letterhead Functions ====================
@@ -1998,4 +2005,112 @@ async function getNextReceiptNumber(pastorateName, year, month) {
 
   const maxReceiptNo = Math.max(...receipts.map(r => parseInt(r.receiptNo) || 0));
   return maxReceiptNo + 1;
+}
+
+// ==================== Church Offertory Functions ====================
+
+async function getAllChurchOffertories() {
+  const database = await getDatabase();
+  return database.data.churchOffertories || [];
+}
+
+async function getChurchOffertoryById(id) {
+  const database = await getDatabase();
+  return database.data.churchOffertories?.find(o => o.id === id);
+}
+
+async function getChurchOffertoriesByPastorateYearMonth(pastorateName, year, month) {
+  const database = await getDatabase();
+  return database.data.churchOffertories?.filter(o => 
+    o.pastorateName === pastorateName && 
+    o.year === year && 
+    o.month === month
+  ) || [];
+}
+
+async function createChurchOffertory(offertoryData) {
+  const database = await getDatabase();
+  
+  if (!database.data.churchOffertories) {
+    database.data.churchOffertories = [];
+  }
+
+  const newOffertory = {
+    id: Date.now() + Math.random(),
+    ...offertoryData,
+    editHistory: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  database.data.churchOffertories.push(newOffertory);
+  await database.write();
+
+  return newOffertory;
+}
+
+async function updateChurchOffertory(id, updates) {
+  const database = await getDatabase();
+  const offertoryIndex = database.data.churchOffertories?.findIndex(o => o.id === id);
+
+  if (offertoryIndex === -1 || offertoryIndex === undefined) {
+    return null;
+  }
+
+  const oldOffertory = database.data.churchOffertories[offertoryIndex];
+  const timestamp = new Date().toISOString();
+  
+  // Track changes for edit history
+  const changes = [];
+  const fieldsToTrack = ['date', 'totalAmount', 'services'];
+  
+  fieldsToTrack.forEach(field => {
+    if (updates[field] !== undefined && JSON.stringify(oldOffertory[field]) !== JSON.stringify(updates[field])) {
+      let oldValue = oldOffertory[field];
+      let newValue = updates[field];
+      
+      if (field === 'totalAmount') {
+        oldValue = `₹${parseFloat(oldOffertory[field]).toFixed(2)}`;
+        newValue = `₹${parseFloat(updates[field]).toFixed(2)}`;
+      } else if (field === 'services') {
+        oldValue = `${oldOffertory[field].length} service(s)`;
+        newValue = `${updates[field].length} service(s)`;
+      }
+      
+      changes.push({
+        field: field.charAt(0).toUpperCase() + field.slice(1),
+        oldValue: oldValue,
+        newValue: newValue,
+        timestamp: timestamp
+      });
+    }
+  });
+
+  // Update offertory
+  database.data.churchOffertories[offertoryIndex] = {
+    ...oldOffertory,
+    ...updates,
+    editHistory: [...(oldOffertory.editHistory || []), ...changes],
+    updatedAt: timestamp
+  };
+
+  await database.write();
+  return database.data.churchOffertories[offertoryIndex];
+}
+
+async function deleteChurchOffertory(id) {
+  const database = await getDatabase();
+  const initialLength = database.data.churchOffertories?.length || 0;
+  
+  if (!database.data.churchOffertories) {
+    return false;
+  }
+
+  database.data.churchOffertories = database.data.churchOffertories.filter(o => o.id !== id);
+
+  if (database.data.churchOffertories.length < initialLength) {
+    await database.write();
+    return true;
+  }
+  return false;
 }

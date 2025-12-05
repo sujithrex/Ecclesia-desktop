@@ -94,7 +94,13 @@ const {
   createReceipt,
   updateReceipt,
   deleteReceipt,
-  getNextReceiptNumber
+  getNextReceiptNumber,
+  getAllChurchOffertories,
+  getChurchOffertoryById,
+  getChurchOffertoriesByPastorateYearMonth,
+  createChurchOffertory,
+  updateChurchOffertory,
+  deleteChurchOffertory
 } = require('./backend/database');
 
 const googleDriveSync = require('./backend/googleDriveSync');
@@ -1412,6 +1418,70 @@ app.whenReady().then(async () => {
       return { success: true, data: nextNumber };
     } catch (error) {
       return { success: false, message: 'Failed to get next receipt number' };
+    }
+  });
+
+  // Church Offertory handlers
+  ipcMain.handle('churchOffertory:getAll', async () => {
+    try {
+      const offertories = await getAllChurchOffertories();
+      return { success: true, data: offertories };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch church offertories' };
+    }
+  });
+
+  ipcMain.handle('churchOffertory:getById', async (event, { id }) => {
+    try {
+      const offertory = await getChurchOffertoryById(id);
+      if (offertory) {
+        return { success: true, data: offertory };
+      }
+      return { success: false, message: 'Church offertory not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch church offertory' };
+    }
+  });
+
+  ipcMain.handle('churchOffertory:getByPastorateYearMonth', async (event, { pastorateName, year, month }) => {
+    try {
+      const offertories = await getChurchOffertoriesByPastorateYearMonth(pastorateName, year, month);
+      return { success: true, data: offertories };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch church offertories' };
+    }
+  });
+
+  ipcMain.handle('churchOffertory:create', async (event, offertoryData) => {
+    try {
+      const newOffertory = await createChurchOffertory(offertoryData);
+      return { success: true, data: newOffertory };
+    } catch (error) {
+      return { success: false, message: 'Failed to create church offertory' };
+    }
+  });
+
+  ipcMain.handle('churchOffertory:update', async (event, { id, updates }) => {
+    try {
+      const updatedOffertory = await updateChurchOffertory(id, updates);
+      if (updatedOffertory) {
+        return { success: true, data: updatedOffertory };
+      }
+      return { success: false, message: 'Church offertory not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update church offertory' };
+    }
+  });
+
+  ipcMain.handle('churchOffertory:delete', async (event, { id }) => {
+    try {
+      const deleted = await deleteChurchOffertory(id);
+      if (deleted) {
+        return { success: true };
+      }
+      return { success: false, message: 'Church offertory not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete church offertory' };
     }
   });
 

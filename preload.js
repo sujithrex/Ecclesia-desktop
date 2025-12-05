@@ -174,6 +174,15 @@ contextBridge.exposeInMainWorld('electron', {
     delete: (id) => ipcRenderer.invoke('receipt:delete', { id }),
     getNextNumber: (pastorateName, year, month) => 
       ipcRenderer.invoke('receipt:getNextNumber', { pastorateName, year, month })
+  },
+  churchOffertory: {
+    getAll: () => ipcRenderer.invoke('churchOffertory:getAll'),
+    getById: (id) => ipcRenderer.invoke('churchOffertory:getById', { id }),
+    getByPastorateYearMonth: (pastorateName, year, month) => 
+      ipcRenderer.invoke('churchOffertory:getByPastorateYearMonth', { pastorateName, year, month }),
+    create: (offertoryData) => ipcRenderer.invoke('churchOffertory:create', offertoryData),
+    update: (id, updates) => ipcRenderer.invoke('churchOffertory:update', { id, updates }),
+    delete: (id) => ipcRenderer.invoke('churchOffertory:delete', { id })
   }
 });
 

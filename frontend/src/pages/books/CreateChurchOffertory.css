@@ -1,0 +1,334 @@
+.create-offertory-container {
+  position: fixed;
+  top: 32px;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  background: #f5f5f5;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.create-offertory-header {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 32px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.create-offertory-header .header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.create-offertory-header .breadcrumb,
+.create-offertory-header .breadcrumb a,
+.create-offertory-header .breadcrumb span {
+  color: white !important;
+}
+
+.create-offertory-header .back-btn,
+.create-offertory-header .logout-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.create-offertory-header .back-btn:hover,
+.create-offertory-header .logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.create-offertory-header .header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.create-offertory-main {
+  width: 100%;
+  margin: 0;
+  padding: 40px 20px;
+  margin-top: 92px;
+  padding-bottom: 80px;
+}
+
+.create-offertory-content {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page-title {
+  color: #B5316A;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 30px 0;
+  text-align: left;
+}
+
+/* Services Section */
+.services-section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #B5316A;
+}
+
+.add-service-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-service-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(181, 49, 106, 0.3);
+}
+
+/* Service Card */
+.service-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.service-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.remove-service-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-service-btn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+.service-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Form Styles */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.service-input {
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.service-input:focus {
+  outline: none;
+  border-color: #B5316A;
+  box-shadow: 0 0 0 3px rgba(181, 49, 106, 0.1);
+}
+
+/* Categories Grid - 6 columns */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.categories-grid .form-group {
+  min-width: 0;
+}
+
+.total-field {
+  grid-column: span 1;
+}
+
+.total-input {
+  background-color: #e9ecef;
+  font-weight: 700;
+  color: #28a745;
+  font-size: 16px;
+  cursor: not-allowed;
+}
+
+/* Grand Total */
+.grand-total-section {
+  margin-bottom: 24px;
+}
+
+.grand-total-card {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  padding: 20px 30px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.3);
+}
+
+.grand-total-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+}
+
+.grand-total-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+}
+
+/* Save Section */
+.save-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.save-btn {
+  padding: 14px 40px;
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 8px rgba(181, 49, 106, 0.3);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(181, 49, 106, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .add-service-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .grand-total-card {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .create-offertory-main {
+    padding: 16px;
+  }
+
+  .service-card {
+    padding: 16px;
+  }
+}

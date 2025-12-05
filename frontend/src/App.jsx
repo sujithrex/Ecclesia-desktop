@@ -27,6 +27,8 @@ import CongregationBackup from './pages/backups/CongregationBackup';
 import CongregationRestore from './pages/backups/CongregationRestore';
 import ReceiptNote from './pages/books/ReceiptNote';
 import CreateReceipt from './pages/books/CreateReceipt';
+import ChurchOffertory from './pages/books/ChurchOffertory';
+import CreateChurchOffertory from './pages/books/CreateChurchOffertory';
 import OffertoryNote from './pages/books/OffertoryNote';
 import HarvestFestivalNote from './pages/books/HarvestFestivalNote';
 import SangamNote from './pages/books/SangamNote';
@@ -265,6 +267,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreateReceipt />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/church-offertory"
+            element={
+              <ProtectedRoute>
+                <ChurchOffertory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/church-offertory/create"
+            element={
+              <ProtectedRoute>
+                <CreateChurchOffertory />
               </ProtectedRoute>
             }
           />

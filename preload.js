@@ -183,6 +183,23 @@ contextBridge.exposeInMainWorld('electron', {
     create: (offertoryData) => ipcRenderer.invoke('churchOffertory:create', offertoryData),
     update: (id, updates) => ipcRenderer.invoke('churchOffertory:update', { id, updates }),
     delete: (id) => ipcRenderer.invoke('churchOffertory:delete', { id })
+  },
+  harvestFestival: {
+    getBaseEntries: (pastorateName, year) => 
+      ipcRenderer.invoke('harvestFestival:getBaseEntries', { pastorateName, year }),
+    createBaseEntry: (entryData) => ipcRenderer.invoke('harvestFestival:createBaseEntry', entryData),
+    updateBaseEntry: (id, updates) => ipcRenderer.invoke('harvestFestival:updateBaseEntry', { id, updates }),
+    deleteBaseEntry: (id) => ipcRenderer.invoke('harvestFestival:deleteBaseEntry', { id }),
+    getPayments: (pastorateName, year, month) => 
+      ipcRenderer.invoke('harvestFestival:getPayments', { pastorateName, year, month }),
+    getPaymentsByBaseEntry: (baseEntryId) => 
+      ipcRenderer.invoke('harvestFestival:getPaymentsByBaseEntry', { baseEntryId }),
+    createPayment: (paymentData) => ipcRenderer.invoke('harvestFestival:createPayment', paymentData),
+    updatePayment: (id, updates) => ipcRenderer.invoke('harvestFestival:updatePayment', { id, updates }),
+    deletePayment: (id) => ipcRenderer.invoke('harvestFestival:deletePayment', { id })
+  },
+  yearBooks: {
+    deleteEntries: (pastorateName, year) => ipcRenderer.invoke('yearBooks:deleteEntries', { pastorateName, year })
   }
 });
 

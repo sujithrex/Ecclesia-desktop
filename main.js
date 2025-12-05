@@ -100,7 +100,19 @@ const {
   getChurchOffertoriesByPastorateYearMonth,
   createChurchOffertory,
   updateChurchOffertory,
-  deleteChurchOffertory
+  deleteChurchOffertory,
+  getAllHarvestFestivalBaseEntries,
+  getHarvestFestivalBaseEntriesByPastorateYear,
+  createHarvestFestivalBaseEntry,
+  updateHarvestFestivalBaseEntry,
+  deleteHarvestFestivalBaseEntry,
+  getAllHarvestFestivalPayments,
+  getHarvestFestivalPaymentsByPastorateYearMonth,
+  getHarvestFestivalPaymentsByBaseEntry,
+  createHarvestFestivalPayment,
+  updateHarvestFestivalPayment,
+  deleteHarvestFestivalPayment,
+  deleteEntriesByPastorateYear
 } = require('./backend/database');
 
 const googleDriveSync = require('./backend/googleDriveSync');
@@ -1482,6 +1494,104 @@ app.whenReady().then(async () => {
       return { success: false, message: 'Church offertory not found' };
     } catch (error) {
       return { success: false, message: 'Failed to delete church offertory' };
+    }
+  });
+
+  // Harvest Festival Base Entry handlers
+  ipcMain.handle('harvestFestival:getBaseEntries', async (event, { pastorateName, year }) => {
+    try {
+      const entries = await getHarvestFestivalBaseEntriesByPastorateYear(pastorateName, year);
+      return { success: true, data: entries };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch base entries' };
+    }
+  });
+
+  ipcMain.handle('harvestFestival:createBaseEntry', async (event, entryData) => {
+    try {
+      const newEntry = await createHarvestFestivalBaseEntry(entryData);
+      return { success: true, data: newEntry };
+    } catch (error) {
+      return { success: false, message: 'Failed to create base entry' };
+    }
+  });
+
+  ipcMain.handle('harvestFestival:updateBaseEntry', async (event, { id, updates }) => {
+    try {
+      const updated = await updateHarvestFestivalBaseEntry(id, updates);
+      if (updated) return { success: true, data: updated };
+      return { success: false, message: 'Base entry not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update base entry' };
+    }
+  });
+
+  ipcMain.handle('harvestFestival:deleteBaseEntry', async (event, { id }) => {
+    try {
+      const deleted = await deleteHarvestFestivalBaseEntry(id);
+      if (deleted) return { success: true };
+      return { success: false, message: 'Base entry not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete base entry' };
+    }
+  });
+
+  // Harvest Festival Payment handlers
+  ipcMain.handle('harvestFestival:getPayments', async (event, { pastorateName, year, month }) => {
+    try {
+      const payments = await getHarvestFestivalPaymentsByPastorateYearMonth(pastorateName, year, month);
+      return { success: true, data: payments };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch payments' };
+    }
+  });
+
+  ipcMain.handle('harvestFestival:getPaymentsByBaseEntry', async (event, { baseEntryId }) => {
+    try {
+      const payments = await getHarvestFestivalPaymentsByBaseEntry(baseEntryId);
+      return { success: true, data: payments };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch payments' };
+    }
+  });
+
+  ipcMain.handle('harvestFestival:createPayment', async (event, paymentData) => {
+    try {
+      const newPayment = await createHarvestFestivalPayment(paymentData);
+      return { success: true, data: newPayment };
+    } catch (error) {
+      return { success: false, message: 'Failed to create payment' };
+    }
+  });
+
+  ipcMain.handle('harvestFestival:updatePayment', async (event, { id, updates }) => {
+    try {
+      const updated = await updateHarvestFestivalPayment(id, updates);
+      if (updated) return { success: true, data: updated };
+      return { success: false, message: 'Payment not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update payment' };
+    }
+  });
+
+  ipcMain.handle('harvestFestival:deletePayment', async (event, { id }) => {
+    try {
+      const deleted = await deleteHarvestFestivalPayment(id);
+      if (deleted) return { success: true };
+      return { success: false, message: 'Payment not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete payment' };
+    }
+  });
+
+  // Delete all entries for a pastorate year
+  ipcMain.handle('yearBooks:deleteEntries', async (event, { pastorateName, year }) => {
+    try {
+      await deleteEntriesByPastorateYear(pastorateName, year);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting year entries:', error);
+      return { success: false, message: 'Failed to delete year entries' };
     }
   });
 

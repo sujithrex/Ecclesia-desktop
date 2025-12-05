@@ -33,7 +33,9 @@ async function initDatabase() {
     rememberTokens: [], 
     googleCredentials: null,
     receipts: [],
-    churchOffertories: []
+    churchOffertories: [],
+    harvestFestivalBaseEntries: [],
+    harvestFestivalPayments: []
   });
 
   await db.read();
@@ -982,7 +984,19 @@ module.exports = {
   getChurchOffertoriesByPastorateYearMonth,
   createChurchOffertory,
   updateChurchOffertory,
-  deleteChurchOffertory
+  deleteChurchOffertory,
+  getAllHarvestFestivalBaseEntries,
+  getHarvestFestivalBaseEntriesByPastorateYear,
+  createHarvestFestivalBaseEntry,
+  updateHarvestFestivalBaseEntry,
+  deleteHarvestFestivalBaseEntry,
+  getAllHarvestFestivalPayments,
+  getHarvestFestivalPaymentsByPastorateYearMonth,
+  getHarvestFestivalPaymentsByBaseEntry,
+  createHarvestFestivalPayment,
+  updateHarvestFestivalPayment,
+  deleteHarvestFestivalPayment,
+  deleteEntriesByPastorateYear
 };
 
 // ==================== Letterhead Functions ====================
@@ -2113,4 +2127,234 @@ async function deleteChurchOffertory(id) {
     return true;
   }
   return false;
+}
+
+// ==================== Harvest Festival Functions ====================
+
+async function getAllHarvestFestivalBaseEntries() {
+  const database = await getDatabase();
+  return database.data.harvestFestivalBaseEntries || [];
+}
+
+async function getHarvestFestivalBaseEntriesByPastorateYear(pastorateName, year) {
+  const database = await getDatabase();
+  return database.data.harvestFestivalBaseEntries?.filter(e => 
+    e.pastorateName === pastorateName && e.year === year
+  ) || [];
+}
+
+async function createHarvestFestivalBaseEntry(entryData) {
+  const database = await getDatabase();
+  
+  if (!database.data.harvestFestivalBaseEntries) {
+    database.data.harvestFestivalBaseEntries = [];
+  }
+
+  const newEntry = {
+    id: Date.now() + Math.random(),
+    ...entryData,
+    totalPaid: entryData.initialPayment || 0,
+    editHistory: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  database.data.harvestFestivalBaseEntries.push(newEntry);
+  await database.write();
+  return newEntry;
+}
+
+async function updateHarvestFestivalBaseEntry(id, updates) {
+  const database = await getDatabase();
+  const entryIndex = database.data.harvestFestivalBaseEntries?.findIndex(e => e.id === id);
+
+  if (entryIndex === -1 || entryIndex === undefined) return null;
+
+  const oldEntry = database.data.harvestFestivalBaseEntries[entryIndex];
+  const timestamp = new Date().toISOString();
+  
+  const changes = [];
+  ['name', 'auctionAmount', 'initialPayment'].forEach(field => {
+    if (updates[field] !== undefined && oldEntry[field] !== updates[field]) {
+      changes.push({
+        field: field,
+        oldValue: oldEntry[field],
+        newValue: updates[field],
+        timestamp
+      });
+    }
+  });
+
+  database.data.harvestFestivalBaseEntries[entryIndex] = {
+    ...oldEntry,
+    ...updates,
+    editHistory: [...(oldEntry.editHistory || []), ...changes],
+    updatedAt: timestamp
+  };
+
+  await database.write();
+  return database.data.harvestFestivalBaseEntries[entryIndex];
+}
+
+async function deleteHarvestFestivalBaseEntry(id) {
+  const database = await getDatabase();
+  if (!database.data.harvestFestivalBaseEntries) return false;
+  
+  const initialLength = database.data.harvestFestivalBaseEntries.length;
+  database.data.harvestFestivalBaseEntries = database.data.harvestFestivalBaseEntries.filter(e => e.id !== id);
+  
+  if (database.data.harvestFestivalBaseEntries.length < initialLength) {
+    // Cascade delete: Remove all payments associated with this base entry
+    if (database.data.harvestFestivalPayments) {
+      database.data.harvestFestivalPayments = database.data.harvestFestivalPayments.filter(p => p.baseEntryId !== id);
+    }
+    await database.write();
+    return true;
+  }
+  return false;
+}
+
+// Monthly Payments
+async function getAllHarvestFestivalPayments() {
+  const database = await getDatabase();
+  return database.data.harvestFestivalPayments || [];
+}
+
+async function getHarvestFestivalPaymentsByPastorateYearMonth(pastorateName, year, month) {
+  const database = await getDatabase();
+  return database.data.harvestFestivalPayments?.filter(p => 
+    p.pastorateName === pastorateName && p.year === year && p.month === month
+  ) || [];
+}
+
+async function getHarvestFestivalPaymentsByBaseEntry(baseEntryId) {
+  const database = await getDatabase();
+  return database.data.harvestFestivalPayments?.filter(p => p.baseEntryId === baseEntryId) || [];
+}
+
+async function createHarvestFestivalPayment(paymentData) {
+  const database = await getDatabase();
+  
+  if (!database.data.harvestFestivalPayments) {
+    database.data.harvestFestivalPayments = [];
+  }
+
+  const newPayment = {
+    id: Date.now() + Math.random(),
+    ...paymentData,
+    editHistory: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  database.data.harvestFestivalPayments.push(newPayment);
+
+  // Update totalPaid in base entry
+  const baseEntryIndex = database.data.harvestFestivalBaseEntries?.findIndex(e => e.id === paymentData.baseEntryId);
+  if (baseEntryIndex !== -1 && baseEntryIndex !== undefined) {
+    database.data.harvestFestivalBaseEntries[baseEntryIndex].totalPaid += parseFloat(paymentData.amount) || 0;
+  }
+
+  await database.write();
+  return newPayment;
+}
+
+async function updateHarvestFestivalPayment(id, updates) {
+  const database = await getDatabase();
+  const paymentIndex = database.data.harvestFestivalPayments?.findIndex(p => p.id === id);
+
+  if (paymentIndex === -1 || paymentIndex === undefined) return null;
+
+  const oldPayment = database.data.harvestFestivalPayments[paymentIndex];
+  const timestamp = new Date().toISOString();
+  
+  const changes = [];
+  ['amount'].forEach(field => {
+    if (updates[field] !== undefined && oldPayment[field] !== updates[field]) {
+      changes.push({
+        field: field,
+        oldValue: oldPayment[field],
+        newValue: updates[field],
+        timestamp
+      });
+    }
+  });
+
+  // Update totalPaid in base entry
+  if (updates.amount !== undefined && updates.amount !== oldPayment.amount) {
+    const diff = parseFloat(updates.amount) - parseFloat(oldPayment.amount);
+    const baseEntryIndex = database.data.harvestFestivalBaseEntries?.findIndex(e => e.id === oldPayment.baseEntryId);
+    if (baseEntryIndex !== -1 && baseEntryIndex !== undefined) {
+      database.data.harvestFestivalBaseEntries[baseEntryIndex].totalPaid += diff;
+    }
+  }
+
+  database.data.harvestFestivalPayments[paymentIndex] = {
+    ...oldPayment,
+    ...updates,
+    editHistory: [...(oldPayment.editHistory || []), ...changes],
+    updatedAt: timestamp
+  };
+
+  await database.write();
+  return database.data.harvestFestivalPayments[paymentIndex];
+}
+
+async function deleteHarvestFestivalPayment(id) {
+  const database = await getDatabase();
+  if (!database.data.harvestFestivalPayments) return false;
+  
+  const payment = database.data.harvestFestivalPayments.find(p => p.id === id);
+  if (!payment) return false;
+
+  // Update totalPaid in base entry
+  const baseEntryIndex = database.data.harvestFestivalBaseEntries?.findIndex(e => e.id === payment.baseEntryId);
+  if (baseEntryIndex !== -1 && baseEntryIndex !== undefined) {
+    database.data.harvestFestivalBaseEntries[baseEntryIndex].totalPaid -= parseFloat(payment.amount) || 0;
+  }
+
+  database.data.harvestFestivalPayments = database.data.harvestFestivalPayments.filter(p => p.id !== id);
+  await database.write();
+  return true;
+}
+
+// Delete all entries for a specific pastorate and year
+async function deleteEntriesByPastorateYear(pastorateName, year) {
+  const database = await getDatabase();
+  
+  // Delete church offertories
+  if (database.data.churchOffertories) {
+    database.data.churchOffertories = database.data.churchOffertories.filter(
+      o => !(o.pastorateName === pastorateName && o.year === year)
+    );
+  }
+  
+  // Delete receipts
+  if (database.data.receipts) {
+    database.data.receipts = database.data.receipts.filter(
+      r => !(r.pastorateName === pastorateName && r.year === year)
+    );
+  }
+  
+  // Delete harvest festival base entries and their payments
+  if (database.data.harvestFestivalBaseEntries) {
+    const baseEntryIds = database.data.harvestFestivalBaseEntries
+      .filter(e => e.pastorateName === pastorateName && e.year === year)
+      .map(e => e.id);
+    
+    // Delete associated payments
+    if (database.data.harvestFestivalPayments) {
+      database.data.harvestFestivalPayments = database.data.harvestFestivalPayments.filter(
+        p => !baseEntryIds.includes(p.baseEntryId)
+      );
+    }
+    
+    // Delete base entries
+    database.data.harvestFestivalBaseEntries = database.data.harvestFestivalBaseEntries.filter(
+      e => !(e.pastorateName === pastorateName && e.year === year)
+    );
+  }
+  
+  await database.write();
+  return true;
 }

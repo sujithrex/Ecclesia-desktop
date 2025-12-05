@@ -332,3 +332,24 @@
     padding: 16px;
   }
 }
+
+
+/* Harvest Festival Auto Field */
+.hf-auto-field {
+  position: relative;
+}
+
+.hf-auto-field .auto-label {
+  font-size: 10px;
+  color: #B5316A;
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+.readonly-input {
+  background-color: #fdf2f8 !important;
+  border-color: #B5316A !important;
+  color: #B5316A !important;
+  font-weight: 600;
+  cursor: not-allowed;
+}

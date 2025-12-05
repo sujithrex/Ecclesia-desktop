@@ -68,11 +68,61 @@ const PastorateDetail = () => {
     }
   };
 
+  // Helper to get all Sundays in a month
+  const getSundaysInMonth = (monthName, yearNum) => {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthIndex = monthNames.indexOf(monthName);
+    if (monthIndex === -1) return [];
+    
+    const sundays = [];
+    const date = new Date(yearNum, monthIndex, 1);
+    // Find first Sunday (day 0 = Sunday)
+    while (date.getDay() !== 0) date.setDate(date.getDate() + 1);
+    while (date.getMonth() === monthIndex) {
+      // Use local date format to avoid timezone issues
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      sundays.push(`${year}-${month}-${day}`);
+      date.setDate(date.getDate() + 7);
+    }
+    return sundays;
+  };
+
+  // Generate default offertory services for a church/month
+  const generateOffertoryForChurchMonth = async (church, monthName, yearString) => {
+    // Determine actual year for this month (April-Dec = first year, Jan-Mar = second year)
+    const [startYear] = yearString.split('-').map(Number);
+    const actualYear = ['January', 'February', 'March'].includes(monthName) ? startYear + 1 : startYear;
+    
+    const sundays = getSundaysInMonth(monthName, actualYear);
+    const services = sundays.map((date, i) => ({ id: i + 1, date, categoryAmounts: {}, total: 0 }));
+    
+    const offertoryData = {
+      pastorateName: pastorate.pastorateName,
+      year: yearString,
+      month: monthName,
+      churchId: church.id,
+      churchName: church.churchName,
+      date: services[0]?.date || new Date().toISOString().split('T')[0],
+      services,
+      totalAmount: 0
+    };
+    
+    try {
+      const result = await window.electron.churchOffertory.create(offertoryData);
+      if (!result.success) {
+        console.error(`Failed to create offertory for ${church.churchName} - ${monthName}:`, result.error);
+      }
+    } catch (err) {
+      console.error(`Error creating offertory for ${church.churchName} - ${monthName}:`, err);
+    }
+  };
+
   const handleYearSubmit = async (e) => {
     e.preventDefault();
     const yearString = `${selectedYear}-${selectedYear + 1}`;
     
-    // Check if year already exists
     if (years.some(y => y.year === yearString)) {
       toast.error('This year already exists!');
       return;
@@ -81,11 +131,7 @@ const PastorateDetail = () => {
     try {
       setIsLoading(true);
       
-      // Create months array (April to March)
-      const months = [
-        'April', 'May', 'June', 'July', 'August', 'September',
-        'October', 'November', 'December', 'January', 'February', 'March'
-      ];
+      const months = ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
 
       const newYear = {
         id: Date.now(),
@@ -97,22 +143,27 @@ const PastorateDetail = () => {
         createdAt: new Date().toISOString()
       };
 
-      // TODO: Replace with actual API call when backend is ready
-      // const result = await window.electron.yearBooks.create(newYear);
-      // if (result.success) {
-      //   setYears(prev => [result.data, ...prev]);
-      //   toast.success('Year created successfully!');
-      //   closeYearModal();
-      // }
-
-      // For now, save to localStorage as temporary storage
+      // Save year to localStorage
       const updatedYears = [newYear, ...years];
       setYears(updatedYears);
       localStorage.setItem(`years_${pastorate.pastorateName}`, JSON.stringify(updatedYears));
+
+      // Auto-generate Church Offertory with Sunday services for all churches and months
+      const churches = pastorate.churches || [];
+      let generatedCount = 0;
       
-      toast.success('Year created successfully with 12 months!');
+      for (const church of churches) {
+        for (const month of months) {
+          await generateOffertoryForChurchMonth(church, month, yearString);
+          generatedCount++;
+        }
+      }
+      
+      console.log(`Generated ${generatedCount} offertory records for ${churches.length} churches`);
+      toast.success(`Year created with offertory services for ${churches.length} churches!`);
       closeYearModal();
     } catch (error) {
+      console.error('Error creating year:', error);
       toast.error('Failed to create year. Please try again.');
     } finally {
       setIsLoading(false);
@@ -189,13 +240,27 @@ const PastorateDetail = () => {
     setYearToDelete(null);
   };
 
-  const confirmDeleteYear = () => {
+  const confirmDeleteYear = async () => {
     if (yearToDelete) {
-      const updatedYears = years.filter(y => y.id !== yearToDelete.id);
-      setYears(updatedYears);
-      localStorage.setItem(`years_${pastorate.pastorateName}`, JSON.stringify(updatedYears));
-      toast.success('Year deleted successfully!');
-      closeDeleteYearModal();
+      try {
+        setIsLoading(true);
+        
+        // Delete all entries (offertories, receipts, harvest festival) for this year
+        await window.electron.yearBooks.deleteEntries(pastorate.pastorateName, yearToDelete.year);
+        
+        // Delete the year from localStorage
+        const updatedYears = years.filter(y => y.id !== yearToDelete.id);
+        setYears(updatedYears);
+        localStorage.setItem(`years_${pastorate.pastorateName}`, JSON.stringify(updatedYears));
+        
+        toast.success('Year and all entries deleted successfully!');
+        closeDeleteYearModal();
+      } catch (error) {
+        console.error('Error deleting year:', error);
+        toast.error('Failed to delete year. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 

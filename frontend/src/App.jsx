@@ -31,6 +31,7 @@ import ChurchOffertory from './pages/books/ChurchOffertory';
 import CreateChurchOffertory from './pages/books/CreateChurchOffertory';
 import OffertoryNote from './pages/books/OffertoryNote';
 import HarvestFestivalNote from './pages/books/HarvestFestivalNote';
+import HarvestFestivalBulkEntry from './pages/books/HarvestFestivalBulkEntry';
 import SangamNote from './pages/books/SangamNote';
 import PCCashBook from './pages/books/PCCashBook';
 import IndentSlip from './pages/books/IndentSlip';
@@ -299,6 +300,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <HarvestFestivalNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/harvest-festival-note/bulk-entry"
+            element={
+              <ProtectedRoute>
+                <HarvestFestivalBulkEntry />
               </ProtectedRoute>
             }
           />

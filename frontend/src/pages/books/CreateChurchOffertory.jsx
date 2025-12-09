@@ -23,10 +23,12 @@ const CreateChurchOffertory = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [harvestFestivalByService, setHarvestFestivalByService] = useState({});
+  const [sangamByService, setSangamByService] = useState({});
   const [services, setServices] = useState([]);
 
-  // Find the Harvest Festival category
+  // Find the Harvest Festival and Sangam categories
   const harvestFestivalCategory = categories.find(c => c.name === 'அறுப்பின் பண்டிகை');
+  const sangamCategory = categories.find(c => c.name === 'சங்க காணிக்கை ( சபை)');
 
   // Simple function to get all Sundays in a month using date-fns
   const getSundaysInMonth = () => {
@@ -80,12 +82,33 @@ const CreateChurchOffertory = () => {
     }
   };
 
+  // Load Sangam amounts per service date
+  const loadSangamByService = async () => {
+    if (!pastorate || !year || !month || !church) return;
+    try {
+      const result = await window.electron.sangam.getPayments(pastorate.pastorateName, year.year, month);
+      if (result.success && result.data) {
+        const byService = {};
+        // Filter payments by churchId and group by serviceDate
+        result.data.filter(p => p.churchId === church.id).forEach(p => {
+          const serviceDate = p.serviceDate || p.date;
+          if (!byService[serviceDate]) byService[serviceDate] = 0;
+          byService[serviceDate] += parseInt(p.amount) || 0;
+        });
+        setSangamByService(byService);
+      }
+    } catch (error) {
+      console.error('Failed to load sangam:', error);
+    }
+  };
+
   useEffect(() => {
     if (!pastorate || !church) {
       navigate('/dashboard');
       return;
     }
     loadHarvestFestivalByService();
+    loadSangamByService();
     if (editOffertory) {
       setServices([...(editOffertory.services || [])].sort((a, b) => new Date(a.date) - new Date(b.date)));
     } else {
@@ -105,11 +128,17 @@ const CreateChurchOffertory = () => {
   ];
 
   const getHfAmount = (serviceDate) => harvestFestivalByService[serviceDate] || 0;
+  const getSangamAmount = (serviceDate) => sangamByService[serviceDate] || 0;
 
   const calculateTotal = (categoryAmounts, serviceDate) => {
     let total = Object.values(categoryAmounts).reduce((sum, amt) => sum + (parseFloat(amt) || 0), 0);
+    // Add HF amount if not manually entered
     if (harvestFestivalCategory && !categoryAmounts[harvestFestivalCategory.id]) {
       total += getHfAmount(serviceDate);
+    }
+    // Add Sangam amount if not manually entered
+    if (sangamCategory && !categoryAmounts[sangamCategory.id]) {
+      total += getSangamAmount(serviceDate);
     }
     return total;
   };
@@ -143,13 +172,24 @@ const CreateChurchOffertory = () => {
 
     try {
       setIsLoading(true);
-      const servicesWithHF = validServices.map(s => {
+      const servicesWithAutoAmounts = validServices.map(s => {
+        let amounts = { ...s.categoryAmounts };
+        
+        // Add HF amount if available
         const hfAmount = getHfAmount(s.date);
-        const amounts = harvestFestivalCategory && hfAmount > 0 
-          ? { ...s.categoryAmounts, [harvestFestivalCategory.id]: hfAmount } 
-          : s.categoryAmounts;
+        if (harvestFestivalCategory && hfAmount > 0) {
+          amounts[harvestFestivalCategory.id] = hfAmount;
+        }
+        
+        // Add Sangam amount if available
+        const sangamAmount = getSangamAmount(s.date);
+        if (sangamCategory && sangamAmount > 0) {
+          amounts[sangamCategory.id] = sangamAmount;
+        }
+        
         return { ...s, categoryAmounts: amounts, total: calculateTotal(amounts, s.date) };
       });
+      const servicesWithHF = servicesWithAutoAmounts;
 
       const offertoryData = {
         pastorateName: pastorate.pastorateName,
@@ -224,21 +264,24 @@ const CreateChurchOffertory = () => {
                     <div className="categories-grid">
                       {categories.map((cat) => {
                         const isHF = cat.name === 'அறுப்பின் பண்டிகை';
+                        const isSangam = cat.name === 'சங்க காணிக்கை ( சபை)';
                         const hfAmt = getHfAmount(service.date);
-                        const val = isHF ? hfAmt : (service.categoryAmounts[cat.id] || '');
+                        const sangamAmt = getSangamAmount(service.date);
+                        const isAutoField = (isHF && hfAmt > 0) || (isSangam && sangamAmt > 0);
+                        const val = isHF ? hfAmt : (isSangam ? sangamAmt : (service.categoryAmounts[cat.id] || ''));
                         return (
-                          <div key={cat.id} className={`form-group ${isHF && hfAmt > 0 ? 'hf-auto-field' : ''}`}>
-                            <label>{cat.name}{isHF && hfAmt > 0 && <span className="auto-label">(Auto)</span>}</label>
+                          <div key={cat.id} className={`form-group ${isAutoField ? 'hf-auto-field' : ''}`}>
+                            <label>{cat.name}{isAutoField && <span className="auto-label">(Auto)</span>}</label>
                             <input
                               type="number"
                               value={val || ''}
-                              onChange={(e) => !isHF && handleServiceChange(service.id, cat.id, e.target.value)}
+                              onChange={(e) => !isAutoField && handleServiceChange(service.id, cat.id, e.target.value)}
                               placeholder="0.00"
                               step="0.01"
                               min="0"
-                              className={`service-input ${isHF ? 'readonly-input' : ''}`}
-                              readOnly={isHF}
-                              disabled={isHF}
+                              className={`service-input ${isAutoField ? 'readonly-input' : ''}`}
+                              readOnly={isAutoField}
+                              disabled={isAutoField}
                             />
                           </div>
                         );

@@ -33,6 +33,7 @@ import OffertoryNote from './pages/books/OffertoryNote';
 import HarvestFestivalNote from './pages/books/HarvestFestivalNote';
 import HarvestFestivalBulkEntry from './pages/books/HarvestFestivalBulkEntry';
 import SangamNote from './pages/books/SangamNote';
+import PaySangam from './pages/books/PaySangam';
 import PCCashBook from './pages/books/PCCashBook';
 import IndentSlip from './pages/books/IndentSlip';
 import RoughCashBook from './pages/books/RoughCashBook';
@@ -316,6 +317,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <SangamNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/pay-sangam"
+            element={
+              <ProtectedRoute>
+                <PaySangam />
               </ProtectedRoute>
             }
           />

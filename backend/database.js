@@ -35,7 +35,8 @@ async function initDatabase() {
     receipts: [],
     churchOffertories: [],
     harvestFestivalBaseEntries: [],
-    harvestFestivalPayments: []
+    harvestFestivalPayments: [],
+    sangamPayments: []
   });
 
   await db.read();
@@ -996,6 +997,13 @@ module.exports = {
   createHarvestFestivalPayment,
   updateHarvestFestivalPayment,
   deleteHarvestFestivalPayment,
+  getAllSangamPayments,
+  getSangamPaymentsByPastorateYearMonth,
+  getSangamPaymentsByPastorateYear,
+  getNextSangamReceiptNumber,
+  createSangamPayment,
+  updateSangamPayment,
+  deleteSangamPayment,
   deleteEntriesByPastorateYear
 };
 
@@ -2316,6 +2324,109 @@ async function deleteHarvestFestivalPayment(id) {
   database.data.harvestFestivalPayments = database.data.harvestFestivalPayments.filter(p => p.id !== id);
   await database.write();
   return true;
+}
+
+// ==================== Sangam Functions ====================
+
+async function getAllSangamPayments() {
+  const database = await getDatabase();
+  return database.data.sangamPayments || [];
+}
+
+async function getSangamPaymentsByPastorateYearMonth(pastorateName, year, month) {
+  const database = await getDatabase();
+  return database.data.sangamPayments?.filter(p => 
+    p.pastorateName === pastorateName && p.year === year && p.month === month
+  ) || [];
+}
+
+async function getSangamPaymentsByPastorateYear(pastorateName, year) {
+  const database = await getDatabase();
+  return database.data.sangamPayments?.filter(p => 
+    p.pastorateName === pastorateName && p.year === year
+  ) || [];
+}
+
+async function getNextSangamReceiptNumber(pastorateName, year, month) {
+  const database = await getDatabase();
+  // Get all payments for the year (not just month) to continue series throughout the year
+  const payments = database.data.sangamPayments?.filter(p => 
+    p.pastorateName === pastorateName && p.year === year
+  ) || [];
+  
+  if (payments.length === 0) return 1;
+  
+  const maxReceiptNumber = Math.max(...payments.map(p => parseInt(p.receiptNumber) || 0));
+  return maxReceiptNumber + 1;
+}
+
+async function createSangamPayment(paymentData) {
+  const database = await getDatabase();
+  
+  if (!database.data.sangamPayments) {
+    database.data.sangamPayments = [];
+  }
+
+  const timestamp = new Date().toISOString();
+  const newPayment = {
+    id: Date.now(),
+    ...paymentData,
+    receiptNumber: paymentData.receiptNumber || await getNextSangamReceiptNumber(paymentData.pastorateName, paymentData.year, paymentData.month),
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    editHistory: []
+  };
+
+  database.data.sangamPayments.push(newPayment);
+  await database.write();
+  return newPayment;
+}
+
+async function updateSangamPayment(id, updates) {
+  const database = await getDatabase();
+  const paymentIndex = database.data.sangamPayments?.findIndex(p => p.id === id);
+
+  if (paymentIndex === -1 || paymentIndex === undefined) return null;
+
+  const oldPayment = database.data.sangamPayments[paymentIndex];
+  const timestamp = new Date().toISOString();
+  
+  // Track changes for version control
+  const changes = [];
+  ['memberName', 'familyName', 'amount', 'date', 'receiptNumber', 'churchId', 'serviceDate'].forEach(field => {
+    if (updates[field] !== undefined && updates[field] !== oldPayment[field]) {
+      changes.push({
+        field,
+        oldValue: oldPayment[field],
+        newValue: updates[field],
+        timestamp
+      });
+    }
+  });
+
+  database.data.sangamPayments[paymentIndex] = {
+    ...oldPayment,
+    ...updates,
+    editHistory: [...(oldPayment.editHistory || []), ...changes],
+    updatedAt: timestamp
+  };
+
+  await database.write();
+  return database.data.sangamPayments[paymentIndex];
+}
+
+async function deleteSangamPayment(id) {
+  const database = await getDatabase();
+  if (!database.data.sangamPayments) return false;
+  
+  const initialLength = database.data.sangamPayments.length;
+  database.data.sangamPayments = database.data.sangamPayments.filter(p => p.id !== id);
+  
+  if (database.data.sangamPayments.length < initialLength) {
+    await database.write();
+    return true;
+  }
+  return false;
 }
 
 // Delete all entries for a specific pastorate and year

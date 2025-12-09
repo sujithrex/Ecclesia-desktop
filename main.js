@@ -112,6 +112,13 @@ const {
   createHarvestFestivalPayment,
   updateHarvestFestivalPayment,
   deleteHarvestFestivalPayment,
+  getAllSangamPayments,
+  getSangamPaymentsByPastorateYearMonth,
+  getSangamPaymentsByPastorateYear,
+  getNextSangamReceiptNumber,
+  createSangamPayment,
+  updateSangamPayment,
+  deleteSangamPayment,
   deleteEntriesByPastorateYear
 } = require('./backend/database');
 
@@ -1581,6 +1588,63 @@ app.whenReady().then(async () => {
       return { success: false, message: 'Payment not found' };
     } catch (error) {
       return { success: false, message: 'Failed to delete payment' };
+    }
+  });
+
+  // Sangam Payment handlers
+  ipcMain.handle('sangam:getPayments', async (event, { pastorateName, year, month }) => {
+    try {
+      const payments = await getSangamPaymentsByPastorateYearMonth(pastorateName, year, month);
+      return { success: true, data: payments };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch sangam payments' };
+    }
+  });
+
+  ipcMain.handle('sangam:getPaymentsByYear', async (event, { pastorateName, year }) => {
+    try {
+      const payments = await getSangamPaymentsByPastorateYear(pastorateName, year);
+      return { success: true, data: payments };
+    } catch (error) {
+      return { success: false, message: 'Failed to fetch sangam payments by year' };
+    }
+  });
+
+  ipcMain.handle('sangam:getNextReceiptNumber', async (event, { pastorateName, year, month }) => {
+    try {
+      const nextNumber = await getNextSangamReceiptNumber(pastorateName, year, month);
+      return { success: true, data: nextNumber };
+    } catch (error) {
+      return { success: false, message: 'Failed to get next receipt number' };
+    }
+  });
+
+  ipcMain.handle('sangam:createPayment', async (event, paymentData) => {
+    try {
+      const newPayment = await createSangamPayment(paymentData);
+      return { success: true, data: newPayment };
+    } catch (error) {
+      return { success: false, message: 'Failed to create sangam payment' };
+    }
+  });
+
+  ipcMain.handle('sangam:updatePayment', async (event, { id, updates }) => {
+    try {
+      const updatedPayment = await updateSangamPayment(id, updates);
+      if (updatedPayment) return { success: true, data: updatedPayment };
+      return { success: false, message: 'Payment not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update sangam payment' };
+    }
+  });
+
+  ipcMain.handle('sangam:deletePayment', async (event, { id }) => {
+    try {
+      const deleted = await deleteSangamPayment(id);
+      if (deleted) return { success: true };
+      return { success: false, message: 'Payment not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete sangam payment' };
     }
   });
 

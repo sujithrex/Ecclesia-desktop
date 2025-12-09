@@ -198,6 +198,17 @@ contextBridge.exposeInMainWorld('electron', {
     updatePayment: (id, updates) => ipcRenderer.invoke('harvestFestival:updatePayment', { id, updates }),
     deletePayment: (id) => ipcRenderer.invoke('harvestFestival:deletePayment', { id })
   },
+  sangam: {
+    getPayments: (pastorateName, year, month) => 
+      ipcRenderer.invoke('sangam:getPayments', { pastorateName, year, month }),
+    getPaymentsByYear: (pastorateName, year) => 
+      ipcRenderer.invoke('sangam:getPaymentsByYear', { pastorateName, year }),
+    getNextReceiptNumber: (pastorateName, year, month) => 
+      ipcRenderer.invoke('sangam:getNextReceiptNumber', { pastorateName, year, month }),
+    createPayment: (paymentData) => ipcRenderer.invoke('sangam:createPayment', paymentData),
+    updatePayment: (id, updates) => ipcRenderer.invoke('sangam:updatePayment', { id, updates }),
+    deletePayment: (id) => ipcRenderer.invoke('sangam:deletePayment', { id })
+  },
   yearBooks: {
     deleteEntries: (pastorateName, year) => ipcRenderer.invoke('yearBooks:deleteEntries', { pastorateName, year })
   }

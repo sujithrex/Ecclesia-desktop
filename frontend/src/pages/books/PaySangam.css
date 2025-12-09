@@ -1,0 +1,349 @@
+.sg-pay-container {
+  position: fixed;
+  top: 32px;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  background: #f5f5f5;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sg-pay-header {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 32px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.sg-pay-header .header-content {
+  max-width: 95%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.sg-pay-header .header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.sg-pay-header .back-btn,
+.sg-pay-header .logout-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sg-pay-header .back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sg-pay-header .back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.sg-pay-header .logout-btn {
+  background: white;
+  color: #B5316A;
+}
+
+.sg-pay-header .logout-btn:hover {
+  background: #f0f0f0;
+}
+
+.sg-pay-main {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px;
+  margin-top: 72px;
+  padding-bottom: 80px;
+  box-sizing: border-box;
+}
+
+.sg-pay-content {
+  max-width: 100%;
+}
+
+.sg-pay-title {
+  color: #B5316A;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 30px 0;
+  text-align: left;
+}
+
+/* Global Selection Section */
+.sg-pay-global-section {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sg-pay-global-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.sg-pay-global-item {
+  flex: 1;
+  min-width: 200px;
+}
+
+.sg-pay-global-item label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.sg-pay-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #374151;
+  background: white;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.sg-pay-select:focus {
+  outline: none;
+  border-color: #B5316A;
+  box-shadow: 0 0 0 3px rgba(181, 49, 106, 0.1);
+}
+
+.sg-pay-receipt-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #B5316A;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  color: #B5316A;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.sg-pay-receipt-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(181, 49, 106, 0.1);
+}
+
+/* Canvas */
+.sg-pay-canvas {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.sg-pay-canvas-title {
+  color: #B5316A;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+}
+
+.sg-pay-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.sg-pay-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.sg-pay-table thead {
+  background: #f9fafb;
+}
+
+.sg-pay-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.sg-pay-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sg-pay-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.sg-pay-input:focus {
+  outline: none;
+  border-color: #B5316A;
+  box-shadow: 0 0 0 3px rgba(181, 49, 106, 0.1);
+}
+
+.sg-pay-readonly {
+  background: #f3f4f6;
+  cursor: not-allowed;
+  font-weight: 600;
+  color: #B5316A;
+}
+
+.sg-pay-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Dropdown */
+.sg-pay-dropdown-wrapper {
+  position: relative;
+}
+
+.sg-pay-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sg-pay-dropdown-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.sg-pay-dropdown-item:hover {
+  background: #fdf2f8;
+  color: #B5316A;
+}
+
+.sg-pay-dropdown-empty {
+  padding: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Remove Button */
+.sg-pay-remove-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.sg-pay-remove-btn:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* Canvas Actions */
+.sg-pay-canvas-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.sg-pay-add-btn {
+  background: white;
+  color: #B5316A;
+  border: 2px solid #B5316A;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.sg-pay-add-btn:hover {
+  background: #f9fafb;
+}
+
+/* Save Section */
+.sg-pay-save-section {
+  display: flex;
+  justify-content: center;
+}
+
+.sg-pay-save-btn {
+  background: #B5316A;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(181, 49, 106, 0.3);
+}
+
+.sg-pay-save-btn:hover {
+  background: #8F2654;
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.4);
+}
+
+/* Previously Paid Column */
+.sg-pay-prev-paid {
+  padding: 8px 12px;
+  background: #fdf2f8;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #B5316A;
+  text-align: center;
+}
+
+/* Disabled input styling */
+.sg-pay-input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+  color: #6b7280;
+}

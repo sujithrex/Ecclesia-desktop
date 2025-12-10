@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      width: 210mm;
+      min-height: 297mm;
+      font-family: 'Times New Roman', serif;
+      padding: 10mm;
+      font-size: 10pt;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 8mm;
+    }
+    .header-title {
+      font-size: 14pt;
+      font-weight: bold;
+      margin-bottom: 3mm;
+    }
+    .header-subtitle {
+      font-size: 12pt;
+      margin-bottom: 2mm;
+    }
+    .header-period {
+      font-size: 11pt;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+    }
+    th, td {
+      border: 0.5pt solid #000;
+      padding: 2mm;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      text-align: center;
+    }
+    .text-right {
+      text-align: right;
+    }
+    .text-center {
+      text-align: center;
+    }
+
+    .section-header {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+    .sub-section-header {
+      background-color: #f5f5f5;
+      font-weight: 600;
+    }
+    .opening-row {
+      background-color: #f9f9f9;
+      font-weight: 600;
+    }
+    .total-row {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+    .grand-total-row {
+      background-color: #333;
+      color: white;
+      font-weight: bold;
+    }
+    .indent {
+      padding-left: 8mm !important;
+    }
+    .footer {
+      position: fixed;
+      bottom: 5mm;
+      left: 10mm;
+      right: 10mm;
+      text-align: center;
+      font-size: 8pt;
+      color: #666;
+      border-top: 0.5pt solid #ccc;
+      padding-top: 2mm;
+    }
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">Daily Cash Account Maintained by the Pastorate Chairman</div>
+    <div class="header-subtitle"><%= reportData.pastorateName %></div>
+    <div class="header-period">For the month of <%= reportData.month %> - <%= reportData.year %></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 12%">Date</th>
+        <th style="width: 30%">Details</th>
+        <th style="width: 12%">Receipts</th>
+        <th style="width: 12%">Total (Receipts)</th>
+        <th style="width: 12%">Expenses</th>
+        <th style="width: 12%">Total (Expenses)</th>
+        <th style="width: 10%">Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Opening Balance -->
+      <tr class="opening-row">
+        <td class="text-center">-</td>
+        <td>Opening Balance</td>
+        <td class="text-right">₹<%= reportData.openingBalance.toFixed(2) %></td>
+        <td class="text-right">₹<%= reportData.openingBalance.toFixed(2) %></td>
+        <td class="text-center">-</td>
+        <td class="text-center">-</td>
+        <td class="text-right">₹<%= reportData.openingBalance.toFixed(2) %></td>
+      </tr>
+
+      <!-- RECEIPTS Section -->
+      <tr class="section-header">
+        <td colspan="7">RECEIPTS</td>
+      </tr>
+
+      <!-- Church Offertory Sub-Section -->
+      <tr class="sub-section-header">
+        <td colspan="2">Church Offertory</td>
+        <td></td>
+        <td class="text-right">₹<%= reportData.churchOffertoryTotal.toFixed(2) %></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <% reportData.churchOffertories.forEach(function(church) { %>
+      <tr>
+        <td class="text-center">-</td>
+        <td class="indent"><%= church.churchName %></td>
+        <td class="text-right">₹<%= church.totalAmount.toFixed(2) %></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td class="text-right">₹<%= church.runningBalance.toFixed(2) %></td>
+      </tr>
+      <% }); %>
+
+      <!-- Receipt Book Sub-Section -->
+      <tr class="sub-section-header">
+        <td colspan="2">Receipt Book</td>
+        <td></td>
+        <td class="text-right">₹<%= reportData.receiptsTotal.toFixed(2) %></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <% reportData.receipts.forEach(function(receipt) { %>
+      <tr>
+        <td class="text-center"><%= receipt.dateFormatted %></td>
+        <td class="indent">Receipt #<%= receipt.receiptNo %> - <%= receipt.name || 'N/A' %></td>
+        <td class="text-right">₹<%= receipt.amount.toFixed(2) %></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td class="text-right">₹<%= receipt.runningBalance.toFixed(2) %></td>
+      </tr>
+      <% }); %>
+
+      <!-- Total Receipts -->
+      <tr class="total-row">
+        <td colspan="2">Total Receipts</td>
+        <td></td>
+        <td class="text-right">₹<%= reportData.totalReceiptsWithOpening.toFixed(2) %></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+
+      <!-- EXPENSES Section -->
+      <tr class="section-header">
+        <td colspan="7">EXPENSES</td>
+      </tr>
+      <% reportData.expenses.forEach(function(expense) { %>
+      <tr>
+        <td class="text-center"><%= expense.dateFormatted %></td>
+        <td>VNo: <%= expense.vno %> - <%= expense.expenseDetails %></td>
+        <td></td>
+        <td></td>
+        <td class="text-right">₹<%= expense.amount.toFixed(2) %></td>
+        <td></td>
+        <td class="text-right">₹<%= expense.runningBalance.toFixed(2) %></td>
+      </tr>
+      <% }); %>
+
+      <!-- Total Expenses -->
+      <tr class="total-row">
+        <td colspan="2">Total Expenses</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td class="text-right">₹<%= reportData.expensesTotal.toFixed(2) %></td>
+        <td></td>
+      </tr>
+
+      <!-- Grand Total -->
+      <tr class="grand-total-row">
+        <td colspan="2">GRAND TOTAL</td>
+        <td></td>
+        <td class="text-right">₹<%= reportData.totalReceiptsWithOpening.toFixed(2) %></td>
+        <td></td>
+        <td class="text-right">₹<%= reportData.expensesTotal.toFixed(2) %></td>
+        <td class="text-right">₹<%= reportData.finalBalance.toFixed(2) %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    Generated on <%= new Date().toLocaleDateString('en-IN') %>
+  </div>
+</body>
+</html>

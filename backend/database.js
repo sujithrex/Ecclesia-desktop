@@ -2019,7 +2019,10 @@ async function deleteReceipt(id) {
 
 async function getNextReceiptNumber(pastorateName, year, month) {
   const database = await getDatabase();
-  const receipts = await getReceiptsByPastorateYearMonth(pastorateName, year, month);
+  // Get all receipts for the entire year (not just current month)
+  const receipts = database.data.receipts?.filter(r => 
+    r.pastorateName === pastorateName && r.year === year
+  ) || [];
 
   if (receipts.length === 0) {
     return 1;
@@ -2469,3 +2472,152 @@ async function deleteEntriesByPastorateYear(pastorateName, year) {
   await database.write();
   return true;
 }
+
+// ==================== PC Cash Book Functions ====================
+
+async function getPCCashBookExpenses(pastorateName, year, month) {
+  const database = await getDatabase();
+  if (!database.data.pcCashBookExpenses) {
+    database.data.pcCashBookExpenses = [];
+  }
+  return database.data.pcCashBookExpenses.filter(e => 
+    e.pastorateName === pastorateName && e.year === year && e.month === month
+  ) || [];
+}
+
+async function getNextPCCashBookVNo(pastorateName, year, month) {
+  const database = await getDatabase();
+  if (!database.data.pcCashBookExpenses) return '001';
+  
+  // Get all expenses for the entire year (not just current month)
+  const expenses = database.data.pcCashBookExpenses.filter(e => 
+    e.pastorateName === pastorateName && e.year === year
+  );
+  
+  if (expenses.length === 0) return '001';
+  
+  const maxVNo = Math.max(...expenses.map(e => parseInt(e.vno) || 0));
+  return String(maxVNo + 1).padStart(3, '0');
+}
+
+async function createPCCashBookExpense(expenseData) {
+  const database = await getDatabase();
+  
+  if (!database.data.pcCashBookExpenses) {
+    database.data.pcCashBookExpenses = [];
+  }
+
+  const timestamp = new Date().toISOString();
+  const newExpense = {
+    id: Date.now(),
+    ...expenseData,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    editHistory: []
+  };
+
+  database.data.pcCashBookExpenses.push(newExpense);
+  await database.write();
+  return newExpense;
+}
+
+async function updatePCCashBookExpense(id, updates) {
+  const database = await getDatabase();
+  if (!database.data.pcCashBookExpenses) return null;
+  
+  const expenseIndex = database.data.pcCashBookExpenses.findIndex(e => e.id === id);
+  if (expenseIndex === -1) return null;
+
+  const oldExpense = database.data.pcCashBookExpenses[expenseIndex];
+  const timestamp = new Date().toISOString();
+  
+  const changes = [];
+  ['vno', 'date', 'expenseDetails', 'amount'].forEach(field => {
+    if (updates[field] !== undefined && updates[field] !== oldExpense[field]) {
+      changes.push({
+        field,
+        oldValue: oldExpense[field],
+        newValue: updates[field],
+        timestamp
+      });
+    }
+  });
+
+  database.data.pcCashBookExpenses[expenseIndex] = {
+    ...oldExpense,
+    ...updates,
+    editHistory: [...(oldExpense.editHistory || []), ...changes],
+    updatedAt: timestamp
+  };
+
+  await database.write();
+  return database.data.pcCashBookExpenses[expenseIndex];
+}
+
+async function deletePCCashBookExpense(id) {
+  const database = await getDatabase();
+  if (!database.data.pcCashBookExpenses) return false;
+  
+  const initialLength = database.data.pcCashBookExpenses.length;
+  database.data.pcCashBookExpenses = database.data.pcCashBookExpenses.filter(e => e.id !== id);
+  
+  if (database.data.pcCashBookExpenses.length < initialLength) {
+    await database.write();
+    return true;
+  }
+  return false;
+}
+
+async function getPCCashBookOpeningBalance(pastorateName, year) {
+  const database = await getDatabase();
+  if (!database.data.pcCashBookOpeningBalances) {
+    database.data.pcCashBookOpeningBalances = [];
+  }
+  return database.data.pcCashBookOpeningBalances.find(b => 
+    b.pastorateName === pastorateName && b.year === year
+  ) || null;
+}
+
+async function savePCCashBookOpeningBalance(pastorateName, year, amount) {
+  const database = await getDatabase();
+  
+  if (!database.data.pcCashBookOpeningBalances) {
+    database.data.pcCashBookOpeningBalances = [];
+  }
+
+  const existingIndex = database.data.pcCashBookOpeningBalances.findIndex(b => 
+    b.pastorateName === pastorateName && b.year === year
+  );
+
+  const timestamp = new Date().toISOString();
+  
+  if (existingIndex !== -1) {
+    database.data.pcCashBookOpeningBalances[existingIndex] = {
+      ...database.data.pcCashBookOpeningBalances[existingIndex],
+      amount,
+      updatedAt: timestamp
+    };
+  } else {
+    database.data.pcCashBookOpeningBalances.push({
+      id: Date.now(),
+      pastorateName,
+      year,
+      amount,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    });
+  }
+
+  await database.write();
+  return database.data.pcCashBookOpeningBalances.find(b => 
+    b.pastorateName === pastorateName && b.year === year
+  );
+}
+
+module.exports.getPCCashBookExpenses = getPCCashBookExpenses;
+module.exports.getNextPCCashBookVNo = getNextPCCashBookVNo;
+module.exports.createPCCashBookExpense = createPCCashBookExpense;
+module.exports.updatePCCashBookExpense = updatePCCashBookExpense;
+module.exports.deletePCCashBookExpense = deletePCCashBookExpense;
+module.exports.getPCCashBookOpeningBalance = getPCCashBookOpeningBalance;
+module.exports.savePCCashBookOpeningBalance = savePCCashBookOpeningBalance;

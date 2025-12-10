@@ -119,7 +119,14 @@ const {
   createSangamPayment,
   updateSangamPayment,
   deleteSangamPayment,
-  deleteEntriesByPastorateYear
+  deleteEntriesByPastorateYear,
+  getPCCashBookExpenses,
+  getNextPCCashBookVNo,
+  createPCCashBookExpense,
+  updatePCCashBookExpense,
+  deletePCCashBookExpense,
+  getPCCashBookOpeningBalance,
+  savePCCashBookOpeningBalance
 } = require('./backend/database');
 
 const googleDriveSync = require('./backend/googleDriveSync');
@@ -148,6 +155,7 @@ const {
   generateWeddingListPDF,
   generateSabaiJabithaPDF,
   generateMarriageSchedule4PDF,
+  generatePCCashBookPDF,
   openPDF
 } = require('./backend/pdfGenerator');
 const {
@@ -1645,6 +1653,83 @@ app.whenReady().then(async () => {
       return { success: false, message: 'Payment not found' };
     } catch (error) {
       return { success: false, message: 'Failed to delete sangam payment' };
+    }
+  });
+
+  // PC Cash Book handlers
+  ipcMain.handle('pcCashBook:getExpenses', async (event, { pastorateName, year, month }) => {
+    try {
+      const expenses = await getPCCashBookExpenses(pastorateName, year, month);
+      return { success: true, data: expenses };
+    } catch (error) {
+      return { success: false, message: 'Failed to get expenses' };
+    }
+  });
+
+  ipcMain.handle('pcCashBook:getNextVNo', async (event, { pastorateName, year, month }) => {
+    try {
+      const nextVNo = await getNextPCCashBookVNo(pastorateName, year, month);
+      return { success: true, data: nextVNo };
+    } catch (error) {
+      return { success: false, message: 'Failed to get next VNo' };
+    }
+  });
+
+  ipcMain.handle('pcCashBook:createExpense', async (event, expenseData) => {
+    try {
+      const newExpense = await createPCCashBookExpense(expenseData);
+      return { success: true, data: newExpense };
+    } catch (error) {
+      return { success: false, message: 'Failed to create expense' };
+    }
+  });
+
+  ipcMain.handle('pcCashBook:updateExpense', async (event, { id, updates }) => {
+    try {
+      const updatedExpense = await updatePCCashBookExpense(id, updates);
+      if (updatedExpense) return { success: true, data: updatedExpense };
+      return { success: false, message: 'Expense not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to update expense' };
+    }
+  });
+
+  ipcMain.handle('pcCashBook:deleteExpense', async (event, { id }) => {
+    try {
+      const deleted = await deletePCCashBookExpense(id);
+      if (deleted) return { success: true };
+      return { success: false, message: 'Expense not found' };
+    } catch (error) {
+      return { success: false, message: 'Failed to delete expense' };
+    }
+  });
+
+  ipcMain.handle('pcCashBook:getOpeningBalance', async (event, { pastorateName, year }) => {
+    try {
+      const balance = await getPCCashBookOpeningBalance(pastorateName, year);
+      return { success: true, data: balance };
+    } catch (error) {
+      return { success: false, message: 'Failed to get opening balance' };
+    }
+  });
+
+  ipcMain.handle('pcCashBook:saveOpeningBalance', async (event, { pastorateName, year, amount }) => {
+    try {
+      const balance = await savePCCashBookOpeningBalance(pastorateName, year, amount);
+      return { success: true, data: balance };
+    } catch (error) {
+      return { success: false, message: 'Failed to save opening balance' };
+    }
+  });
+
+  ipcMain.handle('pcCashBook:generatePDF', async (event, { reportData }) => {
+    try {
+      const pdfPath = await generatePCCashBookPDF(reportData);
+      await openPDF(pdfPath);
+      return { success: true, pdfPath };
+    } catch (error) {
+      console.error('PC Cash Book PDF generation error:', error);
+      return { success: false, message: error.message || 'Failed to generate PDF' };
     }
   });
 

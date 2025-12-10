@@ -1,0 +1,319 @@
+/* Import base book page styles */
+@import './BookPage.css';
+
+/* Report Header */
+.pccbr-report-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.pccbr-title {
+  color: #B5316A;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+}
+
+.pccbr-subtitle {
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+}
+
+.pccbr-period {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Table Container */
+.pccbr-table-container {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+/* Table Styles */
+.pccbr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.pccbr-table th {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #8F2654;
+}
+
+.pccbr-table td {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+/* Opening Balance Row */
+.pccbr-opening-row {
+  background: #fdf2f8;
+  font-weight: 600;
+}
+
+.pccbr-opening-row td {
+  color: #B5316A;
+}
+
+/* Main Section Headers (RECEIPTS, EXPENSES) */
+.pccbr-main-section-header {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+}
+
+.pccbr-main-section-header td {
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pccbr-expense-section {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Sub-Section Headers (Church Offertory, Receipt Book) */
+.pccbr-sub-section-header {
+  background: #f3f4f6;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pccbr-sub-section-header:hover {
+  background: #e5e7eb;
+}
+
+.pccbr-sub-section-header td {
+  font-weight: 600;
+  color: #374151;
+}
+
+.pccbr-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  color: #B5316A;
+}
+
+.pccbr-section-total {
+  font-weight: 700;
+  color: #B5316A;
+}
+
+/* Church Rows */
+.pccbr-church-row {
+  background: #fafafa;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pccbr-church-row:hover {
+  background: #f0f0f0;
+}
+
+.pccbr-church-row td {
+  font-weight: 500;
+}
+
+/* Service Date Rows */
+.pccbr-service-row {
+  background: #f9fafb;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pccbr-service-row:hover {
+  background: #fdf2f8;
+}
+
+.pccbr-service-date {
+  padding-left: 30px !important;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Data Rows */
+.pccbr-data-row {
+  transition: background 0.2s;
+}
+
+.pccbr-data-row:hover {
+  background: #f9fafb;
+}
+
+/* Expense Rows */
+.pccbr-expense-row td:nth-child(5) {
+  color: #dc2626;
+}
+
+/* Total Rows */
+.pccbr-receipts-total-row {
+  background: #fdf2f8;
+}
+
+.pccbr-receipts-total-row td {
+  color: #B5316A;
+}
+
+.pccbr-expenses-total-row {
+  background: #fef2f2;
+}
+
+.pccbr-expenses-total-row td {
+  color: #dc2626;
+}
+
+.pccbr-total-row {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+}
+
+.pccbr-total-row td {
+  color: white;
+  font-weight: 700;
+  border-color: #8F2654;
+}
+
+/* Modal Styles */
+.pccbr-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.pccbr-modal {
+  background: white;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  outline: none;
+}
+
+.pccbr-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.pccbr-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.pccbr-modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.pccbr-modal-content {
+  padding: 24px;
+}
+
+.pccbr-service-date-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 16px 0;
+}
+
+.pccbr-service-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pccbr-service-table th,
+.pccbr-service-table td {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.pccbr-service-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+}
+
+.pccbr-service-total {
+  background: #fdf2f8;
+}
+
+.pccbr-service-total td {
+  color: #B5316A;
+}
+
+.pccbr-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pccbr-close-btn {
+  padding: 10px 24px;
+  background: #B5316A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pccbr-close-btn:hover {
+  background: #8F2654;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pccbr-title {
+    font-size: 18px;
+  }
+  
+  .pccbr-subtitle {
+    font-size: 14px;
+  }
+  
+  .pccbr-table {
+    font-size: 12px;
+  }
+  
+  .pccbr-table th,
+  .pccbr-table td {
+    padding: 8px 6px;
+  }
+}

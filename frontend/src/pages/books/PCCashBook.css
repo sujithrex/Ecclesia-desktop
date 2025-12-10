@@ -1,0 +1,464 @@
+/* Import base book page styles */
+@import './BookPage.css';
+
+/* PC Cash Book Title Row */
+.pccb-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pccb-title-row .book-title {
+  margin: 0;
+}
+
+.pccb-title-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.pccb-report-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #B5316A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pccb-report-btn:hover {
+  background: #8F2654;
+}
+
+.pccb-print-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pccb-print-btn:hover {
+  background: #555;
+}
+
+/* PC Cash Book Stats Section - 4 cards */
+.pccb-stats-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pccb-stat-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all 0.2s;
+}
+
+.pccb-stat-card:hover {
+  box-shadow: 0 4px 12px rgba(181, 49, 106, 0.12);
+  border-color: #B5316A;
+}
+
+.pccb-stat-card.pccb-clickable {
+  cursor: pointer;
+}
+
+.pccb-stat-card.pccb-clickable:hover {
+  background: #fdf2f8;
+}
+
+.pccb-stat-icon {
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.pccb-expense-icon {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.pccb-stat-content {
+  flex: 1;
+}
+
+.pccb-stat-label {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.pccb-edit-hint {
+  color: #B5316A;
+  font-size: 10px;
+  font-style: italic;
+}
+
+.pccb-stat-value {
+  color: #B5316A;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.pccb-expense-value {
+  color: #dc2626;
+}
+
+.pccb-negative {
+  color: #dc2626;
+}
+
+/* PC Cash Book Tables Section */
+.pccb-tables-section {
+  display: block;
+}
+
+.pccb-table-container {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  width: 100%;
+}
+
+.pccb-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #B5316A;
+}
+
+.pccb-table-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #B5316A;
+  margin: 0;
+}
+
+.pccb-table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pccb-table-wrapper {
+  overflow-x: auto;
+}
+
+.pccb-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #B5316A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pccb-action-btn:hover {
+  background: #8F2654;
+}
+
+/* Action Icons in Table */
+.pccb-action-icons {
+  display: flex;
+  gap: 6px;
+}
+
+.pccb-icon-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  background: #f3f4f6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pccb-icon-btn:hover {
+  background: #B5316A;
+  color: white;
+}
+
+/* Modal Styles */
+.pccb-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.pccb-modal {
+  background: white;
+  border-radius: 12px;
+  width: 75%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  outline: none;
+}
+
+.pccb-history-modal {
+  width: 70%;
+  max-width: 800px;
+}
+
+.pccb-delete-modal {
+  width: 400px;
+  max-width: 90%;
+}
+
+.pccb-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #B5316A 0%, #8F2654 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.pccb-delete-header {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.pccb-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.pccb-modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.pccb-modal-form {
+  padding: 24px;
+}
+
+.pccb-form-group {
+  margin-bottom: 16px;
+}
+
+.pccb-form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.pccb-form-group input,
+.pccb-form-group select,
+.pccb-form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.pccb-form-group input:focus,
+.pccb-form-group select:focus,
+.pccb-form-group textarea:focus {
+  outline: none;
+  border-color: #B5316A;
+  box-shadow: 0 0 0 3px rgba(181, 49, 106, 0.1);
+}
+
+.pccb-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.pccb-cancel-btn {
+  padding: 12px 24px;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pccb-cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+.pccb-submit-btn {
+  padding: 12px 24px;
+  background: #B5316A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pccb-submit-btn:hover {
+  background: #8F2654;
+}
+
+.pccb-delete-confirm-btn {
+  padding: 12px 24px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pccb-delete-confirm-btn:hover {
+  background: #b91c1c;
+}
+
+/* Delete Modal Content */
+.pccb-delete-content {
+  padding: 24px;
+}
+
+.pccb-delete-content > p {
+  font-size: 16px;
+  color: #374151;
+  margin: 0 0 16px 0;
+}
+
+.pccb-delete-info {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.pccb-delete-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.pccb-delete-info p:first-child {
+  margin-top: 0;
+}
+
+.pccb-delete-info p:last-child {
+  margin-bottom: 0;
+}
+
+/* History Modal */
+.pccb-history-content {
+  padding: 24px;
+}
+
+.pccb-history-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.pccb-history-item {
+  padding: 12px;
+  background: #f9fafb;
+  border-left: 3px solid #B5316A;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.pccb-old-val {
+  color: #dc2626;
+  text-decoration: line-through;
+}
+
+.pccb-new-val {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.pccb-history-time {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.pccb-no-history {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .pccb-stats-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pccb-stats-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .pccb-modal {
+    width: 95%;
+  }
+  
+  .pccb-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

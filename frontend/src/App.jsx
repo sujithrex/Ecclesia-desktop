@@ -35,6 +35,7 @@ import HarvestFestivalBulkEntry from './pages/books/HarvestFestivalBulkEntry';
 import SangamNote from './pages/books/SangamNote';
 import PaySangam from './pages/books/PaySangam';
 import PCCashBook from './pages/books/PCCashBook';
+import PCCashBookReport from './pages/books/PCCashBookReport';
 import IndentSlip from './pages/books/IndentSlip';
 import RoughCashBook from './pages/books/RoughCashBook';
 import './App.css';
@@ -333,6 +334,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <PCCashBook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/pc-cash-book-report"
+            element={
+              <ProtectedRoute>
+                <PCCashBookReport />
               </ProtectedRoute>
             }
           />

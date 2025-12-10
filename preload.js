@@ -211,6 +211,20 @@ contextBridge.exposeInMainWorld('electron', {
   },
   yearBooks: {
     deleteEntries: (pastorateName, year) => ipcRenderer.invoke('yearBooks:deleteEntries', { pastorateName, year })
+  },
+  pcCashBook: {
+    getExpenses: (pastorateName, year, month) => 
+      ipcRenderer.invoke('pcCashBook:getExpenses', { pastorateName, year, month }),
+    getNextVNo: (pastorateName, year, month) => 
+      ipcRenderer.invoke('pcCashBook:getNextVNo', { pastorateName, year, month }),
+    createExpense: (expenseData) => ipcRenderer.invoke('pcCashBook:createExpense', expenseData),
+    updateExpense: (id, updates) => ipcRenderer.invoke('pcCashBook:updateExpense', { id, updates }),
+    deleteExpense: (id) => ipcRenderer.invoke('pcCashBook:deleteExpense', { id }),
+    getOpeningBalance: (pastorateName, year) => 
+      ipcRenderer.invoke('pcCashBook:getOpeningBalance', { pastorateName, year }),
+    saveOpeningBalance: (pastorateName, year, amount) => 
+      ipcRenderer.invoke('pcCashBook:saveOpeningBalance', { pastorateName, year, amount }),
+    generatePDF: (reportData) => ipcRenderer.invoke('pcCashBook:generatePDF', { reportData })
   }
 });
 

@@ -1965,8 +1965,55 @@ module.exports = {
   generateWeddingListPDF,
   generateSabaiJabithaPDF,
   generateMarriageSchedule4PDF,
+  generatePCCashBookPDF,
   openPDF
 };
+
+/**
+ * Generate PC Cash Book PDF
+ * @param {Object} reportData - Report data
+ * @returns {Promise<string>} - Path to generated PDF
+ */
+async function generatePCCashBookPDF(reportData) {
+  let browser = null;
+
+  try {
+    const templatePath = path.join(__dirname, 'templates/pc_cash_book.ejs');
+    const userDataPath = app.getPath('userData');
+    const pdfsDir = path.join(userDataPath, 'pdfs', 'pc_cash_book');
+    await fs.mkdir(pdfsDir, { recursive: true });
+
+    const timestamp = new Date().getTime();
+    const pdfFilename = `pc_cash_book_${reportData.month}_${reportData.year}_${timestamp}.pdf`;
+    const pdfPath = path.join(pdfsDir, pdfFilename);
+
+    const templateContent = await fs.readFile(templatePath, 'utf-8');
+    const html = ejs.render(templateContent, { reportData });
+
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    await page.pdf({
+      path: pdfPath,
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' }
+    });
+
+    await browser.close();
+    browser = null;
+
+    return pdfPath;
+  } catch (error) {
+    if (browser) await browser.close();
+    throw new Error(`PC Cash Book PDF generation failed: ${error.message}`);
+  }
+}
 
 
 
